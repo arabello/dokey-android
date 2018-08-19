@@ -1,11 +1,12 @@
-package com.rocketguys.dokey
+package com.rocketguys.dokey.view
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import com.rocketguys.dokey.R
 import kotlinx.android.synthetic.main.activity_home.*
 
-class HomeActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -13,12 +14,16 @@ class HomeActivity : AppCompatActivity() {
                 message.setText(R.string.title_home)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
-                message.setText(R.string.title_dashboard)
+            R.id.navigation_shortcut -> {
+                message.setText(R.string.title_shortcut)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
+            R.id.navigation_system -> {
+                message.setText(R.string.title_system)
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_more -> {
+                message.setText(R.string.title_more)
                 return@OnNavigationItemSelectedListener true
             }
         }

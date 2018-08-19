@@ -3,17 +3,21 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_home" />
+        android:icon="@drawable/ic_outline_grid_on"
+        android:title="@string/title_home"/>
 
     <item
-        android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
+        android:id="@+id/navigation_shortcut"
+        android:icon="@drawable/ic_outline_keyboard"
+        android:title="@string/title_shortcut" />
 
     <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/title_notifications" />
+        android:id="@+id/navigation_system"
+        android:icon="@drawable/ic_outline_power_settings"
+        android:title="@string/title_system" />
 
+    <item
+        android:id="@+id/navigation_more"
+        android:icon="@drawable/ic_outline_more_horiz"
+        android:title="@string/title_more" />
 </menu>
