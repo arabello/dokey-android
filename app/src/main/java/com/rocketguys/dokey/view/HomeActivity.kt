@@ -3,9 +3,11 @@ package com.rocketguys.dokey.view
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import com.rocketguys.dokey.R
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.toolbar.*
+
 
 class HomeActivity : AppCompatActivity() {
 
@@ -53,5 +55,8 @@ class HomeActivity : AppCompatActivity() {
         navigation.itemIconTintList = null
         navigation.selectedItemId = R.id.navigation_launchpad
         toolbar.setTitle(R.string.title_launchpad)
+
+        // Init RecyclerView for active apps
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 }
