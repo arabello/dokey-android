@@ -44,8 +44,6 @@ class HomeActivity : AppCompatActivity() {
             findItem(R.id.navigation_system).setIcon(R.drawable.ic_outline_computer)
         }
 
-        lateinit var backgroundTrans: TransitionDrawable
-
         when (item.itemId) {
             R.id.navigation_launchpad -> {
                 item.setIcon(R.drawable.ic_outline_grid_on_grad_1)
