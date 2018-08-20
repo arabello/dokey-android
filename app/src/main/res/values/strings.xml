@@ -4,4 +4,7 @@
     <string name="title_shortcut">Shortcuts</string>
     <string name="title_system">System Commands</string>
     <string name="title_more">More</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_lock">Lock</string>
+    <string name="action_unlock">Unlock</string>
 </resources>

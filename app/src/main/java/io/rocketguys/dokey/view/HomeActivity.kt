@@ -1,26 +1,28 @@
 package io.rocketguys.dokey.view
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
 import io.rocketguys.dokey.adapter.ActiveAppMock
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.toolbar.*
-import android.graphics.drawable.TransitionDrawable
-import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 
 
 class HomeActivity : AppCompatActivity() {
     companion object {
-        const val ACTIVE_APPS_BG_TRANS_DURATION = 400
+        const val DRAWABLE_GRAD_TRANS_DURATION = 360
     }
 
     val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
@@ -31,6 +33,31 @@ class HomeActivity : AppCompatActivity() {
         bgTrans.isCrossFadeEnabled = true
         this.background = bgTrans
         bgTrans.startTransition(duration)
+    }
+
+    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int){
+        val trans = TransitionDrawable(arrayOf(this.icon, newIcon))
+        trans.isCrossFadeEnabled = true
+        this.icon = trans
+        trans.startTransition(duration)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        toolbar.inflateMenu(R.menu.toolbar_launchpad)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_edit -> {
+            Toast.makeText(baseContext, "action_edit", Toast.LENGTH_SHORT).show()
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
     }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -48,19 +75,22 @@ class HomeActivity : AppCompatActivity() {
             R.id.navigation_launchpad -> {
                 item.setIcon(R.drawable.ic_outline_grid_on_grad_1)
                 toolbar.setTitle(R.string.title_launchpad)
-                recyclerView.transBackgroundTo(ContextCompat.getDrawable(applicationContext, R.color.grad_1)!!, ACTIVE_APPS_BG_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_shortcut -> {
                 item.setIcon(R.drawable.ic_outline_keyboard_grad_2)
                 // TODO toolbar.setTitle(focusedApp.getTitle())
-                recyclerView.transBackgroundTo(ContextCompat.getDrawable(applicationContext, R.color.grad_2)!!, ACTIVE_APPS_BG_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_system -> {
                 item.setIcon(R.drawable.ic_outline_computer_grad_3)
                 toolbar.setTitle(R.string.title_system)
-                recyclerView.transBackgroundTo(ContextCompat.getDrawable(applicationContext, R.color.grad_3)!!, ACTIVE_APPS_BG_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_more -> {
