@@ -1,4 +1,4 @@
-package com.rocketguys.dokey
+package io.rocketguys.dokey
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

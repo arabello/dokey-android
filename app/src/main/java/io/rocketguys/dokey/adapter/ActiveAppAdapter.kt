@@ -1,12 +1,11 @@
-package com.rocketguys.dokey.adapter
+package io.rocketguys.dokey.adapter
 
-import android.graphics.Bitmap
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import com.rocketguys.dokey.R
+import io.rocketguys.dokey.R
+import kotlinx.android.synthetic.main.item_active_app.view.*
 
 /**
  * TODO: Add class description
@@ -14,18 +13,17 @@ import com.rocketguys.dokey.R
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
 
-class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val imgView = itemView as ImageView
+class ViewHolder(itemActiveApp: View) : RecyclerView.ViewHolder(itemActiveApp) {
+    val imgView = itemActiveApp.icon!!
 }
 
-class BitmapAdapter(val bitmaps: Array<Bitmap>) : RecyclerView.Adapter<ViewHolder>() {
+class ActiveAppAdapter(var activeApps: List<ActiveAppMock>) : RecyclerView.Adapter<ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_active_app, parent, false))
 
-    override fun getItemCount(): Int = bitmaps.size
+    override fun getItemCount(): Int = activeApps.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.imgView.setImageBitmap(bitmaps[position])
+        holder.imgView.setImageBitmap(activeApps[position].bitmap)
     }
-
 
 }

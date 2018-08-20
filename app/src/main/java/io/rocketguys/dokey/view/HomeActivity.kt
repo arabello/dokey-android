@@ -1,15 +1,19 @@
-package com.rocketguys.dokey.view
+package io.rocketguys.dokey.view
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import com.rocketguys.dokey.R
+import io.rocketguys.dokey.R
+import io.rocketguys.dokey.adapter.ActiveAppAdapter
+import io.rocketguys.dokey.adapter.ActiveAppMock
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 
 class HomeActivity : AppCompatActivity() {
+
+    val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
 
@@ -58,5 +62,8 @@ class HomeActivity : AppCompatActivity() {
 
         // Init RecyclerView for active apps
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = mActiveAppAdapter
+        mActiveAppAdapter.activeApps = ActiveAppMock.Factory.list(baseContext, 3)
+        mActiveAppAdapter.notifyDataSetChanged()
     }
 }

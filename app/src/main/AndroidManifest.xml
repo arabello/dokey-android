@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.HomeActivity"
+            android:name="io.rocketguys.dokey.view.HomeActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>

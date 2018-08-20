@@ -1,4 +1,4 @@
-package com.rocketguys.dokey
+package io.rocketguys.dokey
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
