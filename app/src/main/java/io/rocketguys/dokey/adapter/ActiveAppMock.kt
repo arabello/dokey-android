@@ -14,7 +14,7 @@ import java.io.FileInputStream
 interface ActiveAppMock{
     object Factory{
         fun list(context: Context, size: Int) = Array<ActiveAppMock>(size){
-                val dir = File("${context.filesDir}${File.separator}bitmap_mock")
+                val dir = File("${context.filesDir}${File.separator}mock")
                 val pos = (Math.random() * dir.listFiles().size).toInt()
                 object : ActiveAppMock {
                     override val bitmap = BitmapFactory.decodeStream(FileInputStream(dir.listFiles()[pos]))
