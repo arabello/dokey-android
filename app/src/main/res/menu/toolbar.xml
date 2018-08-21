@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_lock"
+        android:icon="@android:color/transparent"
+        android:title="@string/action_lock"
+        android:visible="false"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_edit_grad_1"
         android:title="@string/action_edit"
