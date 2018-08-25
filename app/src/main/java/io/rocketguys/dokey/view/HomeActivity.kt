@@ -14,19 +14,21 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import android.support.v7.widget.Toolbar
+import io.rocketguys.dokey.GridMock
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
 import io.rocketguys.dokey.adapter.ActiveAppMock
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.toolbar.*
 
 
 class HomeActivity : AppCompatActivity() {
     companion object {
-        const val DRAWABLE_GRAD_TRANS_DURATION = 360
+        const val DRAWABLE_GRAD_TRANS_DURATION = 420
     }
 
     val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
+    lateinit var toolbar: Toolbar
 
     enum class LOCK{ INVISIBLE, CLOSE, OPEN}
     var lockState = LOCK.CLOSE
@@ -125,6 +127,12 @@ class HomeActivity : AppCompatActivity() {
                 toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
+                // Update PagedGrid
+                val mock = GridMock(baseContext)
+                pagedGridView.pages = arrayListOf(
+                        mock.apps(4, 5),
+                        mock.coordinates(4,4))
+
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_shortcut -> {
@@ -138,6 +146,12 @@ class HomeActivity : AppCompatActivity() {
                 // TODO toolbar.setTitle(focusedApp.getTitle())
                 toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
+
+                // Update PagedGrid
+                val mock = GridMock(baseContext)
+                pagedGridView.pages = arrayListOf(
+                        mock.apps(4, 5),
+                        mock.coordinates(4,4))
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -153,6 +167,12 @@ class HomeActivity : AppCompatActivity() {
                 toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
+                // Update PagedGrid
+                val mock = GridMock(baseContext)
+                pagedGridView.pages = arrayListOf(
+                        mock.apps(4, 5),
+                        mock.coordinates(4,4))
+
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_more -> {
@@ -166,6 +186,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         // Init BottomNavigationView
@@ -179,5 +200,11 @@ class HomeActivity : AppCompatActivity() {
         recyclerView.adapter = mActiveAppAdapter
         mActiveAppAdapter.activeApps = ActiveAppMock.Factory.list(baseContext, 9)
         mActiveAppAdapter.notifyDataSetChanged()
+
+        // Init PagedGridView
+        val mock = GridMock(baseContext)
+        pagedGridView.pages = arrayListOf(
+                mock.apps(4, 5),
+                mock.coordinates(4,4))
     }
 }
