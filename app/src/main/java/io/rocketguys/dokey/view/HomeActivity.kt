@@ -10,11 +10,12 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
-import android.support.v7.widget.Toolbar
+import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.GridMock
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
@@ -28,16 +29,23 @@ class HomeActivity : AppCompatActivity() {
     }
 
     val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
+    val mGridAdapter = GridAdapter(arrayOf())
     lateinit var toolbar: Toolbar
 
     enum class LOCK{ INVISIBLE, CLOSE, OPEN}
     var lockState = LOCK.CLOSE
 
-    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int){
-        val bgTrans = TransitionDrawable(arrayOf(this.icon, newIcon))
-        bgTrans.isCrossFadeEnabled = true
-        this.icon = bgTrans
-        bgTrans.startTransition(duration)
+    private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
+        val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
+        val crossfader = TransitionDrawable(arrayOf(start, newBackground))
+        this.background = crossfader
+        crossfader.startTransition(duration)
+    }
+
+    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int) {
+        val crossfader = TransitionDrawable(arrayOf(this.icon, newIcon))
+        this.icon = crossfader
+        crossfader.startTransition(duration)
     }
 
     private fun MenuItem.transStateTo(newState: LOCK, duration: Int){
@@ -70,13 +78,6 @@ class HomeActivity : AppCompatActivity() {
         trans.startTransition(duration)
     }
 
-    private fun RecyclerView.transBackgroundTo(newBackground: Drawable, duration: Int){
-        val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
-        val bgTrans = TransitionDrawable(arrayOf(start, newBackground))
-        bgTrans.isCrossFadeEnabled = true
-        this.background = bgTrans
-        bgTrans.startTransition(duration)
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         toolbar.inflateMenu(R.menu.toolbar)
@@ -114,6 +115,9 @@ class HomeActivity : AppCompatActivity() {
             findItem(R.id.navigation_system).setIcon(R.drawable.ic_outline_computer)
         }
 
+        // TODO remove mock
+        val mock = GridMock(baseContext)
+
         when (item.itemId) {
             R.id.navigation_launchpad -> {
                 // Active apps
@@ -128,10 +132,8 @@ class HomeActivity : AppCompatActivity() {
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                val mock = GridMock(baseContext)
-                pagedGridView.pages = arrayListOf(
-                        mock.apps(4, 5),
-                        mock.coordinates(4,4))
+                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
+                mGridAdapter.notifyDataSetChanged()
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -147,11 +149,10 @@ class HomeActivity : AppCompatActivity() {
                 toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
+
                 // Update PagedGrid
-                val mock = GridMock(baseContext)
-                pagedGridView.pages = arrayListOf(
-                        mock.apps(4, 5),
-                        mock.coordinates(4,4))
+                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
+                mGridAdapter.notifyDataSetChanged()
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -168,10 +169,8 @@ class HomeActivity : AppCompatActivity() {
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                val mock = GridMock(baseContext)
-                pagedGridView.pages = arrayListOf(
-                        mock.apps(4, 5),
-                        mock.coordinates(4,4))
+                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
+                mGridAdapter.notifyDataSetChanged()
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -188,11 +187,6 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
         toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        // Init BottomNavigationView
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        navigation.itemIconTintList = null
-        navigation.selectedItemId = R.id.navigation_launchpad
         toolbar.setTitle(R.string.title_launchpad)
 
         // Init RecyclerView for active apps
@@ -201,10 +195,12 @@ class HomeActivity : AppCompatActivity() {
         mActiveAppAdapter.activeApps = ActiveAppMock.Factory.list(baseContext, 9)
         mActiveAppAdapter.notifyDataSetChanged()
 
+        // Init BottomNavigationView
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.itemIconTintList = null
+        navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
+
         // Init PagedGridView
-        val mock = GridMock(baseContext)
-        pagedGridView.pages = arrayListOf(
-                mock.apps(4, 5),
-                mock.coordinates(4,4))
+        pagedGridView.adapter = mGridAdapter
     }
 }

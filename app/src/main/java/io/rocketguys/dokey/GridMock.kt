@@ -20,7 +20,7 @@ class GridMock(val context: Context){
     fun coordinates(columns: Int, rows: Int): Grid{
         val grid = EmptyGrid(columns, rows)
 
-        grid.forEachIndexed { x, y, cell ->
+        grid.forEachIndexed { x, y, _ ->
             grid[x, y] = object : AbstractElement(){
                 override fun inflateView(parent: ViewGroup): View {
                     val v =  TextView(context)
