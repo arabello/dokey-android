@@ -35,3 +35,34 @@ dependencies {
 
     implementation 'io.matteopellegrino:pagedgrid:0.0.3'
 }
+
+/**
+ * Used to extract the JAR from the Connect library repository
+ */
+task updateRemoteConnectDependency() {
+    ext.repositoryUrl = "http://federicoterzi.com/remotekey-connect/"
+
+    doLast {
+        // Get the current jar filename
+        def currentJarFilename = new URL(repositoryUrl + "/current.txt").getText()
+        println "Repository version: " + currentJarFilename
+
+        // Make sure the project version is updated
+        def checkFile = new File("app/libs/" + currentJarFilename)
+        if (checkFile.isFile()) {
+            println "Project JAR is already updated."
+        } else {
+            println "Updating project JAR..."
+            // Download the JAR file
+            URL jarURL = new URL(repositoryUrl + currentJarFilename)
+            InputStream i = jarURL.openStream()
+            def fout = new FileOutputStream(new File("app/libs/" + currentJarFilename))
+            int c
+            while ((c = i.read()) >= 0) {
+                fout.write(c)
+            }
+
+            fout.close()
+        }
+    }
+}
