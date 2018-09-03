@@ -15,8 +15,7 @@ import net.DEDaemon
  * This thread will handle the initial handshake and connection between the mobile
  * device and the computer.
  */
-class NetworkThread(val context: Context, val address : String, val port : Int,
-                    val key : ByteArray) : Thread() {
+class NetworkThread(val context: Context, val socket : Socket, val key : ByteArray) : Thread() {
 
     // True if the mobile device is connected to the computer, false otherwise
     var isConnected = false
@@ -29,9 +28,6 @@ class NetworkThread(val context: Context, val address : String, val port : Int,
     // the computer and the mobile device
     private var linkManager : LinkManager? = null
 
-    // The socket that will handle the connection
-    private var socket : Socket? = null
-
     // LISTENERS
 
     // Called when the connection is closed
@@ -40,10 +36,8 @@ class NetworkThread(val context: Context, val address : String, val port : Int,
 
     override fun run() {
         try {
-            socket = Socket(address, port)
-
             // TODO: command resolver cache
-            linkManager = LinkManager(socket!!, DeviceInfoBuilder.deviceInfo, BuildConfig.VERSION_CODE,
+            linkManager = LinkManager(socket, DeviceInfoBuilder.deviceInfo, BuildConfig.VERSION_CODE,
                     MINIMUM_DESKTOP_VERSION, true, key, false,
                     null, object : DEManager.OnConnectionListener {
                 override fun onConnectionStarted(deviceInfo: DeviceInfo, versionNumber: Int) {
@@ -111,17 +105,14 @@ class NetworkThread(val context: Context, val address : String, val port : Int,
         linkManager?.stopDaemon()
 
         // Close the socket
-        socket?.let {
-            try {
-                it.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+        try {
+            socket.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
 
         // Reset variables
         linkManager = null
-        socket = null
         isConnected = false
 
         // Send a broadcast
