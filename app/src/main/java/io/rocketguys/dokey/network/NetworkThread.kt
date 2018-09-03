@@ -11,7 +11,10 @@ import java.net.Socket
 import android.system.Os.socket
 import net.DEDaemon
 
-
+/**
+ * This thread will handle the initial handshake and connection between the mobile
+ * device and the computer.
+ */
 class NetworkThread(val context: Context, val address : String, val port : Int,
                     val key : ByteArray) : Thread() {
 
@@ -89,6 +92,9 @@ class NetworkThread(val context: Context, val address : String, val port : Int,
                     closeConnection()
                 }
             }
+
+            // Start the link manager daemon
+            linkManager?.startDaemon()
         }catch(e : IOException) {
             e.printStackTrace()
             Log.d(LOG_TAG, "Error opening socket!")
