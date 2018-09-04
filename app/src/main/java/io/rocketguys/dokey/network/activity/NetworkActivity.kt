@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.network
+package io.rocketguys.dokey.network.activity
 
 import android.content.ComponentName
 import android.content.Context
@@ -7,6 +7,8 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import io.rocketguys.dokey.network.NetworkBroadcastManager
+import io.rocketguys.dokey.network.NetworkManagerService
 
 /**
  * This class provides the basic functions to automatically bind to

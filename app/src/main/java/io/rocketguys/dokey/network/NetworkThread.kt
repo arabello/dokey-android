@@ -46,7 +46,7 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
                     Log.d(LOG_TAG,"Connected to ${deviceInfo.name}")
 
                     // Signal the connection event
-                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT)
+                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
                 }
 
                 override fun onInvalidKey() {
@@ -56,27 +56,27 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
                     broadcastManager.sendBroadcast(NetworkEvent.INVALID_KEY_EVENT)
 
                     // Close the connection
-                    closeConnection()
+                    socket.close()
                 }
 
                 override fun onReceiverVersionTooLow(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Desktop version too low: ${deviceInfo.name} VER: $versionNumber")
 
                     // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT)
+                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
 
                     // Close the connection
-                    closeConnection()
+                    socket.close()
                 }
 
                 override fun onConnectionNotAccepted(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Mobile version too low: ${deviceInfo.name} VER: $versionNumber")
 
                     // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT)
+                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
 
                     // Close the connection
-                    closeConnection()
+                    socket.close()
                 }
             })
 

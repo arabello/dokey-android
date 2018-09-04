@@ -2,6 +2,9 @@ package io.rocketguys.dokey.network
 
 import net.model.DeviceInfo
 
+/**
+ * Factory for the DeviceInfo associated with the device.
+ */
 object DeviceInfoBuilder {
     val deviceInfo : DeviceInfo
         get() {

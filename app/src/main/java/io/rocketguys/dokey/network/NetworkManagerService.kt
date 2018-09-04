@@ -20,7 +20,7 @@ const val LOG_TAG = "NET_MAN_SERVICE"
 const val MIN_PORT = 60642
 const val MAX_PORT = 60652
 
-const val SCANNING_PORT_TIMEOUT = 3000
+const val SCANNING_PORT_TIMEOUT = 5000
 
 /**
  * This service will manage the connection to the desktop computer
