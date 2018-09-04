@@ -26,12 +26,16 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
 
     // The link manager is the component that handle the real communication between
     // the computer and the mobile device
-    private var linkManager : LinkManager? = null
+    var linkManager : LinkManager? = null
 
     // LISTENERS
 
+    // Called when the connection is established
+    var onConnectionEstablished : ((DeviceInfo) -> Unit)? = null
+
     // Called when the connection is closed
     var onConnectionClosed : (() -> Unit)? = null
+
 
 
     override fun run() {
@@ -46,6 +50,9 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
 
                     // Signal the connection event
                     broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
+
+                    // Notify the listener
+                    onConnectionEstablished?.invoke(deviceInfo)
                 }
 
                 override fun onInvalidKey() {

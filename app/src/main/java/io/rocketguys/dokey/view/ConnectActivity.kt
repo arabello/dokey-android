@@ -13,6 +13,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
         Log.d("CONNECT", "Connection established")
+
+        networkManagerService?.requestCommand(20) {
+            Log.d("COMMAND", it?.json().toString())
+        }
     }
 
     override fun onServerNotInTheSameNetworkError() {

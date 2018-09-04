@@ -3,12 +3,20 @@ package io.rocketguys.dokey.network
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
 import android.util.Log
+import io.rocketguys.dokey.network.cache.CommandCache
+import json.JSONObject
+import model.command.Command
+import model.parser.command.TypeCommandParser
+import net.LinkManager
+import net.model.DeviceInfo
 import java.io.DataInputStream
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.Executors
 
 // This is the minimum desktop version number that
 // this version of the app can support
@@ -39,6 +47,24 @@ class NetworkManagerService : Service() {
     // The broadcast manager will handle all the notifications to the application
     // about the network events that occur
     private var broadcastManager : NetworkBroadcastManager? = null
+
+    // When connected to a server, this variable will hold the computer details
+    private var serverInfo : DeviceInfo? = null
+
+    private var handler : Handler? = null  // Used in the runOnUiThread method
+
+    // Initialize the thread pool
+    private val executorService = Executors.newFixedThreadPool(4)
+
+    /*
+    Parsers
+     */
+    private val commandParser = TypeCommandParser()
+
+    /*
+    Caches
+     */
+    private var commandCache : CommandCache? = null
 
     /*
     INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
@@ -91,6 +117,12 @@ class NetworkManagerService : Service() {
             networkThread!!.onConnectionClosed = {
                 // Reset the network thread
                 networkThread = null
+            }
+            networkThread!!.onConnectionEstablished = {deviceInfo ->
+                serverInfo = deviceInfo
+
+                // Reset the caches
+                commandCache = CommandCache(this@NetworkManagerService, commandParser, deviceInfo.id)
             }
 
             // Start the network thread
@@ -194,7 +226,62 @@ class NetworkManagerService : Service() {
     APP LEVEL METHODS, needed to interact with the dokey server
      */
 
+    fun requestCommand(id: Int, callback: (Command?) -> Unit) {
+        // At first, check if the command is available in the cache
+        val cachedCommand = commandCache?.getCommand(id)
 
+        val requestBody = JSONObject()
+        requestBody.put("id", id)
+
+        // If there is a cached command, send also the last edit to check if it is up to date
+        if (cachedCommand != null) {
+            requestBody.put("lastEdit", cachedCommand.lastEdit)
+        }
+
+        // Make the request
+        executorService.execute {
+            networkThread?.linkManager?.requestService("get_command", requestBody, object : ServiceResponseAdapter() {
+                override fun onServiceResponse(responseBody: JSONObject?) {
+                    // Decode the received command
+                    val found = responseBody!!.getBoolean("found")
+                    if (!found) {  // Command not found, empty callback
+                        runOnUiThread(Runnable {
+                            callback(null)
+                        })
+                    }else{  // Command found
+                        val upToDate = responseBody.getBoolean("up")
+                        if (upToDate) {  // Cached command is up to date, return that one
+                            runOnUiThread(Runnable {
+                                callback(cachedCommand)
+                            })
+                        }else{
+                            // Cached command is not up to date, decode the set one and update the cache
+                            val receivedCommandJson = responseBody.getJSONObject("command")
+                            val receivedCommand = commandParser.fromJSON(receivedCommandJson)
+
+                            // Update the cache
+                            commandCache?.saveCommand(receivedCommand)
+
+                            // Notify the listener
+                            runOnUiThread(Runnable {
+                                callback(receivedCommand)
+                            })
+                        }
+                    }
+                }
+            })
+        }
+
+
+    }
+
+    /**
+     * Convenience class to work with service responses.
+     */
+    open class ServiceResponseAdapter : LinkManager.OnServiceResponseListener {
+        override fun onServiceError() {}
+        override fun onServiceResponse(responseBody: JSONObject?) {}
+    }
 
     /*
     SERVICE BLOATWARE, needed to make everything work. Not very useful though.
@@ -203,6 +290,8 @@ class NetworkManagerService : Service() {
     private val mBinder : IBinder = NetworkManagerBinder()
 
     override fun onCreate() {
+        handler = Handler()
+
         super.onCreate()
 
         broadcastManager = NetworkBroadcastManager(this.applicationContext)
@@ -217,5 +306,9 @@ class NetworkManagerService : Service() {
     inner class NetworkManagerBinder : Binder() {
         val service : NetworkManagerService
             get() = this@NetworkManagerService
+    }
+
+    private fun runOnUiThread(runnable: Runnable) {
+        handler?.post(runnable)
     }
 }
