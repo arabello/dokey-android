@@ -7,13 +7,16 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import io.rocketguys.dokey.network.cache.CommandCache
+import io.rocketguys.dokey.network.cache.SectionCache
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser
+import model.parser.component.CachingComponentParser
+import model.parser.page.DefaultPageParser
+import model.parser.section.DefaultSectionParser
+import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo
-import java.io.DataInputStream
-import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.Executors
@@ -60,11 +63,15 @@ class NetworkManagerService : Service() {
     Parsers
      */
     private val commandParser = TypeCommandParser()
+    private val componentParser = CachingComponentParser()
+    private val pageParser = DefaultPageParser(componentParser)
+    private val sectionParser = DefaultSectionParser(pageParser)
 
     /*
     Caches
      */
     private var commandCache : CommandCache? = null
+    private var sectionCache : SectionCache? = null
 
     /*
     INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
@@ -226,20 +233,26 @@ class NetworkManagerService : Service() {
     APP LEVEL METHODS, needed to interact with the dokey server
      */
 
+    /**
+     * Request the command with the given id. The function will run asynchronously and
+     * when the command is available the "callback" function will be called.
+     * If the command cannot be found, the callback function will be called with
+     * a null argument.
+     */
     fun requestCommand(id: Int, callback: (Command?) -> Unit) {
-        // At first, check if the command is available in the cache
-        val cachedCommand = commandCache?.getCommand(id)
-
-        val requestBody = JSONObject()
-        requestBody.put("id", id)
-
-        // If there is a cached command, send also the last edit to check if it is up to date
-        if (cachedCommand != null) {
-            requestBody.put("lastEdit", cachedCommand.lastEdit)
-        }
-
         // Make the request
         executorService.execute {
+            // At first, check if the command is available in the cache
+            val cachedCommand = commandCache?.getCommand(id)
+
+            val requestBody = JSONObject()
+            requestBody.put("id", id)
+
+            // If there is a cached command, send also the last edit to check if it is up to date
+            if (cachedCommand != null) {
+                requestBody.put("lastEdit", cachedCommand.lastEdit)
+            }
+
             networkThread?.linkManager?.requestService("get_command", requestBody, object : ServiceResponseAdapter() {
                 override fun onServiceResponse(responseBody: JSONObject?) {
                     // Decode the received command
@@ -271,8 +284,59 @@ class NetworkManagerService : Service() {
                 }
             })
         }
+    }
 
+    /**
+     * Request the section with the given id. The function will run asynchronously and
+     * when the section is available the "callback" function will be called.
+     * If the section cannot be found, the callback function will be called with
+     * a null argument.
+     */
+    fun requestSection(id: String, callback: (Section?) -> Unit) {
+        // Make the request
+        executorService.execute {
+            // At first, check if the section is available in the cache
+            val cachedSection = sectionCache?.getSection(id)
 
+            val requestBody = JSONObject()
+            requestBody.put("id", id)
+
+            // If there is a cached section, send also the last edit to check if it is up to date
+            if (cachedSection != null) {
+                requestBody.put("lastEdit", cachedSection.lastEdit)
+            }
+
+            networkThread?.linkManager?.requestService("get_section", requestBody, object : ServiceResponseAdapter() {
+                override fun onServiceResponse(responseBody: JSONObject?) {
+                    // Decode the received section
+                    val found = responseBody!!.getBoolean("found")
+                    if (!found) {  // Command not found, empty callback
+                        runOnUiThread(Runnable {
+                            callback(null)
+                        })
+                    }else{  // Command found
+                        val upToDate = responseBody.getBoolean("up")
+                        if (upToDate) {  // Cached section is up to date, return that one
+                            runOnUiThread(Runnable {
+                                callback(cachedSection)
+                            })
+                        }else{
+                            // Cached section is not up to date, decode the set one and update the cache
+                            val receivedSectionJson = responseBody.getJSONObject("section")
+                            val receivedSection = sectionParser.fromJSON(receivedSectionJson)
+
+                            // Update the cache
+                            sectionCache?.saveSection(receivedSection)
+
+                            // Notify the listener
+                            runOnUiThread(Runnable {
+                                callback(receivedSection)
+                            })
+                        }
+                    }
+                }
+            })
+        }
     }
 
     /**

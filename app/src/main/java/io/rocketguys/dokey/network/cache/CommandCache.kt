@@ -8,37 +8,13 @@ import model.command.Command
 import model.parser.command.CommandParser
 import java.io.*
 
-class CommandCache(val context: Context, val commandParser: CommandParser, serverIdentifier : String) {
+class CommandCache(context: Context, val commandParser: CommandParser, serverIdentifier : String)
+    : AbstractCache<Int, Command>(context, serverIdentifier, "commands"){
 
-    // This map will hold all loaded commands in memory
-    private val cacheMap = mutableMapOf<Int, Command>()
-
-    // Calculate the md5 hash of the computer identifier, used to find file paths
-    private val serverHash : String = NetworkUtils.md5(serverIdentifier)
-
-    private val commandCacheDir : File
-
-    init {
-        // Initialize the command cache dir
-        commandCacheDir = File(context.cacheDir, serverHash)
-        if (!commandCacheDir.isDirectory) {
-            commandCacheDir.mkdir()
-        }
-    }
+    private val commandCacheDir : File = itemsCacheDir
 
     fun getCommand(id: Int) : Command? {
-        if (cacheMap.containsKey(id)) {  // Check in the in-memory cache
-            return cacheMap[id]
-        }else{  // Not present in memory, try to load it from files
-            val command = loadCommandFromCache(id)
-            if (command != null) {
-                cacheMap[id] = command
-                return command
-            }
-        }
-
-        // Command not found in cache
-        return null
+        return getItem(id)
     }
 
     @Synchronized
@@ -61,7 +37,7 @@ class CommandCache(val context: Context, val commandParser: CommandParser, serve
         }
     }
 
-    private fun loadCommandFromCache(id: Int): Command? {
+    override fun loadItemFromCacheDir(id: Int): Command? {
         val commandFile = File(commandCacheDir, "$id.json")
         if (commandFile.isFile) {
             val fis = FileInputStream(commandFile)

@@ -14,8 +14,16 @@ class ConnectActivity : ConnectionBuilderActivity() {
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
         Log.d("CONNECT", "Connection established")
 
-        networkManagerService?.requestCommand(20) {
-            Log.d("COMMAND", it?.json().toString())
+        networkManagerService?.requestSection("launchpad") {
+            Log.d("SECTION", it?.json().toString())
+
+            it?.pages?.forEach { page ->
+                page.components?.forEach { component ->
+                    networkManagerService?.requestCommand(component.commandId!!) {
+                        Log.d("COMMAND", it?.json().toString())
+                    }
+                }
+            }
         }
     }
 
