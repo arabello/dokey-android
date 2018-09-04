@@ -8,7 +8,7 @@ import net.LinkManager
 import net.model.DeviceInfo
 import java.io.IOException
 import java.net.Socket
-import android.system.Os.socket
+import io.rocketguys.dokey.network.util.DeviceInfoBuilder
 import net.DEDaemon
 
 /**
@@ -36,7 +36,6 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
 
     override fun run() {
         try {
-            // TODO: command resolver cache
             linkManager = LinkManager(socket, DeviceInfoBuilder.deviceInfo, BuildConfig.VERSION_CODE,
                     MINIMUM_DESKTOP_VERSION, true, key, false,
                     null, object : DEManager.OnConnectionListener {

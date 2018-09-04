@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.network
+package io.rocketguys.dokey.network.util
 
 import net.model.DeviceInfo
 

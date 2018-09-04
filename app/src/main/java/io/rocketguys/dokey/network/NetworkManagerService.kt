@@ -40,6 +40,10 @@ class NetworkManagerService : Service() {
     // about the network events that occur
     private var broadcastManager : NetworkBroadcastManager? = null
 
+    /*
+    INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
+     */
+
     /**
      * Begin the connection procedure with a dokey server from the given QR code payload.
      */
@@ -185,6 +189,12 @@ class NetworkManagerService : Service() {
 
         return null
     }
+
+    /*
+    APP LEVEL METHODS, needed to interact with the dokey server
+     */
+
+
 
     /*
     SERVICE BLOATWARE, needed to make everything work. Not very useful though.
