@@ -58,16 +58,12 @@ class NetworkManagerService : Service() {
                 }
 
                 // Scan the given address to find the correct port and create a valid socket
-                val socket = scanPorts(parsingResult.address)
-
-                // Make sure a valid server has been found
-                if (socket == null) {
+                scanPorts(parsingResult.address, onFound = { // Server was found
+                    // Attempt to establish the connection with the dokey server
+                    startConnection(it, parsingResult.key)
+                }, onNotFound = {  // Server was not found
                     broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_ERROR_EVENT)
-                    return@Thread
-                }
-
-                // Attempt to establish the connection with the dokey server
-                startConnection(socket, parsingResult.key)
+                })
 
                 // Reset the thread
                 connectionBuilderThread = null
@@ -101,57 +97,94 @@ class NetworkManagerService : Service() {
         return false
     }
 
+    // Used in the "scanPorts" method as a counter of the results
+    private var currentPortScanCount = 0
+    private var hasServerBeenFound = false
+
     /**
-     * Check all known dokey ports in the default range until a valid dokey server is found
-     * or all the ports are invalidated.
+     * Check all known dokey ports in the default range to find a valid dokey server.
+     * The function is asynchronous and creates a new thread for each port to scan.
+     * The result of the analysis is delivering by calling one of the callbacks.
+     * onFound() is called if a dokey server is found.
+     * onNotFound() is called if no server is found after analyzing all the ports
+     */
+    private fun scanPorts(address: String, onFound : (Socket) -> Unit, onNotFound : () -> Unit) {
+        // Reset state variables
+        currentPortScanCount = 0
+        hasServerBeenFound = false
+
+        // Cycle through all ports
+        for (port in MIN_PORT..MAX_PORT) {
+            Thread {
+                val socket = scanPort(address, port)
+                if (socket != null) {
+                    var alreadyFound = false
+
+                    synchronized(this@NetworkManagerService) {
+                        alreadyFound = hasServerBeenFound
+                    }
+
+                    if (!alreadyFound) {
+                        onFound(socket)
+                    }
+                }else{
+                    synchronized(this@NetworkManagerService) {
+                        currentPortScanCount++
+                        if (currentPortScanCount > (MAX_PORT - MIN_PORT)) {
+                            onNotFound()
+                        }
+                    }
+                }
+            }.start()
+        }
+    }
+
+    /**
+     * Scan the given combination of address/port to find if a Dokey server is available.
      *
      * @return an open socket to the dokey server if found, null otherwise.
      */
-    private fun scanPorts(address: String): Socket? {
-        // Cycle through all ports
-        for (port in MIN_PORT..MAX_PORT) {
-            Log.d(LOG_TAG, "Scanning address: $address with port: $port")
-            try {
-                // Attempt to open a socket with the given address
-                val socket = Socket()
-                socket.connect(InetSocketAddress(address, port), SCANNING_PORT_TIMEOUT)
+    private fun scanPort(address: String, port: Int): Socket? {
+        Log.d(LOG_TAG, "Scanning address: $address with port: $port")
+        try {
+            // Attempt to open a socket with the given address
+            val socket = Socket()
+            socket.connect(InetSocketAddress(address, port), SCANNING_PORT_TIMEOUT)
 
-                // Read the magic numbers to make sure there is a dokey server in the other side.
-                var initialTime = System.currentTimeMillis()
-                var isValid = true
-                var currentDokeyNumberIndex = 0
+            // Read the magic numbers to make sure there is a dokey server in the other side.
+            var initialTime = System.currentTimeMillis()
+            var isValid = true
+            var currentDokeyNumberIndex = 0
 
-                while((System.currentTimeMillis() - initialTime) < SCANNING_PORT_TIMEOUT) {
-                    if (socket.getInputStream().available() > 0) {
-                        val currentByte = socket.getInputStream().read()
-                        if (currentByte != -1) {
-                            if (DOKEY_NUMBERS[currentDokeyNumberIndex] == currentByte.toByte()) {
-                                currentDokeyNumberIndex++
+            while((System.currentTimeMillis() - initialTime) < SCANNING_PORT_TIMEOUT) {
+                if (socket.getInputStream().available() > 0) {
+                    val currentByte = socket.getInputStream().read()
+                    if (currentByte != -1) {
+                        if (DOKEY_NUMBERS[currentDokeyNumberIndex] == currentByte.toByte()) {
+                            currentDokeyNumberIndex++
 
-                                if (currentDokeyNumberIndex == 4) {
-                                    break
-                                }
-                            }else{
-                                isValid = false
+                            if (currentDokeyNumberIndex == 4) {
                                 break
                             }
+                        }else{
+                            isValid = false
+                            break
                         }
                     }
-
-                    Thread.sleep(100)
                 }
 
-                if (isValid){
-                    return socket
-                }
-            }catch (e: Exception) {
-                e.printStackTrace()
+                Thread.sleep(100)
             }
+
+            if (isValid){
+                return socket
+            }
+        }catch (e: Exception) {
+            Log.d(LOG_TAG, e.message)
         }
 
         return null
     }
-
 
     /*
     SERVICE BLOATWARE, needed to make everything work. Not very useful though.
