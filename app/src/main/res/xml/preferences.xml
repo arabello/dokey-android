@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_keep_screen_on_key"
+        android:title="@string/pref_keep_screen_on_title"
+        android:summary="@string/pref_keep_screen_on_summary"/>
+
+</PreferenceScreen>

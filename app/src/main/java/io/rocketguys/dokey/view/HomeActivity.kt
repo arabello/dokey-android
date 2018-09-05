@@ -1,5 +1,6 @@
 package io.rocketguys.dokey.view
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -213,9 +214,10 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when(item?.itemId){
             R.id.action_more_settings -> {
-                return true
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
             }
-            else -> return false
+            else -> false
         }
     }
 
