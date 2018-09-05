@@ -65,11 +65,11 @@ class HomeActivity : AppCompatActivity() {
             }
             HomeActivity.LOCK.CLOSE -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.action_lock_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)))
             }
             HomeActivity.LOCK.OPEN -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.action_lock_open_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)))
             }
         }
 
@@ -128,7 +128,7 @@ class HomeActivity : AppCompatActivity() {
 
                 // Toolbar
                 toolbar.setTitle(R.string.title_launchpad)
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -146,7 +146,7 @@ class HomeActivity : AppCompatActivity() {
 
                 // Toolbar
                 // TODO toolbar.setTitle(focusedApp.getTitle())
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
 
@@ -165,7 +165,7 @@ class HomeActivity : AppCompatActivity() {
 
                 // Toolbar
                 toolbar.setTitle(R.string.title_system)
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid

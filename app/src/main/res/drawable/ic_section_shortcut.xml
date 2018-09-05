@@ -1,42 +1,14 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:width="26dp"
+    android:height="26dp"
+    android:viewportWidth="26"
+    android:viewportHeight="26">
   <path
-      android:fillColor="#FF000000"
-      android:pathData="M20,7v10L4,17V7H20M20,5H4C2.9,5 2.01,5.9 2.01,7L2,17c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V7C22,5.9 21.1,5 20,5L20,5z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M11,8h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M11,11h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M8,8h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M8,11h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M5,11h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M5,8h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M8,14h8v2h-8z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M14,11h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M14,8h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M17,11h2v2h-2z"/>
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M17,8h2v2h-2z"/>
+      android:pathData="M21,1C18.7909,1 17,2.7909 17,5L17,21C17,23.2091 18.7909,25 21,25C23.2091,25 25,23.2091 25,21C25,18.7909 23.2091,17 21,17L5,17C2.7909,17 1,18.7909 1,21C1,23.2091 2.7909,25 5,25C7.2091,25 9,23.2091 9,21L9,5C9,2.7909 7.2091,1 5,1C2.7909,1 1,2.7909 1,5C1,7.2091 2.7909,9 5,9L21,9C23.2091,9 25,7.2091 25,5C25,2.7909 23.2091,1 21,1Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="2"
+      android:fillColor="#00000000"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
 </vector>
