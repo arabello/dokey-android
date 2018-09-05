@@ -1,17 +1,41 @@
 <resources>
     <string name="app_name">Dokey</string>
+
+    <!-- BottomNavigation menu -->
     <string name="title_launchpad">Launchpad</string>
     <string name="title_shortcut">Shortcuts</string>
     <string name="title_system">System Commands</string>
     <string name="title_more">More</string>
+
+    <!-- Toolbar menu -->
     <string name="action_edit">Edit</string>
     <string name="action_lock">Lock</string>
     <string name="action_lock_open">Unlock</string>
+
+    <!-- More menu -->
+    <string name="title_more_settings">Settings</string>
+    <string name="title_more_docs">Documentation</string>
+
+    <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
     <string name="pref_keep_screen_on_key">pref_keep_screen_on</string>
     <string name="pref_keep_screen_on_title">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Screen will never sleep while using the app</string>
+    <string name="pref_vibration_key">pref_vibration</string>
+    <string name="pref_vibration_title">Enable vibration</string>
+    <string name="pref_vibration_summary">Turn on vibration feedback on items click</string>
+    <string name="pref_web_title">Web Resources</string>
+    <string name="pref_web_website_key" translatable="false">pref_web_website_key</string>
+    <string name="pref_web_website_title" translatable="false">Dokey.io</string>
+    <string name="pref_web_website_summary">For more information about Dokey</string>
+    <string name="pref_web_credits_key" translatable="false">pref_web_credits_key</string>
+    <string name="pref_web_credits_title">Third party credits</string>
+    <string name="pref_web_credits_summary">List of all libraries used by Dokey</string>
+    <string name="toast_internet_not_available">Cannot retrieve online resources. Please check your internet connection.</string>
 
-
+    <!-- Online resources -->
+    <string name="url_docs" translatable="false">https://dokey.io/docs/</string>
+    <string name="url_dokey_io" translatable="false">https://dokey.io</string>
+    <string name="url_credits" translatable="false">https://dokey.io/credits.html</string>
 </resources>

@@ -217,6 +217,12 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
+            R.id.action_more_docs -> {
+                val intent = Intent(this@HomeActivity, WebActivity::class.java)
+                intent.putExtra(WebActivity.INTENT_URL_KEY, getString(R.string.url_docs))
+                startActivity(intent)
+                true
+            }
             else -> false
         }
     }

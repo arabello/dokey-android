@@ -6,4 +6,23 @@
         android:title="@string/pref_keep_screen_on_title"
         android:summary="@string/pref_keep_screen_on_summary"/>
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_vibration_key"
+        android:title="@string/pref_vibration_title"
+        android:summary="@string/pref_vibration_summary"/>
+
+    <PreferenceCategory
+        android:title="@string/pref_web_title">
+        <Preference
+            android:key="@string/pref_web_website_key"
+            android:title="@string/pref_web_website_title"
+            android:summary="@string/pref_web_website_summary"/>
+
+        <Preference
+            android:key="@string/pref_web_credits_key"
+            android:title="@string/pref_web_credits_title"
+            android:summary="@string/pref_web_credits_summary"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

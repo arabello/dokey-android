@@ -4,6 +4,11 @@
 
     <item
         android:id="@+id/action_more_settings"
-        android:title="Settings"
+        android:title="@string/title_more_settings"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_more_docs"
+        android:title="@string/title_more_docs"
         app:showAsAction="never"/>
 </menu>
