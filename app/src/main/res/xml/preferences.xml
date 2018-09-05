@@ -1,16 +1,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="@string/pref_keep_screen_on_key"
-        android:title="@string/pref_keep_screen_on_title"
-        android:summary="@string/pref_keep_screen_on_summary"/>
+    <PreferenceCategory
+        android:title="@string/pref_ux_title">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pref_ux_keep_screen_on_key"
+            android:title="@string/pref_ux_keep_screen_on_title"
+            android:summary="@string/pref_ux_keep_screen_on_summary"/>
 
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="@string/pref_vibration_key"
-        android:title="@string/pref_vibration_title"
-        android:summary="@string/pref_vibration_summary"/>
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_ux_vibration_key"
+            android:title="@string/pref_ux_vibration_title"
+            android:summary="@string/pref_ux_vibration_summary"/>
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/pref_web_title">
@@ -23,6 +26,15 @@
             android:key="@string/pref_web_credits_key"
             android:title="@string/pref_web_credits_title"
             android:summary="@string/pref_web_credits_summary"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_advanced_title">
+
+        <Preference
+            android:key="@string/pref_advanced_cache_key"
+            android:title="@string/pref_advanced_cache_title"
+            android:summary="@string/pref_advanced_cache_summary"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

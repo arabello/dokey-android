@@ -25,7 +25,7 @@ class ContextualVibrator private constructor(private val vibrator: Vibrator, pri
                     instance as ContextualVibrator
                 else
                     ContextualVibrator(context.applicationContext.getSystemService(VIBRATOR_SERVICE) as Vibrator,
-                            PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.pref_vibration_key), false))
+                            PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.pref_ux_vibration_key), false))
     }
 
     fun oneShotVibration(millis: Long): Boolean {
