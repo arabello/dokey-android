@@ -1,8 +1,8 @@
 package io.rocketguys.dokey.network
 
-import android.content.Context
 import android.util.Log
 import io.rocketguys.dokey.BuildConfig
+import io.rocketguys.dokey.network.handler.SectionModifiedHandler
 import net.DEManager
 import net.LinkManager
 import net.model.DeviceInfo
@@ -15,7 +15,9 @@ import net.DEDaemon
  * This thread will handle the initial handshake and connection between the mobile
  * device and the computer.
  */
-class NetworkThread(val context: Context, val socket : Socket, val key : ByteArray) : Thread() {
+class NetworkThread(val networkManagerService: NetworkManagerService,
+                    val socket : Socket, val key : ByteArray) : Thread() {
+    private val context = networkManagerService.applicationContext
 
     // True if the mobile device is connected to the computer, false otherwise
     var isConnected = false
@@ -92,6 +94,9 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
                     closeConnection()
                 }
             }
+
+            // Register the service handlers
+            linkManager?.registerServiceHandler(SectionModifiedHandler(networkManagerService))
 
             // Start the link manager daemon
             linkManager?.startDaemon()
