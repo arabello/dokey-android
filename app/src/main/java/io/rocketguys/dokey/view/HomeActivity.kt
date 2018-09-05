@@ -65,11 +65,11 @@ class HomeActivity : AppCompatActivity() {
             }
             HomeActivity.LOCK.CLOSE -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_lock_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.action_lock_grad_2)))
             }
             HomeActivity.LOCK.OPEN -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_lock_open_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.action_lock_open_grad_2)))
             }
         }
 
@@ -110,9 +110,9 @@ class HomeActivity : AppCompatActivity() {
             return@OnNavigationItemSelectedListener false
 
         with(navigation.menu){
-            findItem(R.id.navigation_launchpad).setIcon(R.drawable.ic_outline_grid_on)
-            findItem(R.id.navigation_shortcut).setIcon(R.drawable.ic_outline_keyboard)
-            findItem(R.id.navigation_system).setIcon(R.drawable.ic_outline_computer)
+            findItem(R.id.navigation_launchpad).setIcon(R.drawable.ic_section_home)
+            findItem(R.id.navigation_shortcut).setIcon(R.drawable.ic_section_shortcut)
+            findItem(R.id.navigation_system).setIcon(R.drawable.ic_section_system)
         }
 
         // TODO remove mock
@@ -124,11 +124,11 @@ class HomeActivity : AppCompatActivity() {
                 recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // NavigationBottomView
-                item.setIcon(R.drawable.ic_outline_grid_on_grad_1)
+                item.setIcon(R.drawable.ic_section_home_grad_1)
 
                 // Toolbar
                 toolbar.setTitle(R.string.title_launchpad)
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -142,11 +142,11 @@ class HomeActivity : AppCompatActivity() {
                 recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // NavigationBottomView
-                item.setIcon(R.drawable.ic_outline_keyboard_grad_2)
+                item.setIcon(R.drawable.ic_section_shortcut_grad_2)
 
                 // Toolbar
                 // TODO toolbar.setTitle(focusedApp.getTitle())
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
 
@@ -161,11 +161,11 @@ class HomeActivity : AppCompatActivity() {
                 recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // NavigationBottomView
-                item.setIcon(R.drawable.ic_outline_computer_grad_3)
+                item.setIcon(R.drawable.ic_section_system_grad_3)
 
                 // Toolbar
                 toolbar.setTitle(R.string.title_system)
-                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                toolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 toolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
