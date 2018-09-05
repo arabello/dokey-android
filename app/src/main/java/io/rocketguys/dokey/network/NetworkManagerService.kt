@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import io.rocketguys.dokey.network.cache.CommandCache
+import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
 import json.JSONObject
 import model.command.Command
@@ -17,6 +18,7 @@ import model.parser.section.DefaultSectionParser
 import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo
+import java.io.File
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.Executors
@@ -72,6 +74,7 @@ class NetworkManagerService : Service() {
      */
     private var commandCache : CommandCache? = null
     private var sectionCache : SectionCache? = null
+    private var imageCache : ImageCache? = null
 
     /*
     INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
@@ -130,6 +133,8 @@ class NetworkManagerService : Service() {
 
                 // Reset the caches
                 commandCache = CommandCache(this@NetworkManagerService, commandParser, deviceInfo.id)
+                sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
+                imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
             }
 
             // Start the network thread
@@ -336,6 +341,44 @@ class NetworkManagerService : Service() {
                     }
                 }
             })
+        }
+    }
+
+    /**
+     * Request the image with the given id. The function will run asynchronously and
+     * when the image is available the "callback" function will be called.
+     * If the image cannot be found, the callback function will be called with
+     * a null argument.
+     */
+    fun requestImage(id: String, callback: (imageId: String, imageFile: File?) -> Unit) {
+        // Make the request
+        executorService.execute {
+            // At first, check if the image is available in the cache
+            val cachedImage = imageCache?.getImageFile(id)
+
+            // If there is a cached image, return immediately
+            if (cachedImage != null) {
+                callback(id, cachedImage)
+            }else{  // No cached image, request it from the server
+                networkThread?.linkManager?.requestImage(id, object : LinkManager.OnImageResponseListener {
+                    override fun onImageReceived(imageIdentifier: String, iconFile: File) {
+                        // Image found, save it in the cache
+                        val cachedImageFile = imageCache?.saveImage(imageIdentifier, iconFile)
+
+                        // Return the image
+                        runOnUiThread(Runnable {
+                            callback(imageIdentifier, cachedImageFile)
+                        })
+                    }
+
+                    override fun onImageNotFound(imageIdentifier: String) {
+                        // Image not found, return an empty callback
+                        runOnUiThread(Runnable {
+                            callback(imageIdentifier, null)
+                        })
+                    }
+                })
+            }
         }
     }
 

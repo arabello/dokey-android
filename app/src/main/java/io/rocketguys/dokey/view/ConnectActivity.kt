@@ -14,13 +14,20 @@ class ConnectActivity : ConnectionBuilderActivity() {
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
         Log.d("CONNECT", "Connection established")
 
+        // Request the section
         networkManagerService?.requestSection("launchpad") {
             Log.d("SECTION", it?.json().toString())
 
             it?.pages?.forEach { page ->
                 page.components?.forEach { component ->
+                    // Request each command
                     networkManagerService?.requestCommand(component.commandId!!) {
                         Log.d("COMMAND", it?.json().toString())
+
+                        // Request the image
+                        networkManagerService?.requestImage(it?.iconId!!) { imageId, imageFile ->
+                            Log.d("IMAGE", imageFile?.absolutePath)
+                        }
                     }
                 }
             }
