@@ -333,7 +333,6 @@ class NetworkManagerService : Service() {
             }
 
             // Request the section to the server
-            // TODO: here the networkThread is null, find out why
             networkThread?.linkManager?.requestService("get_section", requestBody, object : ServiceResponseAdapter() {
                 override fun onServiceResponse(responseBody: JSONObject?) {
                     // Decode the received section
