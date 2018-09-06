@@ -50,41 +50,41 @@ class NetworkThread(val networkManagerService: NetworkManagerService,
 
                     Log.d(LOG_TAG,"Connected to ${deviceInfo.name}")
 
-                    // Signal the connection event
-                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
-
                     // Notify the listener
                     onConnectionEstablished?.invoke(deviceInfo)
+
+                    // Signal the connection event
+                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
                 }
 
                 override fun onInvalidKey() {
                     Log.e(LOG_TAG, "Invalid key, desktop refused to connect")
 
-                    // Signal the invalid key event
-                    broadcastManager.sendBroadcast(NetworkEvent.INVALID_KEY_EVENT)
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the invalid key event
+                    broadcastManager.sendBroadcast(NetworkEvent.INVALID_KEY_EVENT)
                 }
 
                 override fun onReceiverVersionTooLow(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Desktop version too low: ${deviceInfo.name} VER: $versionNumber")
 
-                    // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the problem
+                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
                 }
 
                 override fun onConnectionNotAccepted(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Mobile version too low: ${deviceInfo.name} VER: $versionNumber")
 
-                    // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the problem
+                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
                 }
             })
 

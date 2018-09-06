@@ -18,9 +18,16 @@ class TestNavigationDrawerActivity : ConnectedActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("CREATED", "")
+        Log.d("CREATED", "Test navigation")
 
         window.decorView.setBackgroundColor(Color.GREEN)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // Close the current connection
+        networkManagerService?.closeConnection()
     }
 
     override fun onServiceConnected() {

@@ -58,21 +58,21 @@ abstract class NetworkActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
+    override fun onStart() {
         // Request to bind the service
         bindNetworkService()
 
-        super.onResume()
+        super.onStart()
     }
 
-    override fun onPause() {
+    override fun onStop() {
         // Unbind the service
         if (isBound) {
             unbindService(serviceConnection)
             isBound = false
         }
 
-        super.onPause()
+        super.onStop()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

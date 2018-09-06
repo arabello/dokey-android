@@ -132,6 +132,8 @@ class NetworkManagerService : Service() {
                 commandCache = CommandCache(this@NetworkManagerService, commandParser, deviceInfo.id)
                 sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
                 imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
+
+                Log.d("CACHE", "Setup")
             }
             networkThread!!.onConnectionClosed = {
                 // Reset the network thread
@@ -233,6 +235,14 @@ class NetworkManagerService : Service() {
         }
 
         return null
+    }
+
+    /**
+     * Close the current connection and reset the service.
+     */
+    fun closeConnection() {
+        networkThread?.closeConnection()
+        networkThread = null
     }
 
     /*

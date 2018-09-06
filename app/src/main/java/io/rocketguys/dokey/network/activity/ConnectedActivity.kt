@@ -35,16 +35,16 @@ abstract class ConnectedActivity : NetworkActivity() {
      */
     abstract fun onConnectionClosed()
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         // Register the broadcast listeners
         broadcastManager?.registerReceiver(NetworkEvent.SECTION_MODIFIED_EVENT, sectionModifiedReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_CLOSED_EVENT, connectionClosedReceiver)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         // Unregister all the listeners
         broadcastManager?.unregisterReceiver(sectionModifiedReceiver)
