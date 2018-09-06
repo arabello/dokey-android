@@ -17,7 +17,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
     override fun onServiceConnected() {
         // To start a connection, call the "beginConnection" method with the QR code content.
         // TODO Verify string id "DOKEY;" otherwise error shown
-        networkManagerService?.beginConnection("DOKEY;192.168.1.157/24;106,79,10,77,65,104,12,100,66,56")
+        networkManagerService?.beginConnection("DOKEY;192.168.1.157/24;26,22,18,69,52,98,96,69,54,58")
     }
 
     // Start HomeActivity, connection is stable

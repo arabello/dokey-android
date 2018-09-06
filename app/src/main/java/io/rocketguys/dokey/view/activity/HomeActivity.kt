@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.support.annotation.IdRes
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
@@ -23,6 +24,7 @@ import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
 import io.rocketguys.dokey.adapter.ActiveAppMock
 import io.rocketguys.dokey.adapter.SectionAdapter
+import io.rocketguys.dokey.adapter.SectionConnectedAdapter
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
@@ -32,9 +34,6 @@ import model.section.Section
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     companion object {
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
-        const val LAUNCHPAD_REQUEST_ID = "launchpad"
-        const val SHORTCUT_REQUEST_ID = "shortcut"
-        const val SYSTEM_REQUEST_ID = "system"
     }
 
     // View
@@ -47,8 +46,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     var lockState = LOCK.CLOSE
 
     // State - Section
-    val sectionMap = mutableMapOf<String, Section?>()
-    lateinit var sectionAdapter: SectionAdapter
+    var sectionAdapter: SectionConnectedAdapter? = null
 
     // Transition animation to change Active Apps RecyclerView background
     private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
@@ -144,11 +142,12 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        with(navigation.menu){
-            findItem(R.id.navigation_launchpad).setIcon(R.drawable.ic_section_home)
-            findItem(R.id.navigation_shortcut).setIcon(R.drawable.ic_section_shortcut)
-            findItem(R.id.navigation_system).setIcon(R.drawable.ic_section_system)
-        }
+        if (item.itemId != R.id.navigation_more)
+            with(navigation.menu){
+                findItem(R.id.navigation_launchpad).setIcon(R.drawable.ic_section_home)
+                findItem(R.id.navigation_shortcut).setIcon(R.drawable.ic_section_shortcut)
+                findItem(R.id.navigation_system).setIcon(R.drawable.ic_section_system)
+            }
 
         when (item.itemId) {
             R.id.navigation_launchpad -> {
@@ -164,7 +163,11 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                sectionAdapter.adapt(sectionMap[LAUNCHPAD_REQUEST_ID])
+                // Request the section
+                networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
+                    Log.d("SECTION", section?.json().toString())
+                    sectionAdapter?.notifySectionChanged(section)
+                }
 
                 // Set up slider
                 // TODO move this code away
@@ -180,8 +183,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 */
                 ///////
 
-                mGridAdapter.notifyDataSetChanged()
-
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_shortcut -> {
@@ -192,12 +193,15 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 item.setIcon(R.drawable.ic_section_shortcut_grad_2)
 
                 // Toolbar
-                // TODO mToolbar.setTitle(focusedApp.getTitle())
                 mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                sectionAdapter.adapt(sectionMap[SHORTCUT_REQUEST_ID])
+                // Request the section
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
+                    Log.d("SECTION", section?.json().toString())
+                    sectionAdapter?.notifySectionChanged(section)
+                }
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -214,7 +218,11 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                sectionAdapter.adapt(sectionMap[SYSTEM_REQUEST_ID])
+                // Request the section
+                networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
+                    Log.d("SECTION", section?.json().toString())
+                    sectionAdapter?.notifySectionChanged(section)
+                }
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -263,10 +271,15 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         // Init BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.itemIconTintList = null
-        navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
 
         // Init PagedGridView
         pagedGridView.adapter = mGridAdapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
     }
 
     override fun onStop() {
@@ -277,28 +290,40 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onServiceConnected() {
-        sectionAdapter = SectionAdapter(mGridAdapter, this, networkManagerService)
+        sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 
         // Request the section
-        networkManagerService?.requestSection(LAUNCHPAD_REQUEST_ID){ section ->
-            sectionMap[LAUNCHPAD_REQUEST_ID] = section
-            sectionAdapter.adapt(section)
+        networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
+            Log.d("SECTION", section?.json().toString())
+            sectionAdapter?.notifySectionChanged(section)
         }
 
         // Request the section
-        networkManagerService?.requestSection(SHORTCUT_REQUEST_ID){ section ->
-            sectionMap[SHORTCUT_REQUEST_ID] = section
+        networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
+            Log.d("SECTION", section?.json().toString())
         }
 
         // Request the section
-        networkManagerService?.requestSection(SYSTEM_REQUEST_ID){ section ->
-            sectionMap[SYSTEM_REQUEST_ID] = section
+        networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
+            Log.d("SECTION", section?.json().toString())
         }
 
     }
 
+    private fun SectionAdapter.Companion.sectionIdFrom(@IdRes menuId: Int): String{
+        return when(menuId){
+            R.id.navigation_launchpad -> this.LAUNCHPAD_ID
+            R.id.navigation_shortcut -> this.SHORTCUT_ID
+            R.id.navigation_system -> this.SYSTEM_ID
+            else -> ""
+        }
+    }
+
     override fun onSectionModified(section: Section) {
         Log.d("SEC_MODIFIED", section.json().toString())
+
+        if (section.id == SectionAdapter.sectionIdFrom(navigation.selectedItemId))
+            sectionAdapter?.notifySectionChanged(section)
     }
 
     // Command may not be in the section.
@@ -307,8 +332,12 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         Log.d("COMM_MODIFIED", command.json().toString())
     }
 
-    override fun onApplicationSwitch(section: Section) {
-        Log.d("SWITCH", section.json().toString())
+    override fun onApplicationSwitch(applicationName: String, section: Section?) {
+        // Update PagedGrid if current navigation is shortcut section and the lock is open
+        if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
+            mToolbar.title = applicationName
+            sectionAdapter?.notifySectionChanged(section)
+        }
     }
 
     override fun onConnectionClosed() {
