@@ -20,7 +20,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onServiceConnected() {
         // To start a connection, call the "beginConnection" method with the QR code content.
-        networkManagerService?.beginConnection("DOKEY;192.168.1.45/24:192.168.56.1/24:192.168.121.1/24:192.168.127.1/24;77,4,35,55,125,101,25,106,12,43")
+        networkManagerService?.beginConnection("DOKEY;192.168.1.45/24:192.168.56.1/24:192.168.121.1/24:192.168.127.1/24;89,105,43,16,75,87,10,41,65,42")
     }
 
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {

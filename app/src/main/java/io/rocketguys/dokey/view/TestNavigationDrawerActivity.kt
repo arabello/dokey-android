@@ -32,7 +32,7 @@ class TestNavigationDrawerActivity : ConnectedActivity() {
 
     override fun onServiceConnected() {
         // Request the section
-        networkManagerService?.requestSection("launchpad") {
+        networkManagerService?.requestSection("shortcut") {
             Log.d("SECTION", it?.json().toString())
 
             it?.pages?.forEach { page ->
