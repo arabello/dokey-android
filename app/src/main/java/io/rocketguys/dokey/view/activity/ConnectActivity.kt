@@ -1,14 +1,10 @@
-package io.rocketguys.dokey.view
+package io.rocketguys.dokey.view.activity
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import io.rocketguys.dokey.network.NetworkEvent
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
-import io.rocketguys.dokey.network.activity.NetworkActivity
 import net.model.DeviceInfo
 
 class ConnectActivity : ConnectionBuilderActivity() {
@@ -20,14 +16,16 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onServiceConnected() {
         // To start a connection, call the "beginConnection" method with the QR code content.
-        networkManagerService?.beginConnection("DOKEY;192.168.1.45/24:192.168.56.1/24:192.168.121.1/24:192.168.127.1/24;77,4,35,55,125,101,25,106,12,43")
+        // TODO Verify string id "DOKEY;" otherwise error shown
+        networkManagerService?.beginConnection("DOKEY;192.168.1.157/24;106,79,10,77,65,104,12,100,66,56")
     }
 
+    // Start HomeActivity, connection is stable
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
         Log.d("CONNECT", "Connection established")
 
         // Start the main activity
-        val intent = Intent(this, TestNavigationDrawerActivity::class.java)
+        val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
     }
 

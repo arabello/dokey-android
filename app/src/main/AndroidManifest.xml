@@ -14,19 +14,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <service android:name=".network.NetworkManagerService" />
+
+        <activity android:name=".view.activity.ConnectActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".view.activity.HomeActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        </activity>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".view.TestNavigationDrawerActivity" />
-        <activity android:name=".view.ConnectActivity">
-        </activity>
         <activity
             android:name=".view.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -35,9 +38,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.rocketguys.dokey.view.activity.HomeActivity" />
         </activity>
-        <activity android:name=".view.activity.WebActivity"></activity>
 
-        <service android:name=".network.NetworkManagerService" />
+        <activity android:name=".view.activity.WebActivity"/>
+
     </application>
 
 </manifest>

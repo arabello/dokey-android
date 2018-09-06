@@ -9,37 +9,46 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.*
+import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
-import io.rocketguys.dokey.GridMock
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
 import io.rocketguys.dokey.adapter.ActiveAppMock
-import jp.wasabeef.blurry.Blurry
+import io.rocketguys.dokey.adapter.SectionAdapter
+import io.rocketguys.dokey.network.activity.ConnectedActivity
 import kotlinx.android.synthetic.main.activity_home.*
-import android.view.Gravity
-import android.widget.PopupWindow
-import android.widget.LinearLayout
-import io.rocketguys.dokey.view.DokeySlider
+import model.command.Command
+import model.section.Section
 
 
-class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
+class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     companion object {
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
+        const val LAUNCHPAD_REQUEST_ID = "launchpad"
+        const val SHORTCUT_REQUEST_ID = "shortcut"
+        const val SYSTEM_REQUEST_ID = "system"
     }
 
+    // View
     val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
     val mGridAdapter = GridAdapter(arrayOf())
     lateinit var mToolbar: Toolbar
 
+    // State
     enum class LOCK{ INVISIBLE, CLOSE, OPEN}
     var lockState = LOCK.CLOSE
+
+    // State - Section
+    val sectionMap = mutableMapOf<String, Section?>()
+    lateinit var sectionAdapter: SectionAdapter
 
     // Transition animation to change Active Apps RecyclerView background
     private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
@@ -141,9 +150,6 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
             findItem(R.id.navigation_system).setIcon(R.drawable.ic_section_system)
         }
 
-        // TODO remove mock
-        val mock = GridMock(baseContext)
-
         when (item.itemId) {
             R.id.navigation_launchpad -> {
                 // Active apps
@@ -158,13 +164,12 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
+                sectionAdapter.adapt(sectionMap[LAUNCHPAD_REQUEST_ID])
 
                 // Set up slider
                 // TODO move this code away
-
+                /*
                 val slider = DokeySlider(this)
-
                 mGridAdapter.pages[0].forEachIndexed { _, _, element ->
                     element.setOnInflateViewListener { view ->
                         view.setOnClickListener {
@@ -172,6 +177,9 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                         }
                     }
                 }
+                */
+                ///////
+
                 mGridAdapter.notifyDataSetChanged()
 
                 return@OnNavigationItemSelectedListener true
@@ -188,10 +196,8 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
-
                 // Update PagedGrid
-                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
-                mGridAdapter.notifyDataSetChanged()
+                sectionAdapter.adapt(sectionMap[SHORTCUT_REQUEST_ID])
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -208,8 +214,7 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
-                mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
-                mGridAdapter.notifyDataSetChanged()
+                sectionAdapter.adapt(sectionMap[SYSTEM_REQUEST_ID])
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -262,5 +267,51 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
         // Init PagedGridView
         pagedGridView.adapter = mGridAdapter
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // Close the current connection
+        networkManagerService?.closeConnection()
+    }
+
+    override fun onServiceConnected() {
+        sectionAdapter = SectionAdapter(mGridAdapter, this, networkManagerService)
+
+        // Request the section
+        networkManagerService?.requestSection(LAUNCHPAD_REQUEST_ID){ section ->
+            sectionMap[LAUNCHPAD_REQUEST_ID] = section
+            sectionAdapter.adapt(section)
+        }
+
+        // Request the section
+        networkManagerService?.requestSection(SHORTCUT_REQUEST_ID){ section ->
+            sectionMap[SHORTCUT_REQUEST_ID] = section
+        }
+
+        // Request the section
+        networkManagerService?.requestSection(SYSTEM_REQUEST_ID){ section ->
+            sectionMap[SYSTEM_REQUEST_ID] = section
+        }
+
+    }
+
+    override fun onSectionModified(section: Section) {
+        Log.d("SEC_MODIFIED", section.json().toString())
+    }
+
+    // Command may not be in the section.
+    // Check if exists in the current section and update
+    override fun onCommandModified(command: Command) {
+        Log.d("COMM_MODIFIED", command.json().toString())
+    }
+
+    override fun onApplicationSwitch(section: Section) {
+        Log.d("SWITCH", section.json().toString())
+    }
+
+    override fun onConnectionClosed() {
+        Log.d("CONNECT", "Connection closed")
     }
 }
