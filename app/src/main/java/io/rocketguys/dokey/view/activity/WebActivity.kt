@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view
+package io.rocketguys.dokey.view.activity
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle

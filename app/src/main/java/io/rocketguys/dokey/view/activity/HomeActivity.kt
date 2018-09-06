@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view
+package io.rocketguys.dokey.view.activity
 
 import android.content.Intent
 import android.graphics.Color
@@ -14,17 +14,19 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.ContextMenu
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.GridMock
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.adapter.ActiveAppAdapter
 import io.rocketguys.dokey.adapter.ActiveAppMock
+import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_home.*
+import android.view.Gravity
+import android.widget.PopupWindow
+import android.widget.LinearLayout
+import io.rocketguys.dokey.view.DokeySlider
 
 
 class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
@@ -63,7 +65,7 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
         lateinit var trans: TransitionDrawable
 
         when(newState){
-            HomeActivity.LOCK.INVISIBLE -> {
+            LOCK.INVISIBLE -> {
                 trans = TransitionDrawable(arrayOf(this.icon, ColorDrawable(Color.TRANSPARENT)))
                 Handler().postDelayed({
                     runOnUiThread {
@@ -71,11 +73,11 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
                     }
                 }, DRAWABLE_GRAD_TRANS_DURATION.toLong())
             }
-            HomeActivity.LOCK.CLOSE -> {
+            LOCK.CLOSE -> {
                 this.isVisible = true
                 trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)))
             }
-            HomeActivity.LOCK.OPEN -> {
+            LOCK.OPEN -> {
                 this.isVisible = true
                 trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)))
             }
@@ -157,6 +159,19 @@ class HomeActivity : AppCompatActivity(), PopupMenu.OnMenuItemClickListener {
 
                 // Update PagedGrid
                 mGridAdapter.pages = arrayOf(mock.apps(4, 5), mock.coordinates(4,4))
+
+                // Set up slider
+                // TODO move this code away
+
+                val slider = DokeySlider(this)
+
+                mGridAdapter.pages[0].forEachIndexed { _, _, element ->
+                    element.setOnInflateViewListener { view ->
+                        view.setOnClickListener {
+                            slider.show()
+                        }
+                    }
+                }
                 mGridAdapter.notifyDataSetChanged()
 
                 return@OnNavigationItemSelectedListener true

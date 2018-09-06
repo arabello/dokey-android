@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.HomeActivity"
+            android:name=".view.activity.HomeActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -24,14 +24,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.SettingsActivity"
+            android:name=".view.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".view.HomeActivity">
+            android:parentActivityName=".view.activity.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.rocketguys.dokey.view.HomeActivity" />
+                android:value="io.rocketguys.dokey.view.activity.HomeActivity" />
         </activity>
-        <activity android:name=".view.WebActivity"></activity>
+        <activity android:name=".view.activity.WebActivity"></activity>
     </application>
 
 </manifest>
