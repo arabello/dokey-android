@@ -1,8 +1,8 @@
 package io.rocketguys.dokey.network
 
-import android.content.Context
 import android.util.Log
 import io.rocketguys.dokey.BuildConfig
+import io.rocketguys.dokey.network.handler.SectionModifiedHandler
 import net.DEManager
 import net.LinkManager
 import net.model.DeviceInfo
@@ -15,7 +15,9 @@ import net.DEDaemon
  * This thread will handle the initial handshake and connection between the mobile
  * device and the computer.
  */
-class NetworkThread(val context: Context, val socket : Socket, val key : ByteArray) : Thread() {
+class NetworkThread(val networkManagerService: NetworkManagerService,
+                    val socket : Socket, val key : ByteArray) : Thread() {
+    private val context = networkManagerService.applicationContext
 
     // True if the mobile device is connected to the computer, false otherwise
     var isConnected = false
@@ -48,41 +50,41 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
 
                     Log.d(LOG_TAG,"Connected to ${deviceInfo.name}")
 
-                    // Signal the connection event
-                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
-
                     // Notify the listener
                     onConnectionEstablished?.invoke(deviceInfo)
+
+                    // Signal the connection event
+                    broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, deviceInfo.json().toString())
                 }
 
                 override fun onInvalidKey() {
                     Log.e(LOG_TAG, "Invalid key, desktop refused to connect")
 
-                    // Signal the invalid key event
-                    broadcastManager.sendBroadcast(NetworkEvent.INVALID_KEY_EVENT)
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the invalid key event
+                    broadcastManager.sendBroadcast(NetworkEvent.INVALID_KEY_EVENT)
                 }
 
                 override fun onReceiverVersionTooLow(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Desktop version too low: ${deviceInfo.name} VER: $versionNumber")
 
-                    // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the problem
+                    broadcastManager.sendBroadcast(NetworkEvent.DESKTOP_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
                 }
 
                 override fun onConnectionNotAccepted(deviceInfo: DeviceInfo, versionNumber: Int) {
                     Log.e(LOG_TAG, "Mobile version too low: ${deviceInfo.name} VER: $versionNumber")
 
-                    // Signal the problem
-                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
-
                     // Close the connection
                     socket.close()
+
+                    // Signal the problem
+                    broadcastManager.sendBroadcast(NetworkEvent.MOBILE_VERSION_TOO_LOW_EVENT, deviceInfo.json().toString())
                 }
             })
 
@@ -92,6 +94,9 @@ class NetworkThread(val context: Context, val socket : Socket, val key : ByteArr
                     closeConnection()
                 }
             }
+
+            // Register the service handlers
+            linkManager?.registerServiceHandler(SectionModifiedHandler(networkManagerService))
 
             // Start the link manager daemon
             linkManager?.startDaemon()

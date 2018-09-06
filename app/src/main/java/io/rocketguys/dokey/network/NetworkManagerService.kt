@@ -7,7 +7,9 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import io.rocketguys.dokey.network.cache.CommandCache
+import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
+import io.rocketguys.dokey.network.handler.SectionModifiedHandler
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser
@@ -17,6 +19,7 @@ import model.parser.section.DefaultSectionParser
 import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo
+import java.io.File
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.Executors
@@ -49,7 +52,7 @@ class NetworkManagerService : Service() {
 
     // The broadcast manager will handle all the notifications to the application
     // about the network events that occur
-    private var broadcastManager : NetworkBroadcastManager? = null
+    var broadcastManager : NetworkBroadcastManager? = null
 
     // When connected to a server, this variable will hold the computer details
     private var serverInfo : DeviceInfo? = null
@@ -62,16 +65,17 @@ class NetworkManagerService : Service() {
     /*
     Parsers
      */
-    private val commandParser = TypeCommandParser()
-    private val componentParser = CachingComponentParser()
-    private val pageParser = DefaultPageParser(componentParser)
-    private val sectionParser = DefaultSectionParser(pageParser)
+    val commandParser = TypeCommandParser()
+    val componentParser = CachingComponentParser()
+    val pageParser = DefaultPageParser(componentParser)
+    val sectionParser = DefaultSectionParser(pageParser)
 
     /*
     Caches
      */
-    private var commandCache : CommandCache? = null
-    private var sectionCache : SectionCache? = null
+    var commandCache : CommandCache? = null
+    var sectionCache : SectionCache? = null
+    var imageCache : ImageCache? = null
 
     /*
     INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
@@ -118,18 +122,22 @@ class NetworkManagerService : Service() {
         // Make sure the network thread has not been started yet
         if (networkThread == null) {
             // Create the network thread
-            networkThread = NetworkThread(this.applicationContext, socket, key)
+            networkThread = NetworkThread(this, socket, key)
 
             // Setup all the needed network thread listeners
-            networkThread!!.onConnectionClosed = {
-                // Reset the network thread
-                networkThread = null
-            }
             networkThread!!.onConnectionEstablished = {deviceInfo ->
                 serverInfo = deviceInfo
 
                 // Reset the caches
                 commandCache = CommandCache(this@NetworkManagerService, commandParser, deviceInfo.id)
+                sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
+                imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
+
+                Log.d("CACHE", "Setup")
+            }
+            networkThread!!.onConnectionClosed = {
+                // Reset the network thread
+                networkThread = null
             }
 
             // Start the network thread
@@ -229,6 +237,14 @@ class NetworkManagerService : Service() {
         return null
     }
 
+    /**
+     * Close the current connection and reset the service.
+     */
+    fun closeConnection() {
+        networkThread?.closeConnection()
+        networkThread = null
+    }
+
     /*
     APP LEVEL METHODS, needed to interact with the dokey server
      */
@@ -291,8 +307,11 @@ class NetworkManagerService : Service() {
      * when the section is available the "callback" function will be called.
      * If the section cannot be found, the callback function will be called with
      * a null argument.
+     *
+     * @param forceCache if true, only use the cached version of the section without
+     *                   requesting it from the server.
      */
-    fun requestSection(id: String, callback: (Section?) -> Unit) {
+    fun requestSection(id: String, forceCache : Boolean = false, callback: (Section?) -> Unit) {
         // Make the request
         executorService.execute {
             // At first, check if the section is available in the cache
@@ -306,6 +325,14 @@ class NetworkManagerService : Service() {
                 requestBody.put("lastEdit", cachedSection.lastEdit)
             }
 
+            if (forceCache) { // Use cached version without requesting it
+                runOnUiThread(Runnable {
+                    callback(cachedSection)
+                })
+                return@execute
+            }
+
+            // Request the section to the server
             networkThread?.linkManager?.requestService("get_section", requestBody, object : ServiceResponseAdapter() {
                 override fun onServiceResponse(responseBody: JSONObject?) {
                     // Decode the received section
@@ -336,6 +363,44 @@ class NetworkManagerService : Service() {
                     }
                 }
             })
+        }
+    }
+
+    /**
+     * Request the image with the given id. The function will run asynchronously and
+     * when the image is available the "callback" function will be called.
+     * If the image cannot be found, the callback function will be called with
+     * a null argument.
+     */
+    fun requestImage(id: String, callback: (imageId: String, imageFile: File?) -> Unit) {
+        // Make the request
+        executorService.execute {
+            // At first, check if the image is available in the cache
+            val cachedImage = imageCache?.getImageFile(id)
+
+            // If there is a cached image, return immediately
+            if (cachedImage != null) {
+                callback(id, cachedImage)
+            }else{  // No cached image, request it from the server
+                networkThread?.linkManager?.requestImage(id, object : LinkManager.OnImageResponseListener {
+                    override fun onImageReceived(imageIdentifier: String, iconFile: File) {
+                        // Image found, save it in the cache
+                        val cachedImageFile = imageCache?.saveImage(imageIdentifier, iconFile)
+
+                        // Return the image
+                        runOnUiThread(Runnable {
+                            callback(imageIdentifier, cachedImageFile)
+                        })
+                    }
+
+                    override fun onImageNotFound(imageIdentifier: String) {
+                        // Image not found, return an empty callback
+                        runOnUiThread(Runnable {
+                            callback(imageIdentifier, null)
+                        })
+                    }
+                })
+            }
         }
     }
 

@@ -9,6 +9,10 @@ import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import io.rocketguys.dokey.network.NetworkBroadcastManager
 import io.rocketguys.dokey.network.NetworkManagerService
+import model.parser.command.TypeCommandParser
+import model.parser.component.CachingComponentParser
+import model.parser.page.DefaultPageParser
+import model.parser.section.DefaultSectionParser
 
 /**
  * This class provides the basic functions to automatically bind to
@@ -54,21 +58,21 @@ abstract class NetworkActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
+    override fun onStart() {
         // Request to bind the service
         bindNetworkService()
 
-        super.onResume()
+        super.onStart()
     }
 
-    override fun onPause() {
+    override fun onStop() {
         // Unbind the service
         if (isBound) {
             unbindService(serviceConnection)
             isBound = false
         }
 
-        super.onPause()
+        super.onStop()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
