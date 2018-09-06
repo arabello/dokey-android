@@ -255,7 +255,7 @@ class NetworkManagerService : Service() {
      * If the command cannot be found, the callback function will be called with
      * a null argument.
      */
-    fun requestCommand(id: Int, callback: (Command?) -> Unit) {
+    fun requestCommand(id: Int, forceCache : Boolean = false, callback: (Command?) -> Unit) {
         // Make the request
         executorService.execute {
             // At first, check if the command is available in the cache
@@ -267,6 +267,13 @@ class NetworkManagerService : Service() {
             // If there is a cached command, send also the last edit to check if it is up to date
             if (cachedCommand != null) {
                 requestBody.put("lastEdit", cachedCommand.lastEdit)
+            }
+
+            if (forceCache) { // Use cached version without requesting it
+                runOnUiThread(Runnable {
+                    callback(cachedCommand)
+                })
+                return@execute
             }
 
             networkThread?.linkManager?.requestService("get_command", requestBody, object : ServiceResponseAdapter() {
@@ -310,8 +317,13 @@ class NetworkManagerService : Service() {
      *
      * @param forceCache if true, only use the cached version of the section without
      *                   requesting it from the server.
+     *
+     * @param remoteLastEdit if set, represents the remote section last edit. This is used
+     *                       to determine if the section can be taken directly from the cache
+     *                       without requesting it to the server.
      */
-    fun requestSection(id: String, forceCache : Boolean = false, callback: (Section?) -> Unit) {
+    fun requestSection(id: String, forceCache : Boolean = false, remoteLastEdit: Long = Long.MAX_VALUE,
+                       callback: (Section?) -> Unit) {
         // Make the request
         executorService.execute {
             // At first, check if the section is available in the cache
@@ -325,7 +337,8 @@ class NetworkManagerService : Service() {
                 requestBody.put("lastEdit", cachedSection.lastEdit)
             }
 
-            if (forceCache) { // Use cached version without requesting it
+            // Use cached version without requesting it
+            if (forceCache || remoteLastEdit <= cachedSection?.lastEdit ?: 0) {
                 runOnUiThread(Runnable {
                     callback(cachedSection)
                 })

@@ -59,8 +59,9 @@ class TestNavigationDrawerActivity : ConnectedActivity() {
         Log.d("COMM_MODIFIED", command.json().toString())
     }
 
-    override fun onApplicationSwitch(section: Section) {
-        Log.d("SWITCH", section.json().toString())
+    override fun onApplicationSwitch(applicationName: String, section: Section?) {
+        Log.d("SWITCH", applicationName)
+        Log.d("SWITCH", section?.json().toString())
     }
 
     override fun onConnectionClosed() {

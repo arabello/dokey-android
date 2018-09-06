@@ -28,7 +28,7 @@ abstract class ConnectedActivity : NetworkActivity() {
     /**
      * Called when the user switches to another application
      */
-    abstract fun onApplicationSwitch(section: Section)
+    abstract fun onApplicationSwitch(applicationName: String, section: Section?)
 
     /**
      * Called when the connection with the desktop server is interrupted.
@@ -40,6 +40,8 @@ abstract class ConnectedActivity : NetworkActivity() {
 
         // Register the broadcast listeners
         broadcastManager?.registerReceiver(NetworkEvent.SECTION_MODIFIED_EVENT, sectionModifiedReceiver)
+        broadcastManager?.registerReceiver(NetworkEvent.COMMAND_MODIFIED_EVENT, commandModifiedReceiver)
+        broadcastManager?.registerReceiver(NetworkEvent.APPLICATION_SWITCH_EVENT, applicationSwitchReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_CLOSED_EVENT, connectionClosedReceiver)
     }
 
@@ -48,6 +50,8 @@ abstract class ConnectedActivity : NetworkActivity() {
 
         // Unregister all the listeners
         broadcastManager?.unregisterReceiver(sectionModifiedReceiver)
+        broadcastManager?.unregisterReceiver(commandModifiedReceiver)
+        broadcastManager?.unregisterReceiver(applicationSwitchReceiver)
         broadcastManager?.unregisterReceiver(connectionClosedReceiver)
     }
 
@@ -63,21 +67,36 @@ abstract class ConnectedActivity : NetworkActivity() {
         }
     }
 
-//    private val commandModifiedReceiver = object : BroadcastReceiver() {
-//        override fun onReceive(context: Context?, intent: Intent?) {
-//            val commandPayload = intent?.getStringExtra("payload")
-//            val command = commandParser.fromJSON(JSONObject(commandPayload))
-//            onCommandModified(command)
-//        }
-//    }
-//
-//    private val applicationSwitchReceiver = object : BroadcastReceiver() {
-//        override fun onReceive(context: Context?, intent: Intent?) {
-//            val sectionPayload = intent?.getStringExtra("payload")
-//            val section = sectionParser.fromJSON(JSONObject(sectionPayload))
-//            onApplicationSwitch(section)
-//        }
-//    }
+    private val commandModifiedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val commandId = intent?.getStringExtra("payload")?.toInt()
+
+            networkManagerService?.requestCommand(commandId!!, forceCache = true) {command ->
+                if (command != null) {
+                    onCommandModified(command)
+                }
+            }
+        }
+    }
+
+    private val applicationSwitchReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val payload = intent?.getStringExtra("payload")
+            val payloadJson = JSONObject(payload)
+
+            val applicationName = payloadJson.getString("appName")
+            val sectionId = payloadJson.optString("sectionId", null)
+            val lastEdit = payloadJson.optLong("lastEdit", -1)
+
+            if (sectionId == null) {  // No section is available for the current app
+                onApplicationSwitch(applicationName, null)
+            }else{  // Section is available, request it from the service.
+                networkManagerService?.requestSection(sectionId, remoteLastEdit = lastEdit) {
+                    section -> onApplicationSwitch(applicationName, section)
+                }
+            }
+        }
+    }
 
     private val connectionClosedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
