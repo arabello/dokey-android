@@ -2,6 +2,8 @@ package io.rocketguys.dokey.network
 
 import android.util.Log
 import io.rocketguys.dokey.BuildConfig
+import io.rocketguys.dokey.network.handler.ApplicationSwitchHandler
+import io.rocketguys.dokey.network.handler.CommandModifiedHandler
 import io.rocketguys.dokey.network.handler.SectionModifiedHandler
 import net.DEManager
 import net.LinkManager
@@ -97,6 +99,8 @@ class NetworkThread(val networkManagerService: NetworkManagerService,
 
             // Register the service handlers
             linkManager?.registerServiceHandler(SectionModifiedHandler(networkManagerService))
+            linkManager?.registerServiceHandler(CommandModifiedHandler(networkManagerService))
+            linkManager?.registerServiceHandler(ApplicationSwitchHandler(networkManagerService))
 
             // Start the link manager daemon
             linkManager?.startDaemon()
