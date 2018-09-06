@@ -418,6 +418,15 @@ class NetworkManagerService : Service() {
     }
 
     /**
+     * Execute the given command in the connected dokey desktop.
+     */
+    fun executeCommand(command: Command) {
+        executorService.execute {
+            networkThread?.linkManager?.sendCommand(command, null)
+        }
+    }
+
+    /**
      * Convenience class to work with service responses.
      */
     open class ServiceResponseAdapter : LinkManager.OnServiceResponseListener {

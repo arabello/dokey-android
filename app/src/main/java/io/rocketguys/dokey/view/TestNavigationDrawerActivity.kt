@@ -45,6 +45,10 @@ class TestNavigationDrawerActivity : ConnectedActivity() {
                         networkManagerService?.requestImage(it?.iconId!!) { imageId, imageFile ->
                             Log.d("IMAGE", imageFile?.absolutePath)
                         }
+
+                        if (it?.title?.contains("Trello", ignoreCase = true) == true) {
+                            networkManagerService?.executeCommand(it)
+                        }
                     }
                 }
             }
