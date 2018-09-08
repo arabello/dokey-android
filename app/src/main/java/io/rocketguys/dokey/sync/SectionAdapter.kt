@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.adapter
+package io.rocketguys.dokey.sync
 
 import model.section.Section
 

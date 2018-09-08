@@ -1,10 +1,11 @@
-package io.rocketguys.dokey.adapter
+package io.rocketguys.dokey.sync
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.ActiveAppMock
 import kotlinx.android.synthetic.main.item_active_app.view.*
 
 /**

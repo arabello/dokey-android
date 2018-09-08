@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view
+package io.rocketguys.dokey.slider
 
 import android.app.Activity
 import android.os.Build

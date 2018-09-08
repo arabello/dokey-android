@@ -1,10 +1,11 @@
-package io.rocketguys.dokey.view.activity
+package io.rocketguys.dokey.connect
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
+import io.rocketguys.dokey.HomeActivity
 import net.model.DeviceInfo
 
 

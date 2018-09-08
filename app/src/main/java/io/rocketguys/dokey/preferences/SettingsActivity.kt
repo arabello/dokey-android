@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view.activity
+package io.rocketguys.dokey.preferences
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.WebActivity
 import java.io.File
 
 class SettingsActivity : AppCompatPreferenceActivity() {

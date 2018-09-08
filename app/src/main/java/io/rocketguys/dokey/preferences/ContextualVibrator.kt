@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.util
+package io.rocketguys.dokey.preferences
 
 import android.content.Context
 import android.content.Context.VIBRATOR_SERVICE
@@ -19,7 +19,7 @@ import io.rocketguys.dokey.R
 class ContextualVibrator private constructor(private val vibrator: Vibrator, private val shouldVibrate: Boolean) {
     
     companion object {
-        private var instance: ContextualVibrator ?= null
+        private var instance: ContextualVibrator?= null
         fun from(context: Context): ContextualVibrator =
                 if (instance != null)
                     instance as ContextualVibrator

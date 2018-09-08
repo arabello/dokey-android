@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view.activity
+package io.rocketguys.dokey
 
 import android.content.Intent
 import android.graphics.Color
@@ -20,12 +20,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
-import io.rocketguys.dokey.R
-import io.rocketguys.dokey.adapter.ActiveAppAdapter
-import io.rocketguys.dokey.adapter.ActiveAppMock
-import io.rocketguys.dokey.adapter.SectionAdapter
-import io.rocketguys.dokey.adapter.SectionConnectedAdapter
+import io.rocketguys.dokey.sync.ActiveAppAdapter
+import io.rocketguys.dokey.sync.SectionAdapter
+import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import io.rocketguys.dokey.network.activity.ConnectedActivity
+import io.rocketguys.dokey.preferences.SettingsActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section

@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.adapter
+package io.rocketguys.dokey.sync
 
 import android.graphics.BitmapFactory
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
@@ -16,7 +16,7 @@ import model.section.Section
  */
 class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                               val activity: ConnectedActivity,
-                              val networkManagerService: NetworkManagerService?) : SectionAdapter{
+                              val networkManagerService: NetworkManagerService?) : SectionAdapter {
 
     override fun notifySectionChanged(section: Section?) {
         gridAdapter.pages = arrayOf<Grid>()

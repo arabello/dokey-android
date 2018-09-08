@@ -6,7 +6,7 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.rocketguys.dokey.view.activity.HomeActivity">
+    tools:context="io.rocketguys.dokey.HomeActivity">
 
     <include
         android:id="@+id/toolbar"

@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.adapter
+package io.rocketguys.dokey
 
 import android.content.Context
 import android.graphics.Bitmap

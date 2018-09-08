@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view.activity
+package io.rocketguys.dokey.connect
 
 import android.Manifest
 import android.content.pm.PackageManager

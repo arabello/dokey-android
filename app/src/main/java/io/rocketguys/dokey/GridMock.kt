@@ -9,7 +9,6 @@ import io.matteopellegrino.pagedgrid.element.AbstractElement
 import io.matteopellegrino.pagedgrid.element.BitmapIcon
 import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.matteopellegrino.pagedgrid.grid.Grid
-import io.rocketguys.dokey.adapter.ActiveAppMock
 
 /**
  * TODO: Add class description

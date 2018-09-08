@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.view.activity
+package io.rocketguys.dokey.preferences
 
 import android.content.res.Configuration
 import android.os.Bundle
