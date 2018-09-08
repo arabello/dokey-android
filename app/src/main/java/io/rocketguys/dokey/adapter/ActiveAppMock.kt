@@ -13,13 +13,15 @@ import java.io.FileInputStream
  */
 interface ActiveAppMock{
     object Factory{
-        fun list(context: Context, size: Int) = Array<ActiveAppMock>(size){
+        fun list(context: Context, size: Int) = List<ActiveAppMock>(size){
                 val dir = File("${context.filesDir}${File.separator}mock")
+                if (dir.listFiles() == null)
+                    return emptyList<ActiveAppMock>()
                 val pos = (Math.random() * dir.listFiles().size).toInt()
                 object : ActiveAppMock {
                     override val bitmap = BitmapFactory.decodeStream(FileInputStream(dir.listFiles()[pos]))
                 }
-            }.toList()
+            }
     }
     val bitmap: Bitmap
 }
