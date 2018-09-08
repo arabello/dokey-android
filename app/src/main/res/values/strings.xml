@@ -16,6 +16,9 @@
     <string name="title_more_settings">Settings</string>
     <string name="title_more_docs">Documentation</string>
 
+    <!-- Activity Connect -->
+    <string name="title_activity_connect">Dokey Sync</string>
+
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
