@@ -47,6 +47,9 @@ dependencies {
     // QR code
     implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.0'
+
+    // Fancy loading stuff
+    implementation 'com.wang.avi:library:2.1.3'
 }
 
 /**
