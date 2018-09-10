@@ -5,13 +5,13 @@ import io.rocketguys.dokey.BuildConfig
 import io.rocketguys.dokey.network.handler.ApplicationSwitchHandler
 import io.rocketguys.dokey.network.handler.CommandModifiedHandler
 import io.rocketguys.dokey.network.handler.SectionModifiedHandler
+import io.rocketguys.dokey.network.util.DeviceInfoBuilder
+import net.DEDaemon
 import net.DEManager
 import net.LinkManager
 import net.model.DeviceInfo
 import java.io.IOException
 import java.net.Socket
-import io.rocketguys.dokey.network.util.DeviceInfoBuilder
-import net.DEDaemon
 
 /**
  * This thread will handle the initial handshake and connection between the mobile

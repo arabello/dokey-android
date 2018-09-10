@@ -2,9 +2,9 @@ package io.rocketguys.dokey.network
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.content.IntentFilter
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 
 // Broadcast events

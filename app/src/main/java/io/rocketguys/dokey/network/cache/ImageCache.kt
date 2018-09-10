@@ -2,7 +2,7 @@ package io.rocketguys.dokey.network.cache
 
 import android.content.Context
 import io.rocketguys.dokey.network.util.NetworkUtils
-import java.io.*
+import java.io.File
 
 class ImageCache(context: Context, serverIdentifier : String)
     : AbstractCache<String, File>(context, serverIdentifier, "images"){

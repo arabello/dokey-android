@@ -4,15 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.rocketguys.dokey.network.NetworkEvent
-import io.rocketguys.dokey.network.util.DeviceInfoBuilder.deviceInfo
 import json.JSONObject
 import model.command.Command
-import model.parser.command.TypeCommandParser
-import model.parser.component.CachingComponentParser
-import model.parser.page.DefaultPageParser
-import model.parser.section.DefaultSectionParser
 import model.section.Section
-import net.model.DeviceInfo
 
 abstract class ConnectedActivity : NetworkActivity() {
     /**

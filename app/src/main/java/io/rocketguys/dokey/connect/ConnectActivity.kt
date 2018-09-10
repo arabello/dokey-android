@@ -4,47 +4,60 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.google.zxing.integration.android.IntentIntegrator
-import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import io.rocketguys.dokey.HomeActivity
+import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import net.model.DeviceInfo
 
 
 class ConnectActivity : ConnectionBuilderActivity() {
 
+    companion object {
+        private val TAG: String = ConnectActivity::class.java.simpleName
+    }
+
+    private var qrPayload: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
+        Log.d(TAG, "onCreate")
+
+        // TODO Check user wifi connection (needed)
+
+
+        // Try to connect using QR code cache
+        qrPayload = ScanActivity.cache(this).qrCode
+        if (qrPayload == null)
+            startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG, "onCreate")
         val result = IntentIntegrator.parseActivityResult(IntentIntegrator.REQUEST_CODE, resultCode, data)
         if(result != null) {
             if(result.contents == null) {
                 // User cancelled scanning
                 // TODO Handle UX case
             } else {
-                onScanComplete(result.contents)
+                qrPayload = if (result.contents.startsWith(ScanActivity.QR_PAYLOAD_CHECK)) result.contents else null
+                Log.d(TAG, "QR scan result: $qrPayload")
             }
         }
     }
 
-    fun onScanComplete(payload: String){
-        if (!payload.startsWith(ScanActivity.QR_PAYLOAD_CHECK)){
-            // The QR code scanned is not for Dokey, alert user
-            // TODO Handle error  here
-            return
-        }
-
-        networkManagerService?.beginConnection(payload)
-    }
-
     override fun onServiceConnected() {
-        Log.d("CONNECT", "Service connected")
+        if (qrPayload != null) {
+            networkManagerService?.beginConnection(qrPayload!!)
+            Log.d(TAG, "Begin connection")
+        }
     }
 
     // Start HomeActivity, connection is stable
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
-        Log.d("CONNECT", "Connection established")
+        Log.d(TAG, "Connection established to $serverInfo")
+
+        // Update cache
+        ScanActivity.cache(this).qrCode = qrPayload
+        ScanActivity.cache(this).deviceInfo = serverInfo
 
         // Start the main activity
         val intent = Intent(this, HomeActivity::class.java)
@@ -53,26 +66,38 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     override fun onServerNotInTheSameNetworkError() {
-        Log.d("CONNECT", "Not in the same server")
+        Log.d(TAG, "Not in the same server")
+
+        // TODO Handle error
     }
 
     override fun onConnectionError() {
-        Log.d("CONNECT", "Connection error")
+        Log.d(TAG, "Connection error")
+
+        // TODO Handle error
     }
 
     override fun onInvalidKeyError() {
-        Log.d("CONNECT", "Invalid key")
+        Log.d(TAG, "Invalid key")
+
+        // TODO Handle error
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
-        Log.d("CONNECT", "Desktop version too low")
+        Log.d(TAG, "Desktop version too low")
+
+        // TODO Handle error
     }
 
     override fun onMobileVersionTooLowError(serverInfo: DeviceInfo) {
-        Log.d("CONNECT", "Mobile version too low")
+        Log.d(TAG, "Mobile version too low")
+
+        // TODO Handle error
     }
 
     override fun onConnectionClosed() {
-        Log.d("CONNECT", "Connection closed")
+        Log.d(TAG, "Connection closed")
+
+        // TODO Handle error
     }
 }

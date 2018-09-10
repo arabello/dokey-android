@@ -1,9 +1,8 @@
 package io.rocketguys.dokey.network
 
-import android.content.Context
-import java.util.*
 import java.net.Inet4Address
 import java.net.NetworkInterface
+import java.util.*
 
 /**
  * Used to parse the QR code payload, extracting the correct ip address and the key

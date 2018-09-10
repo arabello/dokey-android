@@ -9,7 +9,6 @@ import android.util.Log
 import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
-import io.rocketguys.dokey.network.handler.SectionModifiedHandler
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser

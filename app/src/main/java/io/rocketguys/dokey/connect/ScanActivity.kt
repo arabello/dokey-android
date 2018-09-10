@@ -1,15 +1,20 @@
 package io.rocketguys.dokey.connect
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.KeyEvent
 import com.journeyapps.barcodescanner.CaptureManager
 import io.rocketguys.dokey.R
+import json.JSONObject
 import kotlinx.android.synthetic.main.activity_scan.*
+import net.model.DeviceInfo
 
 /**
  * TODO: Add class description
@@ -19,8 +24,42 @@ import kotlinx.android.synthetic.main.activity_scan.*
 class ScanActivity : AppCompatActivity(){
 
     companion object {
-        const val QR_PAYLOAD_CHECK = "DOKEY;"
+        private val TAG: String = ScanActivity::class.java.simpleName
         private const val CAMERA_PERM_ID = 1
+
+        const val QR_PAYLOAD_CHECK = "DOKEY;"
+
+        fun cache(context: Context): ScanCache = ScanCache(context)
+
+        class ScanCache(context: Context){
+            companion object {
+                private const val QR_CODE_KEY = "qr_code"
+                private const val DEVICE_INFO_KEY = "device_info"
+            }
+            private val pref = PreferenceManager.getDefaultSharedPreferences(context)!!
+
+            var qrCode : String?
+                get() {
+                    val s = pref.getString(QR_CODE_KEY, null)
+                    Log.d(TAG, "cache read qr code: $s")
+                    return s
+                }
+                set(value) {
+                    pref.edit().putString(QR_CODE_KEY, value).apply()
+                    Log.d(TAG, "cache write qr code: $value")
+                }
+
+            var deviceInfo : DeviceInfo?
+                get() {
+                    val s = pref.getString(DEVICE_INFO_KEY, null)
+                    Log.d(TAG, "cache read device info: $s")
+                    return if (s == null) null else DeviceInfo.fromJson(JSONObject(s))
+                }
+                set(value) {
+                    pref.edit().putString(DEVICE_INFO_KEY, value?.json().toString()).apply()
+                    Log.d(TAG, "cache write device info: $value")
+                }
+        }
     }
 
     private lateinit var captureManager: CaptureManager

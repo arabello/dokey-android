@@ -1,7 +1,6 @@
 package io.rocketguys.dokey.network.cache
 
 import android.content.Context
-import io.rocketguys.dokey.network.util.NetworkUtils
 import json.JSONObject
 import json.JSONTokener
 import model.command.Command

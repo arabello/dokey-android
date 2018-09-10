@@ -20,11 +20,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
+import io.rocketguys.dokey.network.activity.ConnectedActivity
+import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
 import io.rocketguys.dokey.sync.SectionAdapter
 import io.rocketguys.dokey.sync.SectionConnectedAdapter
-import io.rocketguys.dokey.network.activity.ConnectedActivity
-import io.rocketguys.dokey.preferences.SettingsActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
@@ -32,6 +32,7 @@ import model.section.Section
 
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     companion object {
+        private val TAG: String = HomeActivity::class.java.simpleName
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
     }
 
@@ -131,7 +132,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         return when(item?.itemId){
             R.id.action_more_settings -> {
-                Log.d("lol", "lol")
                 true
             }
             else -> {
@@ -164,7 +164,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
-                    Log.d("SECTION", section?.json().toString())
+                    Log.d(TAG, section?.json().toString())
                     sectionAdapter?.notifySectionChanged(section)
                 }
 
@@ -198,7 +198,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
-                    Log.d("SECTION", section?.json().toString())
+                    Log.d(TAG, section?.json().toString())
                     sectionAdapter?.notifySectionChanged(section)
                 }
 
@@ -219,7 +219,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
-                    Log.d("SECTION", section?.json().toString())
+                    Log.d(TAG, section?.json().toString())
                     sectionAdapter?.notifySectionChanged(section)
                 }
 
@@ -293,18 +293,18 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
         // Request the section
         networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
-            Log.d("SECTION", section?.json().toString())
+            Log.d(TAG, section?.json().toString())
             sectionAdapter?.notifySectionChanged(section)
         }
 
         // Request the section
         networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
-            Log.d("SECTION", section?.json().toString())
+            Log.d(TAG, section?.json().toString())
         }
 
         // Request the section
         networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
-            Log.d("SECTION", section?.json().toString())
+            Log.d(TAG, section?.json().toString())
         }
 
     }

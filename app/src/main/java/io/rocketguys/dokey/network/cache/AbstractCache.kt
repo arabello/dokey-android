@@ -1,8 +1,7 @@
 package io.rocketguys.dokey.network.cache
 import android.content.Context
 import io.rocketguys.dokey.network.util.NetworkUtils
-import model.command.Command
-import java.io.*
+import java.io.File
 
 abstract class AbstractCache<K, V>(val context: Context, serverIdentifier : String,
                                    cacheFolderName: String) {
