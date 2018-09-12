@@ -85,20 +85,20 @@ class ConnectActivity : ConnectionBuilderActivity() {
     private fun commonErrorHandler(msg: String){
         progressBar.indicator.color = Color.RED
         devInfoText.text = msg
-        connectivityText.text = getString(R.string.acty_connectivity_error)
+        connectivityText.text = getString(R.string.acty_connect_error)
         scanBtn.visibility = View.VISIBLE
     }
 
     override fun onServerNotInTheSameNetworkError() {
         Log.d(TAG, "Not in the same server")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onConnectionError() {
         Log.d(TAG, "Connection error")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle UX
 
@@ -108,28 +108,28 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onInvalidKeyError() {
         Log.d(TAG, "Invalid key")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Desktop version too low")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onMobileVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Mobile version too low")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onConnectionClosed() {
         Log.d(TAG, "Connection closed")
-        commonErrorHandler(getString(R.string.acty_scan_hint))
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle error
     }

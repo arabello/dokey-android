@@ -68,6 +68,8 @@ class ScanActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
+        hint.text = getString(R.string.acty_scan_hint, getString(R.string.url_dokey_io))
+
         captureManager = CaptureManager(this, barcodeView)
         captureManager.initializeFromIntent(intent, savedInstanceState)
 

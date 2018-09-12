@@ -17,10 +17,13 @@
     <string name="title_more_docs">Documentation</string>
 
     <!-- Activity Connect -->
-    <string name="acty_connectivity_msg">Connecting</string>
-    <string name="acty_connectivity_error">Connection error</string>
-    <string name="acty_scan_btn">Scan</string>
-    <string name="acty_scan_hint">Please scan QR code again</string>
+    <string name="acty_connect_msg">Connecting</string>
+    <string name="acty_connect_error">Connection error</string>
+    <string name="acty_connect_scan_btn">Scan</string>
+    <string name="acty_connect_scan_hint">Please scan QR code again</string>
+
+    <!-- Activity Scan -->
+    <string name="acty_scan_hint">Download Dokey Desktop at %1$s and scan the QR code</string>
 
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
