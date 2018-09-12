@@ -17,7 +17,10 @@
     <string name="title_more_docs">Documentation</string>
 
     <!-- Activity Connect -->
-    <string name="msg_connecting">Connecting</string>
+    <string name="acty_connectivity_msg">Connecting</string>
+    <string name="acty_connectivity_error">Connection error</string>
+    <string name="acty_scan_btn">Scan</string>
+    <string name="acty_scan_hint">Please scan QR code again</string>
 
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>

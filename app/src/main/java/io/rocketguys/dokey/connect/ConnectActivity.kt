@@ -2,20 +2,14 @@ package io.rocketguys.dokey.connect
 
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.util.Log
-import android.view.ViewGroup
+import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
-import io.rocketguys.dokey.R.color.grad_1
-import io.rocketguys.dokey.R.color.grad_2
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
-import kotlinx.android.synthetic.main.activity_home.*
 import net.model.DeviceInfo
 
 
@@ -34,6 +28,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
         // TODO Check user wifi connection (needed)
 
+        // Set up new scan btn
+        scanBtn.setOnClickListener {
+            startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
+        }
+
         // Try to connect using QR code cache
         qrPayload = ScanActivity.cache(this).qrCode
         if (qrPayload == null)
@@ -41,7 +40,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         else{
             progressBar.smoothToShow()
             val deviceInfo = ScanActivity.cache(this).deviceInfo
-            devInfoTextView.text = "${deviceInfo?.name} ${deviceInfo?.os}"
+            devInfoText.text = "${deviceInfo?.name} ${deviceInfo?.os}"
         }
     }
 
@@ -82,38 +81,55 @@ class ConnectActivity : ConnectionBuilderActivity() {
         finish()
     }
 
+
+    private fun commonErrorHandler(msg: String){
+        progressBar.indicator.color = Color.RED
+        devInfoText.text = msg
+        connectivityText.text = getString(R.string.acty_connectivity_error)
+        scanBtn.visibility = View.VISIBLE
+    }
+
     override fun onServerNotInTheSameNetworkError() {
         Log.d(TAG, "Not in the same server")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onConnectionError() {
         Log.d(TAG, "Connection error")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
-        // TODO Handle error
+        // TODO Handle UX
+
+        // Request scan
+        //startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
     }
 
     override fun onInvalidKeyError() {
         Log.d(TAG, "Invalid key")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Desktop version too low")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onMobileVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Mobile version too low")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
         // TODO Handle error
     }
 
     override fun onConnectionClosed() {
         Log.d(TAG, "Connection closed")
+        commonErrorHandler(getString(R.string.acty_scan_hint))
 
         // TODO Handle error
     }
