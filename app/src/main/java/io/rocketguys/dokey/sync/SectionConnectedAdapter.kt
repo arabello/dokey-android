@@ -32,12 +32,16 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                     //Log.d("COMMAND", cmd?.json().toString())
 
                     // Request the image
-                    networkManagerService?.requestImage(cmd?.iconId!!) { imageId, imageFile ->
+                    networkManagerService.requestImage(cmd?.iconId!!) { imageId, imageFile ->
                         //Log.d("IMAGE", imageFile?.absolutePath)
 
                         val bitmap = BitmapFactory.decodeFile(imageFile?.absolutePath)
                         grid[component.x!!, component.y!!] = BitmapIcon(cmd.title!!, bitmap)
-
+                        grid[component.x!!, component.y!!].setOnInflateViewListener { view ->
+                            view.setOnClickListener {
+                                networkManagerService.executeCommand(cmd)
+                            }
+                        }
                         activity.runOnUiThread {
                             gridAdapter.notifyDataSetChanged()
                         }
