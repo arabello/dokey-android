@@ -3,7 +3,8 @@ package io.rocketguys.dokey.sync
 import model.section.Section
 
 /**
- * TODO: Add class description
+ * This adapter is responsible to adapt
+ * the view for a given [Section]
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */

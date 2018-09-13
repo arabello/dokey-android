@@ -3,6 +3,7 @@ package io.rocketguys.dokey.connect
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
@@ -23,20 +24,19 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
         setContentView(R.layout.activity_connect)
 
         // TODO Check user wifi connection (needed)
 
         // Set up new scan btn
         scanBtn.setOnClickListener {
-            startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
+            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         }
 
         // Try to connect using QR code cache
         qrPayload = ScanActivity.cache(this).qrCode
         if (qrPayload == null)
-            startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
+            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         else{
             progressBar.smoothToShow()
             val deviceInfo = ScanActivity.cache(this).deviceInfo
@@ -45,12 +45,13 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "onCreate")
+        clearErrorHandler()
         val result = IntentIntegrator.parseActivityResult(IntentIntegrator.REQUEST_CODE, resultCode, data)
         if(result != null) {
             if(result.contents == null) {
                 // User cancelled scanning
                 // TODO Handle UX case
+                commonErrorHandler(getString(R.string.acty_connect_scan_hint))
             } else {
                 qrPayload = if (result.contents.startsWith(ScanActivity.QR_PAYLOAD_CHECK)) result.contents else null
                 Log.d(TAG, "QR scan result: $qrPayload")
@@ -89,6 +90,13 @@ class ConnectActivity : ConnectionBuilderActivity() {
         scanBtn.visibility = View.VISIBLE
     }
 
+    private fun clearErrorHandler(){
+        progressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
+        devInfoText.text = ""
+        connectivityText.text = getString(R.string.acty_connect_msg)
+        scanBtn.visibility = View.GONE
+    }
+
     override fun onServerNotInTheSameNetworkError() {
         Log.d(TAG, "Not in the same server")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
@@ -103,7 +111,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         // TODO Handle UX
 
         // Request scan
-        //startActivityForResult(Intent(this, ScanActivity::class.java), IntentIntegrator.REQUEST_CODE)
+        //startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
     }
 
     override fun onInvalidKeyError() {

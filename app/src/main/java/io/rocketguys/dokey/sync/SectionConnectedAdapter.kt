@@ -10,7 +10,11 @@ import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
 
 /**
- * TODO: Add class description
+ * This adapter implements the responsibility of [SectionAdapter].
+ * It use a [GridAdapter] to render a given [Section].
+ * The [NetworkManagerService] is used to request [Section] content
+ * to the desktop server and to attach [NetworkManagerService.executeCommand]
+ * to the [Section] content rendered.
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */

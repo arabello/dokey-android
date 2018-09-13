@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
+import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.CaptureManager
 import io.rocketguys.dokey.R
 import json.JSONObject
@@ -17,7 +18,10 @@ import kotlinx.android.synthetic.main.activity_scan.*
 import net.model.DeviceInfo
 
 /**
- * TODO: Add class description
+ * This Activity is responsible for scanning a QR code.
+ * QR payload check and usage are delegated to the Activity calling,
+ * using all data provided by this class such as [ScanActivity.QR_PAYLOAD_CHECK]
+ * to check the payload data.
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
@@ -27,6 +31,7 @@ class ScanActivity : AppCompatActivity(){
         private val TAG: String = ScanActivity::class.java.simpleName
         private const val CAMERA_PERM_ID = 1
 
+        const val REQUEST_CODE = IntentIntegrator.REQUEST_CODE
         const val QR_PAYLOAD_CHECK = "DOKEY;"
 
         fun cache(context: Context): ScanCache = ScanCache(context)
