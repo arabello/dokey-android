@@ -167,6 +167,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
+                    toogleNoSectionFallback(section?.name!!, section)
                 }
 
                 // Set up slider
@@ -225,6 +226,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
+                    toogleNoSectionFallback(section?.name!!, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -343,7 +345,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         Log.d(TAG, "onCommandModified ${command.title}")
     }
 
-    fun toogleNoSectionFallback(applicationName: String?, section: Section?){
+    private fun toogleNoSectionFallback(applicationName: String?, section: Section?){
         if (section == null){
             // Section does not exist, notify user
             noSectionFallback.visibility = View.VISIBLE
