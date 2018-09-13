@@ -85,6 +85,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="64dp"
             android:text="@string/acty_connect_scan_btn"
+            android:textColor="@color/colorPrimary"
             android:visibility="gone"
             android:background="@drawable/btn_bg_grad_2"
             app:layout_constraintBottom_toBottomOf="parent"

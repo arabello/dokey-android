@@ -67,6 +67,7 @@
             android:layout_marginStart="8dp"
             android:background="@drawable/btn_bg_grad_2"
             android:text="@string/acty_home_no_section_btn"
+            android:textColor="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
