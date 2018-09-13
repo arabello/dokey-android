@@ -20,6 +20,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
+import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
@@ -250,6 +251,10 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 startActivity(intent)
                 true
             }
+            R.id.action_more_disconnect -> {
+                networkManagerService?.closeConnection()
+                true
+            }
             else -> false
         }
     }
@@ -319,7 +324,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onSectionModified(section: Section) {
-        Log.d("SEC_MODIFIED", section.json().toString())
+        Log.d(TAG, "onSectionModified ${section.json()}")
 
         if (section.id == SectionAdapter.sectionIdFrom(navigation.selectedItemId))
             sectionAdapter?.notifySectionChanged(section)
@@ -328,10 +333,11 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     // Command may not be in the section.
     // Check if exists in the current section and update
     override fun onCommandModified(command: Command) {
-        Log.d("COMM_MODIFIED", command.json().toString())
+        Log.d(TAG, "onCommandModified ${command.json()}")
     }
 
     override fun onApplicationSwitch(applicationName: String, section: Section?) {
+        Log.d(TAG, "onApplicationSwitch $applicationName ${section?.json()}")
         // Update PagedGrid if current navigation is shortcut section and the lock is open
         if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
             mToolbar.title = applicationName
@@ -340,6 +346,9 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onConnectionClosed() {
-        Log.d("CONNECT", "Connection closed")
+        Log.d(TAG, "onConnectionClosed")
+
+        startActivity(Intent(this, ConnectActivity::class.java))
+        finish()
     }
 }

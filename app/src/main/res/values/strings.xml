@@ -15,6 +15,7 @@
     <!-- More menu -->
     <string name="title_more_settings">Settings</string>
     <string name="title_more_docs">Documentation</string>
+    <string name="title_more_disconnect">Disconnect</string>
 
     <!-- Activity Connect -->
     <string name="acty_connect_msg">Connecting</string>

@@ -11,4 +11,9 @@
         android:id="@+id/action_more_docs"
         android:title="@string/title_more_docs"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_more_disconnect"
+        android:title="@string/title_more_disconnect"
+        app:showAsAction="never"/>
 </menu>
