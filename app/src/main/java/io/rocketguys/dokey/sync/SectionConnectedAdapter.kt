@@ -7,6 +7,7 @@ import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.matteopellegrino.pagedgrid.grid.Grid
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
+import io.rocketguys.dokey.preferences.ContextualVibrator
 import model.section.Section
 
 /**
@@ -43,6 +44,7 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                         grid[component.x!!, component.y!!] = BitmapIcon(cmd.title!!, bitmap)
                         grid[component.x!!, component.y!!].setOnInflateViewListener { view ->
                             view.setOnClickListener {
+                                ContextualVibrator.from(activity).oneShotVibration(ContextualVibrator.SHORT)
                                 networkManagerService.executeCommand(cmd)
                             }
                         }

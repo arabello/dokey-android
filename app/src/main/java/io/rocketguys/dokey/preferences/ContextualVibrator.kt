@@ -19,6 +19,9 @@ import io.rocketguys.dokey.R
 class ContextualVibrator private constructor(private val vibrator: Vibrator, private val shouldVibrate: Boolean) {
     
     companion object {
+        const val SHORT = 60L
+        const val LONG = 120L
+
         private var instance: ContextualVibrator?= null
         fun from(context: Context): ContextualVibrator =
                 if (instance != null)
