@@ -10,14 +10,12 @@ import android.os.Handler
 import android.support.annotation.IdRes
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
+import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.ContextMenu
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
@@ -270,6 +268,12 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         mToolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(mToolbar)
         mToolbar.setTitle(R.string.title_launchpad)
+
+        // Keep screen on pref set up
+        val keepScreenOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.pref_ux_keep_screen_on_key), true)
+        Log.d(TAG, "keep screen on: $keepScreenOn")
+        if(keepScreenOn)
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // Init RecyclerView for active apps
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
