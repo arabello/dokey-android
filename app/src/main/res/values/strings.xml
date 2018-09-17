@@ -30,10 +30,19 @@
     <string name="acty_home_no_section_msg">Could not find %1$slayout \n Please create it by Dokey Desktop editor</string>
     <string name="acty_home_no_section_btn">Open editor</string>
 
+
+    <!-- Connect Dialog -->
+    <string name="dlg_connect_btn">Got it</string>
+    <string name="dlg_connect_title">Connectivity Issue</string>
+    <string name="dlg_connect_OnServerNotInTheSameNetworkError">OnServerNotInTheSameNetworkError</string>
+    <string name="dlg_connect_OnInvalidKeyError">OnInvalidKeyError</string>
+    <string name="dlg_connect_OnDesktopVersionTooLowError">OnDesktopVersionTooLowError</string>
+    <string name="dlg_connect_OnMobileVersionTooLowError">OnMobileVersionTooLowError</string>
+    <string name="dlg_connect_InvalidQRCode">InvalidQRCode</string>
+
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
-
     <string name="pref_ux_title">User Experience</string>
     <string name="pref_ux_keep_screen_on_key">pref_ux_keep_screen_on</string>
     <string name="pref_ux_keep_screen_on_title">Keep screen on</string>
@@ -41,7 +50,6 @@
     <string name="pref_ux_vibration_key">pref_ux_vibration</string>
     <string name="pref_ux_vibration_title">Enable vibration</string>
     <string name="pref_ux_vibration_summary">Turn on vibration feedback on items click</string>
-
     <string name="pref_web_title">Web Resources</string>
     <string name="pref_web_website_key" translatable="false">pref_web_website_key</string>
     <string name="pref_web_website_title" translatable="false">Dokey.io</string>
@@ -49,7 +57,6 @@
     <string name="pref_web_credits_key" translatable="false">pref_web_credits_key</string>
     <string name="pref_web_credits_title">Third party credits</string>
     <string name="pref_web_credits_summary">List of all libraries used by Dokey</string>
-
     <string name="pref_advanced_title">Advanced</string>
     <string name="pref_advanced_cache_key">pref_advanced_cache</string>
     <string name="pref_advanced_cache_title">Clear cache</string>

@@ -48,13 +48,22 @@ class ConnectActivity : ConnectionBuilderActivity() {
         clearErrorHandler()
         val result = IntentIntegrator.parseActivityResult(IntentIntegrator.REQUEST_CODE, resultCode, data)
         if(result != null) {
-            if(result.contents == null) {
+            Log.d(TAG, "QR scan result: ${result.contents}")
+
+            if (result.contents == null){
                 // User cancelled scanning
-                // TODO Handle UX case
                 commonErrorHandler(getString(R.string.acty_connect_scan_hint))
-            } else {
-                qrPayload = if (result.contents.startsWith(ScanActivity.QR_PAYLOAD_CHECK)) result.contents else null
-                Log.d(TAG, "QR scan result: $qrPayload")
+            }else if (!result.contents.startsWith(ScanActivity.QR_PAYLOAD_CHECK)){
+                // User did not scanned a Dokey's QRCode
+                commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+
+                val dialog = ConnectDialog.from(this).createDialogInvalidQRCode()
+                dialog.setOnDismissListener {
+                    startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+                }
+                dialog.show()
+            }else{
+                qrPayload = result.contents
             }
         }
     }
@@ -101,7 +110,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
         Log.d(TAG, "Not in the same server")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Handle error
+        val dialog = ConnectDialog.from(this).createDialogOnInvalidKeyError()
+        dialog.show()
     }
 
     override fun onConnectionError() {
@@ -109,36 +119,39 @@ class ConnectActivity : ConnectionBuilderActivity() {
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle UX
-
-        // Request scan
-        //startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
     }
 
     override fun onInvalidKeyError() {
         Log.d(TAG, "Invalid key")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Handle error
+        // TODO Test
+        val dialog = ConnectDialog.from(this).createDialogOnInvalidKeyError()
+        dialog.show()
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Desktop version too low")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Handle error
+        // TODO Test
+        val dialog = ConnectDialog.from(this).createDialogOnDesktopVersionTooLowError()
+        dialog.show()
     }
 
     override fun onMobileVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Mobile version too low")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Handle error
+        // TODO Test
+        val dialog = ConnectDialog.from(this).createDialogOnMobileVersionTooLowError()
+        dialog.show()
     }
 
     override fun onConnectionClosed() {
         Log.d(TAG, "Connection closed")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Handle error
+        // TODO Handle UX
     }
 }
