@@ -23,6 +23,9 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                               val activity: ConnectedActivity,
                               val networkManagerService: NetworkManagerService?) : SectionAdapter {
 
+    var currentSection: Section? = null
+        private set(value) { field = value }
+
     override fun notifySectionChanged(section: Section?) {
         gridAdapter.pages = arrayOf<Grid>()
 
@@ -56,6 +59,7 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
             }
         }
 
+        currentSection = section
         gridAdapter.notifyDataSetChanged()
     }
 }

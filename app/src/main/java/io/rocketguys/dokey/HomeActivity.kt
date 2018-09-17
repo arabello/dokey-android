@@ -327,19 +327,9 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
     }
 
-    private fun SectionAdapter.Companion.sectionIdFrom(@IdRes menuId: Int): String{
-        return when(menuId){
-            R.id.navigation_launchpad -> this.LAUNCHPAD_ID
-            R.id.navigation_shortcut -> this.SHORTCUT_ID
-            R.id.navigation_system -> this.SYSTEM_ID
-            else -> ""
-        }
-    }
-
     override fun onSectionModified(section: Section) {
         Log.d(TAG, "onSectionModified ${section.name}")
-
-        if (section.id == SectionAdapter.sectionIdFrom(navigation.selectedItemId))
+        if (section.id == sectionAdapter?.currentSection?.id)
             sectionAdapter?.notifySectionChanged(section)
     }
 
