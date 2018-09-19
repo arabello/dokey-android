@@ -1,13 +1,13 @@
 package io.rocketguys.dokey
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.IdRes
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.PreferenceManager
@@ -276,7 +276,8 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // Init RecyclerView for active apps
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        val orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL
+        recyclerView.layoutManager = LinearLayoutManager(this, orientation, false)
         recyclerView.adapter = mActiveAppAdapter
         mActiveAppAdapter.activeApps = ActiveAppMock.Factory.list(baseContext, 9)
         mActiveAppAdapter.notifyDataSetChanged()
