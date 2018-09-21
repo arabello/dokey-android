@@ -19,6 +19,7 @@ import io.rocketguys.dokey.network.NetworkManagerService
 abstract class NetworkActivity : AppCompatActivity() {
     // Network related variables
     var isBound = false
+    var serviceStarted = false
     var networkManagerService : NetworkManagerService? = null
 
     // Used to manage network related events
@@ -29,6 +30,25 @@ abstract class NetworkActivity : AppCompatActivity() {
      * This is a the place where the interaction with the service can begin.
      */
     abstract fun onServiceConnected()
+
+    /**
+     * Start the networking service.
+     */
+    fun startNetworkService() {
+        // Start the Service
+        val intent = Intent(this, NetworkManagerService::class.java)
+
+        // Based on the SDK version, start the service as a foreground service or not.
+        // Check out new background limits on oreo:
+        // https://developer.android.com/about/versions/oreo/background.html
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+
+        serviceStarted = true
+    }
 
     private fun bindNetworkService() {
         if (!isBound) {

@@ -28,6 +28,9 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
         // TODO Check user wifi connection (needed)
 
+        // Start the service
+        startNetworkService()
+
         // Set up new scan btn
         scanBtn.setOnClickListener {
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
@@ -69,6 +72,14 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     override fun onServiceConnected() {
+        // If the service is already connected to the dokey server, go to the home
+        // activity instantly
+        if (networkManagerService?.isConnected == true) {
+            startHomeActivity()
+            return
+        }
+
+        // If a QR payload was cached, try to connect to the server using it.
         if (qrPayload != null) {
             networkManagerService?.beginConnection(qrPayload!!)
             Log.d(TAG, "Begin connection")
@@ -85,6 +96,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
         progressBar.smoothToHide()
 
+        startHomeActivity()
+    }
+
+    private fun startHomeActivity() {
         // Start the main activity
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)

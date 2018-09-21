@@ -300,13 +300,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
     }
 
-    override fun onStop() {
-        super.onStop()
-
-        // Close the current connection
-        networkManagerService?.closeConnection()
-    }
-
     override fun onServiceConnected() {
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 

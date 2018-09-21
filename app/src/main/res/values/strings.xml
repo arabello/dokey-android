@@ -71,4 +71,6 @@
     <string name="dlg_clear_cache_msg">Delete cache?</string>
     <string name="dlg_clear_cache_ok">Delete</string>
     <string name="dlg_clear_cache_cancel">Cancel</string>
+    <string name="notification_title">Dokey Link</string>
+    <string name="notification_description">Click to manage dokey link...</string>
 </resources>

@@ -1,15 +1,25 @@
 package io.rocketguys.dokey.network
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Binder
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.support.v4.app.NotificationCompat
 import android.util.Log
+import io.rocketguys.dokey.HomeActivity
+import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
 import json.JSONObject
+import kotlinx.android.synthetic.main.item_active_app.view.*
 import model.command.Command
 import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
@@ -35,6 +45,9 @@ const val MAX_PORT = 60652
 
 const val SCANNING_PORT_TIMEOUT = 5000
 
+const val NOTIFICATION_CHANNEL_ID = "dokey_notification_channel_1"
+const val SERVICE_NOTIFICATION_ID = 101
+
 /**
  * This service will manage the connection to the desktop computer
  * and all the data exchange.
@@ -49,6 +62,8 @@ class NetworkManagerService : Service() {
     private var networkThread : NetworkThread? = null
     private var connectionBuilderThread : Thread? = null
 
+    var isConnected = false
+
     // The broadcast manager will handle all the notifications to the application
     // about the network events that occur
     var broadcastManager : NetworkBroadcastManager? = null
@@ -60,6 +75,8 @@ class NetworkManagerService : Service() {
 
     // Initialize the thread pool
     private val executorService = Executors.newFixedThreadPool(4)
+
+    private var notificationBuilder : NotificationCompat.Builder? = null
 
     /*
     Parsers
@@ -76,6 +93,40 @@ class NetworkManagerService : Service() {
     var sectionCache : SectionCache? = null
     var imageCache : ImageCache? = null
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Create the notification channel for ANDROID >= OREO
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Dokey",
+                    NotificationManager.IMPORTANCE_HIGH)
+            notificationChannel.description = "Dokey channel"
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+        if (notificationBuilder == null) {
+            notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_action_edit_grad_1)  // TODO: change with the dokey icon
+                    .setContentTitle(getString(R.string.notification_title))
+                    //.setColor(getResources().getColor(R.color.material_blue_grey_800))
+                    .setOngoing(true)
+                    .setChannelId(NOTIFICATION_CHANNEL_ID)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setContentText("Waiting for QR code...")
+
+            val resultIntent = Intent(this, HomeActivity::class.java)
+            // Because clicking the notification opens a new ("special") activity, there's
+            // no need to create an artificial back stack.
+            val resultPendingIntent = PendingIntent.getActivity(this,
+                    0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+            notificationBuilder?.setContentIntent(resultPendingIntent)
+        }
+
+        startForeground(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
+
+        return Service.START_NOT_STICKY
+    }
+
     /*
     INITIAL CONNECTION METHODS, needed to establish a connection with a dokey server
      */
@@ -85,7 +136,7 @@ class NetworkManagerService : Service() {
      */
     fun beginConnection(payload : String) {
         // If the connection as not already been started
-        if (connectionBuilderThread == null) {
+        if (connectionBuilderThread == null && !isConnected) {
             connectionBuilderThread = Thread {
                 // Parse the payload to detect the correct ip address and key
                 val networkPayloadResolver = NetworkPayloadResolver()
@@ -125,6 +176,8 @@ class NetworkManagerService : Service() {
 
             // Setup all the needed network thread listeners
             networkThread!!.onConnectionEstablished = {deviceInfo ->
+                isConnected = true
+
                 serverInfo = deviceInfo
 
                 // Reset the caches
@@ -132,11 +185,16 @@ class NetworkManagerService : Service() {
                 sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
                 imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
 
+                updateNotificationMessage("Connected to ${deviceInfo.name}")  // TODO: i18n
+
                 Log.d("CACHE", "Setup")
             }
             networkThread!!.onConnectionClosed = {
                 // Reset the network thread
                 networkThread = null
+                isConnected = false
+
+                stopSelf()
             }
 
             // Start the network thread
@@ -434,6 +492,16 @@ class NetworkManagerService : Service() {
     }
 
     /*
+    NOTIFICATION RELATED
+     */
+
+    private fun updateNotificationMessage(text: String) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationBuilder?.setContentText(text)
+        notificationManager.notify(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
+    }
+
+    /*
     SERVICE BLOATWARE, needed to make everything work. Not very useful though.
      */
 
@@ -445,10 +513,6 @@ class NetworkManagerService : Service() {
         super.onCreate()
 
         broadcastManager = NetworkBroadcastManager(this.applicationContext)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return Service.START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder = mBinder
