@@ -106,14 +106,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
         scanBtn.visibility = View.GONE
     }
 
-    override fun onServerNotInTheSameNetworkError() {
-        Log.d(TAG, "Not in the same server")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
-
-        val dialog = ConnectDialog.from(this).createDialogOnInvalidKeyError()
-        dialog.show()
-    }
-
     override fun onConnectionError() {
         Log.d(TAG, "Connection error")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
@@ -121,21 +113,32 @@ class ConnectActivity : ConnectionBuilderActivity() {
         // TODO Handle UX
     }
 
+    override fun onServerNotInTheSameNetworkError() {
+        Log.d(TAG, "Not in the same server")
+        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+
+        val dialog = ConnectDialog.from(this).createDialogOnServerNotInTheSameNetworkError()
+        dialog.setOnDismissListener {
+            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+        }
+        dialog.show()
+    }
+
     override fun onInvalidKeyError() {
         Log.d(TAG, "Invalid key")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Test
-        val dialog = ConnectDialog.from(this).createDialogOnInvalidKeyError()
-        dialog.show()
+        startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Desktop version too low")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Test
-        val dialog = ConnectDialog.from(this).createDialogOnDesktopVersionTooLowError()
+        val dialog = ConnectDialog.from(this).createDialogOnDesktopVersionTooLowError(serverInfo)
+        dialog.setOnDismissListener {
+            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+        }
         dialog.show()
     }
 
@@ -143,8 +146,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
         Log.d(TAG, "Mobile version too low")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        // TODO Test
-        val dialog = ConnectDialog.from(this).createDialogOnMobileVersionTooLowError()
+        val dialog = ConnectDialog.from(this).createDialogOnMobileVersionTooLowError(serverInfo)
+        dialog.setOnDismissListener {
+            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+        }
         dialog.show()
     }
 

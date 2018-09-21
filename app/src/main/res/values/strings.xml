@@ -34,11 +34,10 @@
     <!-- Connect Dialog -->
     <string name="dlg_connect_btn">Got it</string>
     <string name="dlg_connect_title">Connectivity Issue</string>
-    <string name="dlg_connect_OnServerNotInTheSameNetworkError">OnServerNotInTheSameNetworkError</string>
-    <string name="dlg_connect_OnInvalidKeyError">OnInvalidKeyError</string>
-    <string name="dlg_connect_OnDesktopVersionTooLowError">OnDesktopVersionTooLowError</string>
-    <string name="dlg_connect_OnMobileVersionTooLowError">OnMobileVersionTooLowError</string>
-    <string name="dlg_connect_InvalidQRCode">InvalidQRCode</string>
+    <string name="dlg_connect_OnServerNotInTheSameNetworkError">Cannot connect to Dokey Desktop. Your mobile device and desktop must be on the same network. Please check it out and try again.</string>
+    <string name="dlg_connect_OnDesktopVersionTooLowError">Cannot connect to $1%s due to incompatible version. Please, update Dokey Desktop and try again.</string>
+    <string name="dlg_connect_OnMobileVersionTooLowError">Cannot connect to $1%s due to incompatible version. Please, update Android Dokey App and try again.</string>
+    <string name="dlg_connect_InvalidQRCode">QRCode scanned is not Dokey related. Please, open Dokey Desktop and scan the QRCode showed.</string>
 
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>

@@ -10,7 +10,8 @@ import io.rocketguys.dokey.R
 import net.model.DeviceInfo
 
 /**
- * TODO: Add class description
+ * This class provides a factory to create [AlertDialog]
+ * mainly used in the [ConnectActivity] for connectivity issues.
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
@@ -48,21 +49,19 @@ class ConnectDialog {
 
         fun createDialogOnServerNotInTheSameNetworkError(): AlertDialog{
             txt.setText(R.string.dlg_connect_OnServerNotInTheSameNetworkError)
+            img.setImageResource(R.mipmap.dlg_connect_onservernotinthesamenetwork)
             return dialog
         }
 
-        fun createDialogOnInvalidKeyError(): AlertDialog{
-            txt.setText(R.string.dlg_connect_OnInvalidKeyError)
+        fun createDialogOnDesktopVersionTooLowError(serverInfo: DeviceInfo): AlertDialog {
+            txt.text = builder.context.getString(R.string.dlg_connect_OnDesktopVersionTooLowError, serverInfo.name)
+            img.setImageResource(R.mipmap.dlg_connect_ondesktopversiontoolow)
             return dialog
         }
 
-        fun createDialogOnDesktopVersionTooLowError(): AlertDialog {
-            txt.setText(R.string.dlg_connect_OnDesktopVersionTooLowError)
-            return dialog
-        }
-
-        fun createDialogOnMobileVersionTooLowError(): AlertDialog {
-            txt.setText(R.string.dlg_connect_OnMobileVersionTooLowError)
+        fun createDialogOnMobileVersionTooLowError(serverInfo: DeviceInfo): AlertDialog {
+            txt.text = builder.context.getString(R.string.dlg_connect_OnMobileVersionTooLowError, serverInfo.name)
+            img.setImageResource(R.mipmap.dlg_connect_onmobileversiontoolow)
             return dialog
         }
     }
