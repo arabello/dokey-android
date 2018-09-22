@@ -47,6 +47,12 @@ class ConnectDialog {
             return dialog
         }
 
+        fun createDialogWifiNotConnected(): AlertDialog{
+            txt.setText(R.string.dlg_connect_WifiNotConnected)
+            img.setImageResource(R.mipmap.dlg_connect_onservernotinthesamenetwork)
+            return dialog
+        }
+
         fun createDialogOnServerNotInTheSameNetworkError(): AlertDialog{
             txt.setText(R.string.dlg_connect_OnServerNotInTheSameNetworkError)
             img.setImageResource(R.mipmap.dlg_connect_onservernotinthesamenetwork)

@@ -27,6 +27,7 @@ import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
+import org.jetbrains.anko.doAsync
 
 
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
@@ -168,20 +169,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                     toogleNoSectionFallback(section?.name!!, section)
                 }
 
-                // Set up slider
-                // TODO move this code away
-                /*
-                val slider = DokeySlider(this)
-                mGridAdapter.pages[0].forEachIndexed { _, _, element ->
-                    element.setOnInflateViewListener { view ->
-                        view.setOnClickListener {
-                            slider.show()
-                        }
-                    }
-                }
-                */
-                ///////
-
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_shortcut -> {
@@ -197,8 +184,10 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
                 // Update PagedGrid
                 // Request the section
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
+
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section ->
                     Log.d(TAG, "requestSection ${section?.name}")
+
                     if (section == null)
                         toogleNoSectionFallback(null, null)
                     else

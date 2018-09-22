@@ -1,13 +1,10 @@
 package io.rocketguys.dokey.sync
 
-import android.graphics.BitmapFactory
+import android.util.Log
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
-import io.matteopellegrino.pagedgrid.element.BitmapIcon
 import io.matteopellegrino.pagedgrid.grid.EmptyGrid
-import io.matteopellegrino.pagedgrid.grid.Grid
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
-import io.rocketguys.dokey.preferences.ContextualVibrator
 import model.section.Section
 
 /**
@@ -23,39 +20,24 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                               val activity: ConnectedActivity,
                               val networkManagerService: NetworkManagerService?) : SectionAdapter {
 
+    companion object {
+        private val TAG: String = SectionConnectedAdapter::class.java.simpleName
+    }
+
     var currentSection: Section? = null
         private set(value) { field = value }
 
+    // This is called in UIThread
     override fun notifySectionChanged(section: Section?) {
-        gridAdapter.pages = arrayOf<Grid>()
+        Log.d(TAG, "notifySectionChanged ${section?.name}")
+        gridAdapter.pages = arrayOf()
 
         section?.pages?.forEach { page ->
             val grid = EmptyGrid(page.colCount!!, page.rowCount!!)
             gridAdapter.pages += grid
 
             page.components?.forEach { component ->
-
-                // Request each command
-                networkManagerService?.requestCommand(component.commandId!!) { cmd ->
-                    //Log.d("COMMAND", cmd?.json().toString())
-
-                    // Request the image
-                    networkManagerService.requestImage(cmd?.iconId!!) { imageId, imageFile ->
-                        //Log.d("IMAGE", imageFile?.absolutePath)
-
-                        val bitmap = BitmapFactory.decodeFile(imageFile?.absolutePath)
-                        grid[component.x!!, component.y!!] = BitmapIcon(cmd.title!!, bitmap)
-                        grid[component.x!!, component.y!!].setOnInflateViewListener { view ->
-                            view.setOnClickListener {
-                                ContextualVibrator.from(activity).oneShotVibration(ContextualVibrator.SHORT)
-                                networkManagerService.executeCommand(cmd)
-                            }
-                        }
-                        activity.runOnUiThread {
-                            gridAdapter.notifyDataSetChanged()
-                        }
-                    }
-                }
+                grid[component.x!!, component.y!!] = CommandElement(component, networkManagerService, activity)
             }
         }
 

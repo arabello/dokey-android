@@ -1,9 +1,13 @@
 package io.rocketguys.dokey.connect
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.provider.Settings
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
@@ -26,7 +30,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
 
-        // TODO Check user wifi connection (needed)
+
 
         // Start the service
         startNetworkService()
@@ -43,7 +47,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
         else{
             progressBar.smoothToShow()
             val deviceInfo = ScanActivity.cache(this).deviceInfo
-            devInfoText.text = "${deviceInfo?.name} ${deviceInfo?.os}"
+            if (deviceInfo != null)
+                devInfoText.text = getString(R.string.acty_connect_device_info, deviceInfo.name, deviceInfo.os)
         }
     }
 
@@ -124,18 +129,43 @@ class ConnectActivity : ConnectionBuilderActivity() {
     override fun onConnectionError() {
         Log.d(TAG, "Connection error")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+    }
 
-        // TODO Handle UX
+    private fun isWifiConnected(): Boolean {
+        val wifiMgr = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        return if (wifiMgr.isWifiEnabled) { // Wi-Fi adapter is ON
+
+            val wifiInfo = wifiMgr.connectionInfo
+
+            wifiInfo.networkId != -1
+        } else {
+            false // Wi-Fi adapter is OFF
+        }
     }
 
     override fun onServerNotInTheSameNetworkError() {
-        Log.d(TAG, "Not in the same server")
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
-        val dialog = ConnectDialog.from(this).createDialogOnServerNotInTheSameNetworkError()
-        dialog.setOnDismissListener {
-            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+        lateinit var dialog: AlertDialog
+
+        // Check user wifi connection (needed)
+        if (!isWifiConnected()) {
+            Log.d(TAG, "Wifi is not connected")
+
+            dialog = ConnectDialog.from(this).createDialogWifiNotConnected()
+            dialog.setOnDismissListener {
+                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+            }
+        }else{
+            Log.d(TAG, "Server not in the same network")
+
+            dialog = ConnectDialog.from(this).createDialogOnServerNotInTheSameNetworkError()
+            dialog.setOnDismissListener {
+                startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+            }
         }
+
         dialog.show()
     }
 

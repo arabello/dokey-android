@@ -450,7 +450,9 @@ class NetworkManagerService : Service() {
 
             // If there is a cached image, return immediately
             if (cachedImage != null) {
-                callback(id, cachedImage)
+                runOnUiThread(Runnable {
+                    callback(id, cachedImage)
+                })
             }else{  // No cached image, request it from the server
                 networkThread?.linkManager?.requestImage(id, object : LinkManager.OnImageResponseListener {
                     override fun onImageReceived(imageIdentifier: String, iconFile: File) {
