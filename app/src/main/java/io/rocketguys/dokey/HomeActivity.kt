@@ -27,7 +27,6 @@ import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
-import org.jetbrains.anko.doAsync
 
 
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {

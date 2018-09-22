@@ -1,7 +1,6 @@
 package io.rocketguys.dokey.sync
 
 import android.app.Activity
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import kotlinx.android.synthetic.main.item_command.view.*
 import model.component.Component
 
 /**
- * TODO: Add class description
+ * Custom [AbstractElement] representin a Dokey command
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
