@@ -566,6 +566,13 @@ class NetworkManagerService : Service() {
             requestImage("app:$path", callback)
         }
 
+        /**
+         * Request focus to the current app.
+         */
+        fun requestFocus() {
+            requestAppFocus(this)
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

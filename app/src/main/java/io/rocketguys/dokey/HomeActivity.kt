@@ -41,7 +41,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     // View
-    val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
+    lateinit var mActiveAppAdapter: ActiveAppAdapter
     val mGridAdapter = GridAdapter(arrayOf())
     lateinit var mToolbar: Toolbar
     var activeAppsTimer: Timer ?= null
@@ -270,6 +270,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // Init RecyclerView for active apps
+        mActiveAppAdapter = ActiveAppAdapter(this, arrayListOf())
         val orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL
         recyclerView.layoutManager = LinearLayoutManager(this, orientation, false)
         recyclerView.adapter = mActiveAppAdapter
