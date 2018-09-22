@@ -283,10 +283,22 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             // TODO Add command call to open desktop editor
         }
 
+        // Analyze the current intent to determine if a pending intent was passed from the notification
+        setupFlagsForNotificationIntent(intent)
+    }
+
+    // Variables used in the communication between the notification and the activity
+    private var shouldDisconnect = false
+
+    /**
+     * This method should be called when a new intent is expected, as in the onCreate or
+     * onNewIntent method.
+     * Analyze the given intent to determine which notification flags to set and which not.
+     */
+    private fun setupFlagsForNotificationIntent(intent: Intent?) {
         // Reset all the notification-related variables
         shouldDisconnect = false
 
-        // Analyze the current intent to determine if a pending intent was passed from the notification
         if (intent != null) {
             if (intent.hasExtra(PENDING_INTENT_DISCONNECT_SERVICE)) {  // Disconnect request sent
                 shouldDisconnect = true
@@ -294,8 +306,28 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
-    // Variables used in the communication between the notification and the activity
-    private var shouldDisconnect = false
+    /**
+     * This method evaluates the notification flags set by the "setupFlagsForNotificationIntent"
+     * method and should be called in a context where the "networkManagerService" is already bounded.
+     */
+    private fun evaluateNotificationFlags() {
+        if (shouldDisconnect) {
+            // TODO: a dialog should be shown to warn the user that disconnecting
+            // the service some features of dokey wont work as expectend until manually
+            // reconnected
+
+            networkManagerService?.closeConnection()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        this.intent = intent
+
+        // New intent has been received, parse the notification flags and evaluate them
+        setupFlagsForNotificationIntent(intent)
+        evaluateNotificationFlags()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -304,13 +336,8 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onServiceConnected() {
-        if (shouldDisconnect) {
-            // TODO: a dialog should be shown to warn the user that disconnecting
-            // the service some features of dokey wont work as expectend until manually
-            // reconnected
-
-            networkManagerService?.closeConnection()
-        }
+        // Evaluate the current notification flags
+        evaluateNotificationFlags()
 
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 

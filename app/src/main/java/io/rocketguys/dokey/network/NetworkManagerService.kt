@@ -126,7 +126,7 @@ class NetworkManagerService : Service() {
             // no need to create an artificial back stack.
             val notificationClickPendingIntent = PendingIntent.getActivity(this,
                     PENDINT_INTENT_REQUEST_CODE_CONTENT_CLICK, notificationClickIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT)
+                    PendingIntent.FLAG_UPDATE_CURRENT)
 
             notificationBuilder?.setContentIntent(notificationClickPendingIntent)
 
@@ -134,8 +134,8 @@ class NetworkManagerService : Service() {
             disconnectIntent.putExtra(PENDING_INTENT_DISCONNECT_SERVICE, true)
             val disconnectPendingIntent = PendingIntent.getActivity(this,
                     PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
-                    disconnectIntent, PendingIntent.FLAG_CANCEL_CURRENT)
-            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, "Disconnect", disconnectPendingIntent)
+                    disconnectIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, "Disconnect", disconnectPendingIntent)  // TODO: i18n
         }
 
         startForeground(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
