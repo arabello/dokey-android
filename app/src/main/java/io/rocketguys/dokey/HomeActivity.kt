@@ -111,6 +111,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_edit -> {
             Toast.makeText(baseContext, "action_edit", Toast.LENGTH_SHORT).show()
+            networkManagerService?.requestEditor(sectionAdapter?.currentSection?.id)
             true
         }
 

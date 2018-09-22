@@ -588,6 +588,21 @@ class NetworkManagerService : Service() {
         }
     }
 
+    /**
+     * Request to open the layout editor to the given section.
+     */
+    fun requestEditor(sectionId: String? = null) {
+        // Make the request
+        executorService.execute {
+            val requestBody = JSONObject()
+            if (sectionId != null) {
+                requestBody.put("section_id", sectionId)
+            }
+
+            networkThread?.linkManager?.requestService("request_editor", requestBody, null)
+        }
+    }
+
     /*
     NOTIFICATION RELATED
      */
