@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
@@ -112,7 +111,7 @@ class NetworkManagerService : Service() {
 
         if (notificationBuilder == null) {
             notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_connected)  // TODO: change with the dokey icon
+                    .setSmallIcon(R.drawable.ic_connected)
                     .setContentTitle(getString(R.string.ntf_service_title))
                     .setOngoing(true)
                     .setChannelId(NOTIFICATION_CHANNEL_ID)

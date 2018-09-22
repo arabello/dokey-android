@@ -13,7 +13,6 @@ import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
-import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo

@@ -1,7 +1,6 @@
 package io.rocketguys.dokey
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color

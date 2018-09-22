@@ -4,7 +4,7 @@ import io.rocketguys.dokey.network.NetworkManagerService
 import java.util.*
 
 /**
- * TODO: Add class description
+ * [TimerTask] used to pull the list of the ActiveApp and notify the related adapter [ActiveAppAdapter]
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
