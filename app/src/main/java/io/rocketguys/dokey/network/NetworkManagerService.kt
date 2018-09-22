@@ -14,6 +14,7 @@ import android.support.v4.app.NotificationCompat
 import android.util.Log
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
@@ -115,10 +116,10 @@ class NetworkManagerService : Service() {
                     .setContentTitle(getString(R.string.ntf_service_title))
                     .setOngoing(true)
                     .setChannelId(NOTIFICATION_CHANNEL_ID)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentText(getString(R.string.ntf_service_desc))
 
-            val notificationClickIntent = Intent(this, HomeActivity::class.java)
+            val notificationClickIntent = Intent(this, ConnectActivity::class.java)
             // Because clicking the notification opens a new ("special") activity, there's
             // no need to create an artificial back stack.
             val notificationClickPendingIntent = PendingIntent.getActivity(this,
@@ -126,13 +127,6 @@ class NetworkManagerService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT)
 
             notificationBuilder?.setContentIntent(notificationClickPendingIntent)
-
-            val disconnectIntent = Intent(this, HomeActivity::class.java)
-            disconnectIntent.putExtra(PENDING_INTENT_DISCONNECT_SERVICE, true)
-            val disconnectPendingIntent = PendingIntent.getActivity(this,
-                    PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
-                    disconnectIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, getString(R.string.ntf_service_action_disconnect), disconnectPendingIntent)
         }
 
         startForeground(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
@@ -199,6 +193,7 @@ class NetworkManagerService : Service() {
                 imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
 
                 updateNotificationMessage(getString(R.string.ntf_service_desc_connected, deviceInfo.name))
+                enableConnectedNotificationActions()
 
                 Log.d("CACHE", "Setup")
             }
@@ -596,6 +591,27 @@ class NetworkManagerService : Service() {
     /*
     NOTIFICATION RELATED
      */
+
+    private fun enableConnectedNotificationActions() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notificationClickIntent = Intent(this, HomeActivity::class.java)
+        // Because clicking the notification opens a new ("special") activity, there's
+        // no need to create an artificial back stack.
+        val notificationClickPendingIntent = PendingIntent.getActivity(this,
+                PENDINT_INTENT_REQUEST_CODE_CONTENT_CLICK, notificationClickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT)
+
+        notificationBuilder?.setContentIntent(notificationClickPendingIntent)
+
+        val disconnectIntent = Intent(this, HomeActivity::class.java)
+        disconnectIntent.putExtra(PENDING_INTENT_DISCONNECT_SERVICE, true)
+        val disconnectPendingIntent = PendingIntent.getActivity(this,
+                PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
+                disconnectIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, getString(R.string.ntf_service_action_disconnect), disconnectPendingIntent)
+        notificationManager.notify(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
+    }
 
     private fun updateNotificationMessage(text: String) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

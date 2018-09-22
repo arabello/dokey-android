@@ -20,7 +20,9 @@
         <service android:name=".network.NetworkManagerService" />
 
         <activity
-            android:name=".connect.ConnectActivity">
+            android:name=".connect.ConnectActivity"
+            android:launchMode="singleTask"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
