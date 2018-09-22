@@ -1,5 +1,6 @@
 package io.rocketguys.dokey
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -28,7 +29,8 @@ import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
-import org.jetbrains.anko.doAsync
+import android.content.DialogInterface
+
 
 
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
@@ -245,7 +247,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 true
             }
             R.id.action_more_disconnect -> {
-                networkManagerService?.closeConnection()
+                showDisconnectConfirmationDialog()
                 true
             }
             else -> false
@@ -287,8 +289,11 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         setupFlagsForNotificationIntent(intent)
     }
 
+    // Used to avoid multiple evaluations of flags
+    private var notificationFlagEvaluated = false
+
     // Variables used in the communication between the notification and the activity
-    private var shouldDisconnect = false
+    private var notificationDisconnectRequestFlag = false
 
     /**
      * This method should be called when a new intent is expected, as in the onCreate or
@@ -297,13 +302,15 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
      */
     private fun setupFlagsForNotificationIntent(intent: Intent?) {
         // Reset all the notification-related variables
-        shouldDisconnect = false
+        notificationDisconnectRequestFlag = false
 
         if (intent != null) {
             if (intent.hasExtra(PENDING_INTENT_DISCONNECT_SERVICE)) {  // Disconnect request sent
-                shouldDisconnect = true
+                notificationDisconnectRequestFlag = true
             }
         }
+
+        notificationFlagEvaluated = false
     }
 
     /**
@@ -311,13 +318,21 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
      * method and should be called in a context where the "networkManagerService" is already bounded.
      */
     private fun evaluateNotificationFlags() {
-        if (shouldDisconnect) {
-            // TODO: a dialog should be shown to warn the user that disconnecting
-            // the service some features of dokey wont work as expectend until manually
-            // reconnected
-
-            networkManagerService?.closeConnection()
+        // Filter out requests without a binded service
+        if (networkManagerService == null) {
+            return
         }
+
+        // Filter out multiple request evaluations
+        if (notificationFlagEvaluated) {
+            return
+        }
+
+        if (notificationDisconnectRequestFlag) {
+            showDisconnectConfirmationDialog()
+        }
+
+        notificationFlagEvaluated = true
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -397,7 +412,23 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onConnectionClosed() {
         Log.d(TAG, "onConnectionClosed")
 
-        startActivity(Intent(this, ConnectActivity::class.java))
+        // If the connection was closed after a notification request, avoid going to the
+        // connect activity and terminate directly
+        if (!notificationDisconnectRequestFlag) {
+            startActivity(Intent(this, ConnectActivity::class.java))
+        }
+
         finish()
+    }
+
+    private fun showDisconnectConfirmationDialog() {
+        AlertDialog.Builder(this)
+                .setTitle(getString(R.string.disconnect_confirmation))   // TODO: transform into resources
+                .setMessage(getString(R.string.disconnect_confirmation_msg))
+                .setPositiveButton(android.R.string.yes,
+                        DialogInterface.OnClickListener { dialog, whichButton ->
+                            stopNetworkService()
+                        })
+                .setNegativeButton(android.R.string.no, null).show()
     }
 }
