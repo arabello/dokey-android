@@ -1,6 +1,7 @@
 package io.rocketguys.dokey
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -24,12 +25,12 @@ import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
+import io.rocketguys.dokey.sync.ActiveAppTask
 import io.rocketguys.dokey.sync.SectionAdapter
 import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
-import android.content.DialogInterface
 import java.util.*
 
 
@@ -37,7 +38,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     companion object {
         private val TAG: String = HomeActivity::class.java.simpleName
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
-        const val ACTIVE_APPS_PULL_PERIOD = 1000L
+        const val ACTIVE_APPS_PULL_PERIOD = 2000L
     }
 
     // View
@@ -351,9 +352,16 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
     }
 
+    // Android lifecycle : called after onStart()
     override fun onServiceConnected() {
         // Evaluate the current notification flags
         evaluateNotificationFlags()
+
+        // Restart ActiveApp pull
+        activeAppsTimer = Timer()
+        activeAppsTimer?.schedule(
+                ActiveAppTask(networkManagerService, mActiveAppAdapter),
+                0L, ACTIVE_APPS_PULL_PERIOD)
 
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 
@@ -372,20 +380,12 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
+    }
 
-        if (activeAppsTimer == null){
-            activeAppsTimer = Timer()
-            activeAppsTimer?.schedule(object : TimerTask(){
-                override fun run() {
-                    networkManagerService?.requestActiveApps { activeApps ->
-                        if (mActiveAppAdapter.activeApps != activeApps) {
-                            mActiveAppAdapter.activeApps = activeApps
-                            mActiveAppAdapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-            }, 0L, ACTIVE_APPS_PULL_PERIOD)
-        }
+    override fun onStop() {
+        super.onStop()
+        activeAppsTimer?.cancel()
+        activeAppsTimer = null
     }
 
     override fun onSectionModified(section: Section) {
@@ -403,6 +403,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     private fun toogleNoSectionFallback(applicationName: String?, section: Section?){
         if (section == null){
             // Section does not exist, notify user
+            mToolbar.title = getString(R.string.title_shortcut)
             noSectionFallback.visibility = View.VISIBLE
             noSectionText.text = getString(R.string.acty_home_no_section_msg, if (applicationName != null) "$applicationName " else "")
             pagedGridView.visibility = View.GONE
@@ -417,8 +418,8 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
         // Update PagedGrid if current navigation is shortcut section and the lock is open
         if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
-            mToolbar.title = applicationName
             toogleNoSectionFallback(applicationName, section)
+            mToolbar.title = applicationName
             sectionAdapter?.notifySectionChanged(section)
         }
     }
