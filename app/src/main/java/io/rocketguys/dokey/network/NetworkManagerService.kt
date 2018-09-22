@@ -514,6 +514,81 @@ class NetworkManagerService : Service() {
         override fun onServiceResponse(responseBody: JSONObject?) {}
     }
 
+    /**
+     * Request the list of currently active applications.
+     */
+    fun requestActiveApps(callback: (List<App>) -> Unit) {
+        // Make the request
+        executorService.execute {
+            // Request the list to the server
+            networkThread?.linkManager?.requestService("active_app_list", null, object : ServiceResponseAdapter() {
+                override fun onServiceResponse(responseBody: JSONObject?) {
+                    val apps = responseBody!!.getJSONArray("apps")
+
+                    val outputApps = mutableListOf<App>()
+
+                    for (jsonApp in apps) {
+                        jsonApp as JSONObject
+                        val app = App(jsonApp.getString("name"), jsonApp.getString("path"))
+                        outputApps.add(app)
+                    }
+
+                    runOnUiThread(Runnable {
+                        callback(outputApps)
+                    })
+                }
+            })
+        }
+    }
+
+    /**
+     * Request to give focus to the given app.
+     */
+    fun requestAppFocus(app: App) {
+        // Make the request
+        executorService.execute {
+            val requestBody = JSONObject()
+            requestBody.put("app", app.path)
+
+            networkThread?.linkManager?.requestService("focus_app", requestBody, null)
+        }
+    }
+
+    /**
+     * This class represents an application and it is used in the active app request.
+     */
+    inner class App(val name: String, val path: String) {
+        /**
+         * Request the icon of the current image, using the "requestImage" method of
+         * the NetworkManagerService
+         */
+        fun requestIcon(callback: (imageId: String, imageFile: File?) -> Unit) {
+            requestImage("app:$path", callback)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as App
+
+            if (name != other.name) return false
+            if (path != other.path) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = name.hashCode()
+            result = 31 * result + path.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "App(name='$name', path='$path')"
+        }
+    }
+
     /*
     NOTIFICATION RELATED
      */

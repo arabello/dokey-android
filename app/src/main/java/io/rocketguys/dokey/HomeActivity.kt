@@ -372,6 +372,20 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
+        /*
+        networkManagerService?.requestActiveApps {
+            it.forEach {
+                println(it)
+                it.requestIcon { imageId, imageFile ->
+                    println(imageFile?.absolutePath)
+                }
+
+                if (it.name.contains("IDEA")) {
+                    networkManagerService?.requestAppFocus(it)
+                }
+            }
+        }
+        */
     }
 
     override fun onSectionModified(section: Section) {
