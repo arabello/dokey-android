@@ -16,6 +16,7 @@ class NetworkPayloadResolver {
         val tokens = payload.split(";")
         val ipTokens = tokens[1]
         val keyToken = tokens[2]
+        val suggestedPort : Int = tokens[3].toInt()
 
         // Decode the ips
         val ipPairs = ipTokens.split(":").map {ipToken ->
@@ -40,7 +41,7 @@ class NetworkPayloadResolver {
         }
 
         if (correctIp != null) {
-            return Result(correctIp!!, key)
+            return Result(correctIp!!, key, suggestedPort)
         }
 
         return null
@@ -76,7 +77,7 @@ class NetworkPayloadResolver {
     /**
      * The result from the payload parsing
      */
-    data class Result(val address: String, val key: ByteArray) {
+    data class Result(val address: String, val key: ByteArray, val suggestedPort: Int) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -85,6 +86,7 @@ class NetworkPayloadResolver {
 
             if (address != other.address) return false
             if (!Arrays.equals(key, other.key)) return false
+            if (suggestedPort != other.suggestedPort) return false
 
             return true
         }
@@ -92,6 +94,7 @@ class NetworkPayloadResolver {
         override fun hashCode(): Int {
             var result = address.hashCode()
             result = 31 * result + Arrays.hashCode(key)
+            result = 31 * result + suggestedPort
             return result
         }
     }

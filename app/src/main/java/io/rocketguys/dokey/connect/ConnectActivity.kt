@@ -13,6 +13,7 @@ import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
@@ -201,5 +202,23 @@ class ConnectActivity : ConnectionBuilderActivity() {
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle UX
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // If the server is not started yet, start it
+        if (!serviceStarted) {
+            startNetworkService()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // If the service is not connected to the dokey server, close it when going into background
+        if (networkManagerService?.isConnected == false) {
+            stopNetworkService()
+        }
     }
 }

@@ -41,7 +41,7 @@ const val LOG_TAG = "NET_MAN_SERVICE"
 
 // Dokey server port ranges
 const val MIN_PORT = 60642
-const val MAX_PORT = 60652
+const val MAX_PORT = 60644
 
 const val SCANNING_PORT_TIMEOUT = 5000
 
@@ -165,7 +165,7 @@ class NetworkManagerService : Service() {
                 }
 
                 // Scan the given address to find the correct port and create a valid socket
-                scanPorts(parsingResult.address, onFound = { // Server was found
+                scanPorts(parsingResult.address, suggestedPort = parsingResult.suggestedPort, onFound = { // Server was found
                     // Attempt to establish the connection with the dokey server
                     startConnection(it, parsingResult.key)
                 }, onNotFound = {  // Server was not found
@@ -232,13 +232,18 @@ class NetworkManagerService : Service() {
      * onFound() is called if a dokey server is found.
      * onNotFound() is called if no server is found after analyzing all the ports
      */
-    private fun scanPorts(address: String, onFound : (Socket) -> Unit, onNotFound : () -> Unit) {
+    private fun scanPorts(address: String, suggestedPort: Int, onFound : (Socket) -> Unit, onNotFound : () -> Unit) {
+        // Create the set of possible dokey ports
+        val ports = mutableSetOf<Int>()
+        ports.addAll(MIN_PORT..MAX_PORT)
+        ports.add(suggestedPort)
+
         // Reset state variables
         currentPortScanCount = 0
         hasServerBeenFound = false
 
         // Cycle through all ports
-        for (port in MIN_PORT..MAX_PORT) {
+        for (port in ports) {
             Thread {
                 val socket = scanPort(address, port)
                 if (socket != null) {

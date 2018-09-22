@@ -50,6 +50,17 @@ abstract class NetworkActivity : AppCompatActivity() {
         serviceStarted = true
     }
 
+    /**
+     * Stop the networking service
+     */
+    fun stopNetworkService() {
+        // Stop the Service
+        val intent = Intent(this, NetworkManagerService::class.java)
+        networkManagerService?.closeConnection()
+        serviceStarted = false
+        stopService(intent)
+    }
+
     private fun bindNetworkService() {
         if (!isBound) {
             val intent = Intent(this, NetworkManagerService::class.java)
