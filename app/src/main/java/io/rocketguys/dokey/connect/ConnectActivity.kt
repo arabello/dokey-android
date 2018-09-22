@@ -13,6 +13,7 @@ import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
@@ -30,7 +31,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
 
-
+        // Start the service
+        startNetworkService()
 
         // Set up new scan btn
         scanBtn.setOnClickListener {
@@ -74,6 +76,14 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     override fun onServiceConnected() {
+        // If the service is already connected to the dokey server, go to the home
+        // activity instantly
+        if (networkManagerService?.isConnected == true) {
+            startHomeActivity()
+            return
+        }
+
+        // If a QR payload was cached, try to connect to the server using it.
         if (qrPayload != null) {
             networkManagerService?.beginConnection(qrPayload!!)
             Log.d(TAG, "Begin connection")
@@ -90,6 +100,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
         progressBar.smoothToHide()
 
+        startHomeActivity()
+    }
+
+    private fun startHomeActivity() {
         // Start the main activity
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
@@ -188,5 +202,23 @@ class ConnectActivity : ConnectionBuilderActivity() {
         commonErrorHandler(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle UX
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // If the server is not started yet, start it
+        if (!serviceStarted) {
+            startNetworkService()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // If the service is not connected to the dokey server, close it when going into background
+        if (networkManagerService?.isConnected == false) {
+            stopNetworkService()
+        }
     }
 }
