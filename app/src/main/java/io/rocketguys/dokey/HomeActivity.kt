@@ -21,6 +21,7 @@ import android.view.*
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
+import io.rocketguys.dokey.connect.ScanActivity
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.preferences.SettingsActivity
@@ -438,12 +439,15 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
     private fun showDisconnectConfirmationDialog() {
         AlertDialog.Builder(this)
-                .setTitle(getString(R.string.disconnect_confirmation))   // TODO: transform into resources
-                .setMessage(getString(R.string.disconnect_confirmation_msg))
-                .setPositiveButton(android.R.string.yes,
-                        DialogInterface.OnClickListener { dialog, whichButton ->
-                            stopNetworkService()
-                        })
-                .setNegativeButton(android.R.string.no, null).show()
+                .setTitle(getString(R.string.dlg_disconnect_title))
+                .setMessage(getString(R.string.dlg_disconnect_msg))
+                .setPositiveButton(getString(R.string.dlg_disconnect_positive)) { _, _ ->
+                    // User want to disconnect, so forget che cached QRCode
+                    ScanActivity.cache(this).qrCode = null
+
+                    // Stop service
+                    stopNetworkService()
+                }
+                .setNegativeButton(getString(R.string.dlg_disconnect_negative), null).show()
     }
 }

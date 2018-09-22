@@ -72,10 +72,14 @@
     <string name="dlg_clear_cache_msg">Delete cache?</string>
     <string name="dlg_clear_cache_ok">Delete</string>
     <string name="dlg_clear_cache_cancel">Cancel</string>
-    <string name="notification_title">Dokey Link</string>
-    <string name="notification_description">Click to manage dokey link...</string>
-    <string name="disconnect_confirmation">Do you really want to disconnect?</string>
-    <string name="disconnect_confirmation_msg">Some features of Dokey will not work as expected until you reconnect.</string>
+    <string name="dlg_disconnect_title">Are you sure?</string>
+    <string name="dlg_disconnect_msg">Some features of Dokey will not work as expected until you reconnect</string>
+    <string name="dlg_disconnect_positive">Disconnect</string>
+    <string name="dlg_disconnect_negative">Cancel</string>
 
     <!-- Service foreground notification -->
+    <string name="ntf_service_title">Dokey is connected</string>
+    <string name="ntf_service_desc">Tap and scan QRCode</string>
+    <string name="ntf_service_desc_connected">%1$s</string>
+    <string name="ntf_service_action_disconnect">Disconnect</string>
 </resources>

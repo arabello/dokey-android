@@ -6,12 +6,12 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
@@ -19,7 +19,6 @@ import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
 import json.JSONObject
-import kotlinx.android.synthetic.main.item_active_app.view.*
 import model.command.Command
 import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
@@ -106,20 +105,19 @@ class NetworkManagerService : Service() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Dokey",
-                    NotificationManager.IMPORTANCE_HIGH)
+                    NotificationManager.IMPORTANCE_LOW)
             notificationChannel.description = "Dokey channel"
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
         if (notificationBuilder == null) {
             notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_action_edit_grad_1)  // TODO: change with the dokey icon
-                    .setContentTitle(getString(R.string.notification_title))
-                    //.setColor(getResources().getColor(R.color.material_blue_grey_800))
+                    .setSmallIcon(R.drawable.ic_connected)  // TODO: change with the dokey icon
+                    .setContentTitle(getString(R.string.ntf_service_title))
                     .setOngoing(true)
                     .setChannelId(NOTIFICATION_CHANNEL_ID)
-                    .setPriority(NotificationCompat.PRIORITY_MAX)
-                    .setContentText("Waiting for QR code...")
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setContentText(getString(R.string.ntf_service_desc))
 
             val notificationClickIntent = Intent(this, HomeActivity::class.java)
             // Because clicking the notification opens a new ("special") activity, there's
@@ -135,7 +133,7 @@ class NetworkManagerService : Service() {
             val disconnectPendingIntent = PendingIntent.getActivity(this,
                     PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
                     disconnectIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, "Disconnect", disconnectPendingIntent)  // TODO: i18n
+            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, getString(R.string.ntf_service_action_disconnect), disconnectPendingIntent)
         }
 
         startForeground(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
@@ -201,7 +199,7 @@ class NetworkManagerService : Service() {
                 sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
                 imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
 
-                updateNotificationMessage("Connected to ${deviceInfo.name}")  // TODO: i18n
+                updateNotificationMessage(getString(R.string.ntf_service_desc_connected, deviceInfo.name))
 
                 Log.d("CACHE", "Setup")
             }
