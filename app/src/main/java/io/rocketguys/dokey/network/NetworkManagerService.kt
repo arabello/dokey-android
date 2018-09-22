@@ -45,8 +45,16 @@ const val MAX_PORT = 60652
 
 const val SCANNING_PORT_TIMEOUT = 5000
 
+// Notification constants
 const val NOTIFICATION_CHANNEL_ID = "dokey_notification_channel_1"
 const val SERVICE_NOTIFICATION_ID = 101
+
+// Pending intent constants
+const val PENDINT_INTENT_REQUEST_CODE_CONTENT_CLICK = 0
+const val PENDINT_INTENT_REQUEST_CODE_DISCONNECT = 1
+
+const val PENDING_INTENT_DISCONNECT_SERVICE = "PENDING_INTENT_DISCONNECT_SERVICE"
+
 
 /**
  * This service will manage the connection to the desktop computer
@@ -113,13 +121,21 @@ class NetworkManagerService : Service() {
                     .setPriority(NotificationCompat.PRIORITY_MAX)
                     .setContentText("Waiting for QR code...")
 
-            val resultIntent = Intent(this, HomeActivity::class.java)
+            val notificationClickIntent = Intent(this, HomeActivity::class.java)
             // Because clicking the notification opens a new ("special") activity, there's
             // no need to create an artificial back stack.
-            val resultPendingIntent = PendingIntent.getActivity(this,
-                    0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val notificationClickPendingIntent = PendingIntent.getActivity(this,
+                    PENDINT_INTENT_REQUEST_CODE_CONTENT_CLICK, notificationClickIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT)
 
-            notificationBuilder?.setContentIntent(resultPendingIntent)
+            notificationBuilder?.setContentIntent(notificationClickPendingIntent)
+
+            val disconnectIntent = Intent(this, HomeActivity::class.java)
+            disconnectIntent.putExtra(PENDING_INTENT_DISCONNECT_SERVICE, true)
+            val disconnectPendingIntent = PendingIntent.getActivity(this,
+                    PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
+                    disconnectIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, "Disconnect", disconnectPendingIntent)
         }
 
         startForeground(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())

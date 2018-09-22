@@ -19,6 +19,7 @@ import android.view.*
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
+import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
@@ -281,7 +282,20 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         noSectionBtn.setOnClickListener {
             // TODO Add command call to open desktop editor
         }
+
+        // Reset all the notification-related variables
+        shouldDisconnect = false
+
+        // Analyze the current intent to determine if a pending intent was passed from the notification
+        if (intent != null) {
+            if (intent.hasExtra(PENDING_INTENT_DISCONNECT_SERVICE)) {  // Disconnect request sent
+                shouldDisconnect = true
+            }
+        }
     }
+
+    // Variables used in the communication between the notification and the activity
+    private var shouldDisconnect = false
 
     override fun onResume() {
         super.onResume()
@@ -290,6 +304,14 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     }
 
     override fun onServiceConnected() {
+        if (shouldDisconnect) {
+            // TODO: a dialog should be shown to warn the user that disconnecting
+            // the service some features of dokey wont work as expectend until manually
+            // reconnected
+
+            networkManagerService?.closeConnection()
+        }
+
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 
         // Request the section

@@ -30,8 +30,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
 
-
-
         // Start the service
         startNetworkService()
 
