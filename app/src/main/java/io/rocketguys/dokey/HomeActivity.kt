@@ -30,19 +30,21 @@ import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
 import android.content.DialogInterface
-
+import java.util.*
 
 
 class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     companion object {
         private val TAG: String = HomeActivity::class.java.simpleName
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
+        const val ACTIVE_APPS_PULL_PERIOD = 1000L
     }
 
     // View
     val mActiveAppAdapter = ActiveAppAdapter(ArrayList())
     val mGridAdapter = GridAdapter(arrayOf())
     lateinit var mToolbar: Toolbar
+    var activeAppsTimer: Timer ?= null
 
     // State
     enum class LOCK{ INVISIBLE, CLOSE, OPEN}
@@ -247,7 +249,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 true
             }
             R.id.action_more_disconnect -> {
-                networkManagerService?.closeConnection()
+                showDisconnectConfirmationDialog()
                 true
             }
             else -> false
@@ -271,8 +273,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         val orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL
         recyclerView.layoutManager = LinearLayoutManager(this, orientation, false)
         recyclerView.adapter = mActiveAppAdapter
-        mActiveAppAdapter.activeApps = ActiveAppMock.Factory.list(baseContext, 9)
-        mActiveAppAdapter.notifyDataSetChanged()
 
         // Init BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
@@ -372,20 +372,19 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
-        /*
-        networkManagerService?.requestActiveApps {
-            it.forEach {
-                println(it)
-                it.requestIcon { imageId, imageFile ->
-                    println(imageFile?.absolutePath)
+        if (activeAppsTimer == null){
+            activeAppsTimer = Timer()
+            activeAppsTimer?.schedule(object : TimerTask(){
+                override fun run() {
+                    networkManagerService?.requestActiveApps { activeApps ->
+                        if (mActiveAppAdapter.activeApps != activeApps) {
+                            mActiveAppAdapter.activeApps = activeApps
+                            mActiveAppAdapter.notifyDataSetChanged()
+                        }
+                    }
                 }
-
-                if (it.name.contains("IDEA")) {
-                    networkManagerService?.requestAppFocus(it)
-                }
-            }
+            }, 0L, ACTIVE_APPS_PULL_PERIOD)
         }
-        */
     }
 
     override fun onSectionModified(section: Section) {
