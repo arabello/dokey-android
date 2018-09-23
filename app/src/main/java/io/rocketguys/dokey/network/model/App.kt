@@ -1,6 +1,8 @@
 package io.rocketguys.dokey.network.model
 
 import io.rocketguys.dokey.network.NetworkManagerService
+import model.section.ApplicationSection
+import model.section.Section
 import java.io.File
 
 /**
@@ -49,5 +51,15 @@ class App(val networkManagerService: NetworkManagerService, val name: String, va
 
     override fun toString(): String {
         return "App(name='$name', path='$path')"
+    }
+
+    companion object {
+        fun generateAppForSection(networkManagerService: NetworkManagerService, section: Section) : App? {
+            return if (section is ApplicationSection) {
+                App(networkManagerService, section.name!!, section.appId!!)
+            }else{
+                null
+            }
+        }
     }
 }

@@ -19,14 +19,13 @@ import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
 import io.rocketguys.dokey.network.model.App
-import io.rocketguys.dokey.network.model.DefaultSectionWrapper
-import io.rocketguys.dokey.network.model.SectionWrapper
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
 import model.parser.page.DefaultPageParser
 import model.parser.section.DefaultSectionParser
+import model.section.ApplicationSection
 import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo
@@ -396,7 +395,7 @@ class NetworkManagerService : Service() {
      *                       without requesting it to the server.
      */
     fun requestSection(id: String, forceCache : Boolean = false, remoteLastEdit: Long = Long.MAX_VALUE,
-                       callback: (SectionWrapper?) -> Unit) {
+                       callback: (section: Section?, associatedApp: App?) -> Unit) {
         // Make the request
         executorService.execute {
             // At first, check if the section is available in the cache
@@ -413,12 +412,7 @@ class NetworkManagerService : Service() {
             // Use cached version without requesting it
             if (forceCache || remoteLastEdit <= cachedSection?.lastEdit ?: 0) {
                 runOnUiThread(Runnable {
-                    callback(
-                            if (cachedSection == null)
-                                null
-                            else
-                                DefaultSectionWrapper(this, cachedSection)
-                    )
+                    callback(cachedSection, App.generateAppForSection(this, cachedSection!!))
                 })
                 return@execute
             }
@@ -426,22 +420,28 @@ class NetworkManagerService : Service() {
             // Request the section to the server
             networkThread?.linkManager?.requestService("get_section", requestBody, object : ServiceResponseAdapter() {
                 override fun onServiceResponse(responseBody: JSONObject?) {
+
+
                     // Decode the received section
                     val found = responseBody!!.getBoolean("found")
-                    if (!found) {  // Command not found, empty callback
+                    if (!found) {  // Section not found, empty callback
+                        // Check if app info are available
+                        var associatedApp : App? = null
+                        if (responseBody!!.has("app")) {
+                            val appJson = responseBody.getJSONObject("app")
+                            val appName = appJson.getString("name")
+                            val appPath = appJson.getString("path")
+                            associatedApp = App(this@NetworkManagerService, appName, appPath)
+                        }
+
                         runOnUiThread(Runnable {
-                            callback(null)
+                            callback(null, associatedApp)
                         })
-                    }else{  // Command found
+                    }else{  // Section found
                         val upToDate = responseBody.getBoolean("up")
                         if (upToDate) {  // Cached section is up to date, return that one
                             runOnUiThread(Runnable {
-                                callback(
-                                        if (cachedSection == null)
-                                            null
-                                        else
-                                            DefaultSectionWrapper(this@NetworkManagerService, cachedSection)
-                                )
+                                callback(cachedSection, App.generateAppForSection(this@NetworkManagerService, cachedSection!!))
                             })
                         }else{
                             // Cached section is not up to date, decode the set one and update the cache
@@ -453,7 +453,7 @@ class NetworkManagerService : Service() {
 
                             // Notify the listener
                             runOnUiThread(Runnable {
-                                callback(DefaultSectionWrapper(this@NetworkManagerService, receivedSection))
+                                callback(receivedSection, App.generateAppForSection(this@NetworkManagerService, receivedSection))
                             })
                         }
                     }

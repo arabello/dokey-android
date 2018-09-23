@@ -172,7 +172,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
                 // Update PagedGrid
                 // Request the section
-                networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
+                networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
                     toogleNoSectionFallback(section?.name!!, section)
@@ -194,13 +194,15 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
 
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section ->
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
                     Log.d(TAG, "requestSection ${section?.name}")
+
+                    Log.d(TAG, associatedApp.toString())
 
                     if (section == null)
                         toogleNoSectionFallback(null, null)
                     else
-                        onApplicationSwitch(section.app!!, section)
+                        onApplicationSwitch(associatedApp!!, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -219,7 +221,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
                 // Update PagedGrid
                 // Request the section
-                networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
+                networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
                     toogleNoSectionFallback(section?.name!!, section)
@@ -370,18 +372,18 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section ->
+        networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
             sectionAdapter?.notifySectionChanged(section)
         }
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section ->
+        networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section ->
+        networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
     }
@@ -392,7 +394,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         activeAppsTimer = null
     }
 
-    override fun onSectionModified(section: Section) {
+    override fun onSectionModified(section: Section, associatedApp: App?) {
         Log.d(TAG, "onSectionModified ${section.name}")
         if (section.id == sectionAdapter?.currentSection?.id)
             sectionAdapter?.notifySectionChanged(section)
