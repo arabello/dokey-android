@@ -97,8 +97,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
         ScanActivity.cache(this).qrCode = qrPayload
         ScanActivity.cache(this).deviceInfo = serverInfo
 
-        progressBar.smoothToHide()
-
         startHomeActivity()
     }
 
