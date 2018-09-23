@@ -217,6 +217,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 item.setIcon(R.drawable.ic_section_shortcut_grad_2)
 
                 // Toolbar
+                //mToolbar.setTitle(R.string.title_shortcut)
                 mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
@@ -225,6 +226,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
                 networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
                     Log.d(TAG, "requestSection ${section?.name}")
+                    mToolbar.title = associatedApp?.name
                     sectionAdapter?.renderSection(section?.id, section, associatedApp)
                 }
 
