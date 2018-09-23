@@ -413,7 +413,12 @@ class NetworkManagerService : Service() {
             // Use cached version without requesting it
             if (forceCache || remoteLastEdit <= cachedSection?.lastEdit ?: 0) {
                 runOnUiThread(Runnable {
-                    callback(DefaultSectionWrapper(this, cachedSection!!))
+                    callback(
+                            if (cachedSection == null)
+                                null
+                            else
+                                DefaultSectionWrapper(this, cachedSection)
+                    )
                 })
                 return@execute
             }
@@ -431,7 +436,12 @@ class NetworkManagerService : Service() {
                         val upToDate = responseBody.getBoolean("up")
                         if (upToDate) {  // Cached section is up to date, return that one
                             runOnUiThread(Runnable {
-                                callback(DefaultSectionWrapper(this@NetworkManagerService, cachedSection!!))
+                                callback(
+                                        if (cachedSection == null)
+                                            null
+                                        else
+                                            DefaultSectionWrapper(this@NetworkManagerService, cachedSection)
+                                )
                             })
                         }else{
                             // Cached section is not up to date, decode the set one and update the cache
