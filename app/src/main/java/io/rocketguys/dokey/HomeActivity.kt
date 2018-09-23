@@ -175,7 +175,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
-                    toogleNoSectionFallback(section?.name!!, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -194,15 +193,12 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
 
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, app ->
                     Log.d(TAG, "requestSection ${section?.name}")
 
-                    Log.d(TAG, associatedApp.toString())
-
-                    if (section == null)
-                        toogleNoSectionFallback(null, null)
-                    else
-                        onApplicationSwitch(associatedApp!!, section)
+                    // Shortcut section case, app always not null
+                    if (app != null)
+                        onApplicationSwitch(app, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -224,7 +220,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     sectionAdapter?.notifySectionChanged(section)
-                    toogleNoSectionFallback(section?.name!!, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -239,6 +234,30 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             }
         }
         false
+    }
+
+    // Shortcut section related
+    override fun onApplicationSwitch(application: App, section: Section?) {
+        Log.d(TAG, "onApplicationSwitch $application.name ${section?.name}")
+
+        // Update only if current navigation is shortcut section and the lock is open
+        if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
+            mToolbar.title = application.name
+
+            if (section == null){
+                // Section does not exist, show no section layout fallback
+                noSectionFallback.visibility = View.VISIBLE
+                noSectionText.text = getString(R.string.acty_home_no_section_msg, application.name)
+                pagedGridView.visibility = View.GONE
+                noSectionBtn.setOnClickListener { application.requestInEditor() }
+            }else{
+                // Section exists, render it
+                noSectionFallback.visibility = View.GONE
+                pagedGridView.visibility = View.VISIBLE
+                sectionAdapter?.notifySectionChanged(section)
+            }
+
+        }
     }
 
     // Manage more menu selection
@@ -288,10 +307,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
         // Init PagedGridView
         pagedGridView.adapter = mGridAdapter
-
-        noSectionBtn.setOnClickListener {
-            // TODO Add command call to open desktop editor
-        }
 
         // Analyze the current intent to determine if a pending intent was passed from the notification
         setupFlagsForNotificationIntent(intent)
@@ -406,29 +421,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         Log.d(TAG, "onCommandModified ${command.title}")
     }
 
-    private fun toogleNoSectionFallback(applicationName: String?, section: Section?){
-        if (section == null){
-            // Section does not exist, notify user
-            mToolbar.title = getString(R.string.title_shortcut)
-            noSectionFallback.visibility = View.VISIBLE
-            noSectionText.text = getString(R.string.acty_home_no_section_msg, if (applicationName != null) "$applicationName " else "")
-            pagedGridView.visibility = View.GONE
-        }else{
-            noSectionFallback.visibility = View.GONE
-            pagedGridView.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onApplicationSwitch(application: App, section: Section?) {
-        Log.d(TAG, "onApplicationSwitch $application.name ${section?.name}")
-
-        // Update PagedGrid if current navigation is shortcut section and the lock is open
-        if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
-            toogleNoSectionFallback(application.name, section)
-            mToolbar.title = application.name
-            sectionAdapter?.notifySectionChanged(section)
-        }
-    }
 
     override fun onConnectionClosed() {
         Log.d(TAG, "onConnectionClosed")
