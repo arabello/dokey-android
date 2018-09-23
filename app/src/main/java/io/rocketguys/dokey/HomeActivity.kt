@@ -56,6 +56,36 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     // State - Section
     var sectionAdapter: SectionConnectedAdapter? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_home)
+        mToolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(mToolbar)
+        mToolbar.setTitle(R.string.title_launchpad)
+
+        // Keep screen on pref set up
+        val keepScreenOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.pref_ux_keep_screen_on_key), true)
+        Log.d(TAG, "keep screen on: $keepScreenOn")
+        if(keepScreenOn)
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Init RecyclerView for active apps
+        mActiveAppAdapter = ActiveAppAdapter(this, arrayListOf())
+        val orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL
+        recyclerView.layoutManager = LinearLayoutManager(this, orientation, false)
+        recyclerView.adapter = mActiveAppAdapter
+
+        // Init BottomNavigationView
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.itemIconTintList = null
+
+        // Init PagedGridView
+        pagedGridView.adapter = mGridAdapter
+
+        // Analyze the current intent to determine if a pending intent was passed from the notification
+        setupFlagsForNotificationIntent(intent)
+    }
+
     // Transition animation to change Active Apps RecyclerView background
     private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
         val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
@@ -174,7 +204,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.notifySectionChanged(section)
+                    sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD_ID, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -193,12 +223,9 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Update PagedGrid
                 // Request the section
 
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, app ->
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
                     Log.d(TAG, "requestSection ${section?.name}")
-
-                    // Shortcut section case, app always not null
-                    if (app != null)
-                        onApplicationSwitch(app, section)
+                    sectionAdapter?.renderSection(section?.id, section, associatedApp)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -219,7 +246,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.notifySectionChanged(section)
+                    sectionAdapter?.renderSection(SectionAdapter.SYSTEM_ID, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -236,6 +263,56 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         false
     }
 
+    private fun Section.exist(): Boolean{
+        if (this.pages?.size == 0)
+            return false
+        this.pages?.forEach { page ->
+            if (page.components?.size != 0)
+                return true
+        }
+        return false
+    }
+
+    private fun SectionAdapter.renderSection(sectionId: String, section: Section?){
+        this.renderSection(sectionId, section, null)
+    }
+
+    private fun SectionAdapter.renderSection(sectionId: String?, section: Section?, application: App?){
+        if (section == null || !section.exist()){
+            // Section does not exist, show no section layout fallback
+            noSectionFallback.visibility = View.VISIBLE
+            pagedGridView.visibility = View.GONE
+
+            when(sectionId){
+                SectionAdapter.LAUNCHPAD_ID -> {
+                    noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_launchpad))
+                    noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_1)
+                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.LAUNCHPAD_ID) }
+                }
+
+                SectionAdapter.SYSTEM_ID -> {
+                    noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_system))
+                    noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_3)
+                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.SYSTEM_ID) }
+                }
+
+                // Shortcut
+                else -> {
+                    mToolbar.title = application?.name
+                    noSectionText.text = getString(R.string.acty_home_no_section_msg, application?.name)
+                    noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_2)
+                    noSectionBtn.setOnClickListener { application?.requestInEditor() }
+                }
+            }
+
+        }else{
+            // Section exists, render it
+            noSectionFallback.visibility = View.GONE
+            pagedGridView.visibility = View.VISIBLE
+            notifySectionChanged(section)
+        }
+    }
+
     // Shortcut section related
     override fun onApplicationSwitch(application: App, section: Section?) {
         Log.d(TAG, "onApplicationSwitch $application.name ${section?.name}")
@@ -243,20 +320,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         // Update only if current navigation is shortcut section and the lock is open
         if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
             mToolbar.title = application.name
-
-            if (section == null){
-                // Section does not exist, show no section layout fallback
-                noSectionFallback.visibility = View.VISIBLE
-                noSectionText.text = getString(R.string.acty_home_no_section_msg, application.name)
-                pagedGridView.visibility = View.GONE
-                noSectionBtn.setOnClickListener { application.requestInEditor() }
-            }else{
-                // Section exists, render it
-                noSectionFallback.visibility = View.GONE
-                pagedGridView.visibility = View.VISIBLE
-                sectionAdapter?.notifySectionChanged(section)
-            }
-
+            sectionAdapter?.renderSection(section?.id, section, application)
         }
     }
 
@@ -280,36 +344,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             }
             else -> false
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
-        mToolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(mToolbar)
-        mToolbar.setTitle(R.string.title_launchpad)
-
-        // Keep screen on pref set up
-        val keepScreenOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.pref_ux_keep_screen_on_key), true)
-        Log.d(TAG, "keep screen on: $keepScreenOn")
-        if(keepScreenOn)
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        // Init RecyclerView for active apps
-        mActiveAppAdapter = ActiveAppAdapter(this, arrayListOf())
-        val orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) LinearLayoutManager.HORIZONTAL else LinearLayoutManager.VERTICAL
-        recyclerView.layoutManager = LinearLayoutManager(this, orientation, false)
-        recyclerView.adapter = mActiveAppAdapter
-
-        // Init BottomNavigationView
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        navigation.itemIconTintList = null
-
-        // Init PagedGridView
-        pagedGridView.adapter = mGridAdapter
-
-        // Analyze the current intent to determine if a pending intent was passed from the notification
-        setupFlagsForNotificationIntent(intent)
     }
 
     // Used to avoid multiple evaluations of flags
@@ -389,7 +423,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         // Request the section
         networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
-            sectionAdapter?.notifySectionChanged(section)
+            sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD_ID, section)
         }
 
         // Request the section
@@ -412,7 +446,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onSectionModified(section: Section, associatedApp: App?) {
         Log.d(TAG, "onSectionModified ${section.name}")
         if (section.id == sectionAdapter?.currentSection?.id)
-            sectionAdapter?.notifySectionChanged(section)
+            sectionAdapter?.renderSection(section.id!!, section, associatedApp)
     }
 
     // Command may not be in the section.

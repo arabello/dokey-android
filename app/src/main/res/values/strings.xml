@@ -28,7 +28,7 @@
     <string name="acty_scan_hint">Download Dokey Desktop at %1$s and scan the QR code</string>
 
     <!-- Activity Home -->
-    <string name="acty_home_no_section_msg">Could not find %1$slayout \n Please create it by Dokey Desktop editor</string>
+    <string name="acty_home_no_section_msg">Could not find %1$s layout \n Please create it by Dokey Desktop editor</string>
     <string name="acty_home_no_section_btn">Open editor</string>
 
     <!-- Connect Dialog -->
