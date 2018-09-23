@@ -13,7 +13,7 @@ abstract class ConnectedActivity : NetworkActivity() {
     /**
      * Called when a Section is modified in the Desktop editor
      */
-    abstract fun onSectionModified(section: Section)
+    abstract fun onSectionModified(section: Section, associatedApp: App?)
 
     /**
      * Called when a Command is modified in the Desktop app
@@ -54,9 +54,9 @@ abstract class ConnectedActivity : NetworkActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val sectionId = intent?.getStringExtra("payload")
 
-            networkManagerService?.requestSection(sectionId!!, forceCache = true) { section ->
+            networkManagerService?.requestSection(sectionId!!, forceCache = true) { section, associatedApp ->
                 if (section != null) {
-                    onSectionModified(section)
+                    onSectionModified(section, associatedApp)
                 }
             }
         }
@@ -89,7 +89,7 @@ abstract class ConnectedActivity : NetworkActivity() {
                 onApplicationSwitch(application, null)
             }else{  // Section is available, request it from the service.
                 networkManagerService?.requestSection(sectionId, remoteLastEdit = lastEdit) {
-                    section -> onApplicationSwitch(application, section)
+                    section, _ -> onApplicationSwitch(application, section)
                 }
             }
         }
