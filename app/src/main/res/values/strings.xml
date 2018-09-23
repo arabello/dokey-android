@@ -78,8 +78,8 @@
     <string name="dlg_disconnect_negative">Cancel</string>
 
     <!-- Service foreground notification -->
-    <string name="ntf_service_title">Dokey is connected</string>
+    <string name="ntf_service_title">Dokey Sync</string>
     <string name="ntf_service_desc">Tap and scan QRCode</string>
-    <string name="ntf_service_desc_connected">%1$s</string>
+    <string name="ntf_service_desc_connected">Connected to %1$s</string>
     <string name="ntf_service_action_disconnect">Disconnect</string>
 </resources>

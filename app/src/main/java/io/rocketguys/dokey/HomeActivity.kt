@@ -44,13 +44,14 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
 
     // View
     lateinit var mActiveAppAdapter: ActiveAppAdapter
-    val mGridAdapter = GridAdapter(arrayOf())
     lateinit var mToolbar: Toolbar
+    val mGridAdapter = GridAdapter(arrayOf())
     var activeAppsTimer: Timer ?= null
 
     // State
     enum class LOCK{ INVISIBLE, CLOSE, OPEN}
     var lockState = LOCK.OPEN
+    private var disconnectFromActivity: Boolean = false
 
     // State - Section
     var sectionAdapter: SectionConnectedAdapter? = null
@@ -252,6 +253,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 true
             }
             R.id.action_more_disconnect -> {
+                disconnectFromActivity = true
                 showDisconnectConfirmationDialog()
                 true
             }
@@ -429,13 +431,20 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
     override fun onConnectionClosed() {
         Log.d(TAG, "onConnectionClosed")
 
-        // If the connection was closed after a notification request, avoid going to the
-        // connect activity and terminate directly
-        if (!notificationDisconnectRequestFlag) {
-            startActivity(Intent(this, ConnectActivity::class.java))
-        }
+        when {
+            // Disconnect from notification request
+            notificationDisconnectRequestFlag -> finish()
 
-        finish()
+            // Disconnect from activity, user want to change desktop. Clear cache
+            disconnectFromActivity -> {
+                ScanActivity.cache(this).qrCode = null
+                startActivity(Intent(this, ConnectActivity::class.java))
+                finish()
+            }
+
+            // Everything else, disconnect from desktop
+            else -> finish()
+        }
     }
 
     private fun showDisconnectConfirmationDialog() {
@@ -443,9 +452,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                 .setTitle(getString(R.string.dlg_disconnect_title))
                 .setMessage(getString(R.string.dlg_disconnect_msg))
                 .setPositiveButton(getString(R.string.dlg_disconnect_positive)) { _, _ ->
-                    // User want to disconnect, so forget che cached QRCode
-                    ScanActivity.cache(this).qrCode = null
-
                     // Stop service
                     stopNetworkService()
                 }
