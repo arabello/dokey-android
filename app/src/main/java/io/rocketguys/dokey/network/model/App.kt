@@ -22,6 +22,13 @@ class App(val networkManagerService: NetworkManagerService, val name: String, va
         networkManagerService.requestAppFocus(this)
     }
 
+    /**
+     * Request to open the dokey editor and focus to the current application layout
+     */
+    fun requestInEditor() {
+        networkManagerService.requestEditor("app:${path}")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
