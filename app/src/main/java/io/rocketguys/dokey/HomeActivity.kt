@@ -23,6 +23,7 @@ import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.connect.ScanActivity
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
+import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
 import io.rocketguys.dokey.sync.ActiveAppTask
@@ -198,7 +199,7 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                     if (section == null)
                         toogleNoSectionFallback(null, null)
                     else
-                        onApplicationSwitch(section.name!!, section)
+                        onApplicationSwitch(section.app!!, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -414,13 +415,13 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
-    override fun onApplicationSwitch(applicationName: String, section: Section?) {
-        Log.d(TAG, "onApplicationSwitch $applicationName ${section?.name}")
+    override fun onApplicationSwitch(application: App, section: Section?) {
+        Log.d(TAG, "onApplicationSwitch $application.name ${section?.name}")
 
         // Update PagedGrid if current navigation is shortcut section and the lock is open
         if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
-            toogleNoSectionFallback(applicationName, section)
-            mToolbar.title = applicationName
+            toogleNoSectionFallback(application.name, section)
+            mToolbar.title = application.name
             sectionAdapter?.notifySectionChanged(section)
         }
     }

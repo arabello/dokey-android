@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import com.squareup.picasso.Picasso
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.NetworkManagerService
+import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.preferences.ContextualVibrator
 import kotlinx.android.synthetic.main.item_active_app.view.*
 
@@ -21,7 +22,7 @@ class ViewHolder(itemActiveApp: View) : RecyclerView.ViewHolder(itemActiveApp) {
     val imgView = itemActiveApp.icon!!
 }
 
-class ActiveAppAdapter(val context: Context, var activeApps: List<NetworkManagerService.App>) : RecyclerView.Adapter<ViewHolder>() {
+class ActiveAppAdapter(val context: Context, var activeApps: List<App>) : RecyclerView.Adapter<ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_active_app, parent, false))
 
     override fun getItemCount(): Int = activeApps.size

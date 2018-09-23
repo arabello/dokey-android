@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import io.rocketguys.dokey.network.NetworkEvent
+import io.rocketguys.dokey.network.model.App
 import json.JSONObject
 import model.command.Command
 import model.section.Section
@@ -22,7 +23,7 @@ abstract class ConnectedActivity : NetworkActivity() {
     /**
      * Called when the user switches to another application
      */
-    abstract fun onApplicationSwitch(applicationName: String, section: Section?)
+    abstract fun onApplicationSwitch(application: App, section: Section?)
 
     /**
      * Called when the connection with the desktop server is interrupted.
@@ -79,14 +80,16 @@ abstract class ConnectedActivity : NetworkActivity() {
             val payloadJson = JSONObject(payload)
 
             val applicationName = payloadJson.getString("appName")
+            val applicationPath = payloadJson.getString("path")
+            val application = App(networkManagerService!!, applicationName, applicationPath)
             val sectionId = payloadJson.optString("sectionId", null)
             val lastEdit = payloadJson.optLong("lastEdit", -1)
 
             if (sectionId == null) {  // No section is available for the current app
-                onApplicationSwitch(applicationName, null)
+                onApplicationSwitch(application, null)
             }else{  // Section is available, request it from the service.
                 networkManagerService?.requestSection(sectionId, remoteLastEdit = lastEdit) {
-                    section -> onApplicationSwitch(applicationName, section)
+                    section -> onApplicationSwitch(application, section)
                 }
             }
         }

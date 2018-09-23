@@ -18,6 +18,9 @@ import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
+import io.rocketguys.dokey.network.model.App
+import io.rocketguys.dokey.network.model.DefaultSectionWrapper
+import io.rocketguys.dokey.network.model.SectionWrapper
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser
@@ -393,7 +396,7 @@ class NetworkManagerService : Service() {
      *                       without requesting it to the server.
      */
     fun requestSection(id: String, forceCache : Boolean = false, remoteLastEdit: Long = Long.MAX_VALUE,
-                       callback: (Section?) -> Unit) {
+                       callback: (SectionWrapper?) -> Unit) {
         // Make the request
         executorService.execute {
             // At first, check if the section is available in the cache
@@ -410,7 +413,7 @@ class NetworkManagerService : Service() {
             // Use cached version without requesting it
             if (forceCache || remoteLastEdit <= cachedSection?.lastEdit ?: 0) {
                 runOnUiThread(Runnable {
-                    callback(cachedSection)
+                    callback(DefaultSectionWrapper(this, cachedSection!!))
                 })
                 return@execute
             }
@@ -428,7 +431,7 @@ class NetworkManagerService : Service() {
                         val upToDate = responseBody.getBoolean("up")
                         if (upToDate) {  // Cached section is up to date, return that one
                             runOnUiThread(Runnable {
-                                callback(cachedSection)
+                                callback(DefaultSectionWrapper(this@NetworkManagerService, cachedSection!!))
                             })
                         }else{
                             // Cached section is not up to date, decode the set one and update the cache
@@ -440,7 +443,7 @@ class NetworkManagerService : Service() {
 
                             // Notify the listener
                             runOnUiThread(Runnable {
-                                callback(receivedSection)
+                                callback(DefaultSectionWrapper(this@NetworkManagerService, receivedSection))
                             })
                         }
                     }
@@ -521,7 +524,8 @@ class NetworkManagerService : Service() {
 
                     for (jsonApp in apps) {
                         jsonApp as JSONObject
-                        val app = App(jsonApp.getString("name"), jsonApp.getString("path"))
+                        val app = App(this@NetworkManagerService,
+                                jsonApp.getString("name"), jsonApp.getString("path"))
                         outputApps.add(app)
                     }
 
@@ -543,48 +547,6 @@ class NetworkManagerService : Service() {
             requestBody.put("app", app.path)
 
             networkThread?.linkManager?.requestService("focus_app", requestBody, null)
-        }
-    }
-
-    /**
-     * This class represents an application and it is used in the active app request.
-     */
-    inner class App(val name: String, val path: String) {
-        /**
-         * Request the icon of the current image, using the "requestImage" method of
-         * the NetworkManagerService
-         */
-        fun requestIcon(callback: (imageId: String, imageFile: File?) -> Unit) {
-            requestImage("app:$path", callback)
-        }
-
-        /**
-         * Request focus to the current app.
-         */
-        fun requestFocus() {
-            requestAppFocus(this)
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as App
-
-            if (name != other.name) return false
-            if (path != other.path) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = name.hashCode()
-            result = 31 * result + path.hashCode()
-            return result
-        }
-
-        override fun toString(): String {
-            return "App(name='$name', path='$path')"
         }
     }
 
