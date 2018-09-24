@@ -275,8 +275,7 @@ class HomeActivity : ConnectedActivity(){
             SettingsActivity.REQUEST_CODE -> {
                 if(resultCode == RESULT_OK){
                     // A preference in SettingsActivity changed and activity should be refreshed
-                    finish()
-                    startActivity(intent)
+                    recreate()
                 }
             }
         }
