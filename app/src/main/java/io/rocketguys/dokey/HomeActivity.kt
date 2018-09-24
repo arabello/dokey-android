@@ -13,10 +13,12 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
@@ -35,7 +37,7 @@ import model.section.Section
 import java.util.*
 
 
-class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
+class HomeActivity : ConnectedActivity(){
     companion object {
         private val TAG: String = HomeActivity::class.java.simpleName
         const val DRAWABLE_GRAD_TRANS_DURATION = 420
@@ -161,24 +163,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         }
     }
 
-    // Inflate context (more) menu
-    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        menuInflater.inflate(R.menu.more, menu)
-    }
-
-    // Manage context (more) menu actions
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
-        return when(item?.itemId){
-            R.id.action_more_settings -> {
-                true
-            }
-            else -> {
-                super.onContextItemSelected(item)
-            }
-        }
-    }
-
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         if (item.itemId != R.id.navigation_more)
             with(navigation.menu){
@@ -255,9 +239,23 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
             }
             R.id.navigation_more -> {
                 // Setup more menu
-                val popupMenu = PopupMenu(this, findViewById(R.id.navigation_more))
-                popupMenu.inflate(R.menu.more)
-                popupMenu.setOnMenuItemClickListener(this)
+
+                val popupMenu = NoFocusPopupMenu.Builder(this)
+                        .setAnchorView(findViewById(R.id.navigation_more))
+                        .addItem(getString(R.string.title_more_settings)){
+                            startActivity(Intent(this, SettingsActivity::class.java))
+                        }
+                        .addItem(getString(R.string.title_more_docs)){
+                            val intent = Intent(this@HomeActivity, WebActivity::class.java)
+                            intent.putExtra(WebActivity.INTENT_URL_KEY, getString(R.string.url_docs))
+                            startActivity(intent)
+                        }
+                        .addItem(getString(R.string.title_more_disconnect)){
+                            disconnectFromActivity = true
+                            showDisconnectConfirmationDialog()
+                        }
+                        .create()
+
                 popupMenu.show()
                 return@OnNavigationItemSelectedListener false
             }
@@ -323,28 +321,6 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
         if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
             mToolbar.title = application.name
             sectionAdapter?.renderSection(section?.id, section, application)
-        }
-    }
-
-    // Manage more menu selection
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        return when(item?.itemId){
-            R.id.action_more_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            R.id.action_more_docs -> {
-                val intent = Intent(this@HomeActivity, WebActivity::class.java)
-                intent.putExtra(WebActivity.INTENT_URL_KEY, getString(R.string.url_docs))
-                startActivity(intent)
-                true
-            }
-            R.id.action_more_disconnect -> {
-                disconnectFromActivity = true
-                showDisconnectConfirmationDialog()
-                true
-            }
-            else -> false
         }
     }
 
@@ -486,5 +462,17 @@ class HomeActivity : ConnectedActivity(), PopupMenu.OnMenuItemClickListener {
                     stopNetworkService()
                 }
                 .setNegativeButton(getString(R.string.dlg_disconnect_negative), null).show()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
     }
 }
