@@ -43,31 +43,31 @@ class ConnectDialog {
 
         fun createDialogInvalidQRCode(): AlertDialog{
             txt.setText(R.string.dlg_connect_InvalidQRCode)
-            img.setImageResource(R.mipmap.dlg_connect_invalidqrcode)
+            img.setImageResource(R.drawable.dlg_connect_invalidqrcode)
             return dialog
         }
 
         fun createDialogWifiNotConnected(): AlertDialog{
             txt.setText(R.string.dlg_connect_WifiNotConnected)
-            img.setImageResource(R.mipmap.dlg_connect_onservernotinthesamenetwork)
+            img.setImageResource(R.drawable.dlg_connect_onservernotinthesamenetwork)
             return dialog
         }
 
         fun createDialogOnServerNotInTheSameNetworkError(): AlertDialog{
             txt.setText(R.string.dlg_connect_OnServerNotInTheSameNetworkError)
-            img.setImageResource(R.mipmap.dlg_connect_onservernotinthesamenetwork)
+            img.setImageResource(R.drawable.dlg_connect_onservernotinthesamenetwork)
             return dialog
         }
 
         fun createDialogOnDesktopVersionTooLowError(serverInfo: DeviceInfo): AlertDialog {
             txt.text = builder.context.getString(R.string.dlg_connect_OnDesktopVersionTooLowError, serverInfo.name)
-            img.setImageResource(R.mipmap.dlg_connect_ondesktopversiontoolow)
+            img.setImageResource(R.drawable.dlg_connect_ondesktopversiontoolow)
             return dialog
         }
 
         fun createDialogOnMobileVersionTooLowError(serverInfo: DeviceInfo): AlertDialog {
             txt.text = builder.context.getString(R.string.dlg_connect_OnMobileVersionTooLowError, serverInfo.name)
-            img.setImageResource(R.mipmap.dlg_connect_onmobileversiontoolow)
+            img.setImageResource(R.drawable.dlg_connect_onmobileversiontoolow)
             return dialog
         }
     }

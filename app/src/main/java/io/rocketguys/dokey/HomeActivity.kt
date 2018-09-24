@@ -106,11 +106,11 @@ class HomeActivity : ConnectedActivity(){
             }
             LOCK.CLOSE -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_lock_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)))
             }
             LOCK.OPEN -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_lock_open_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)))
             }
         }
 
@@ -186,7 +186,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_launchpad)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -207,7 +207,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 //mToolbar.setTitle(R.string.title_shortcut)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -231,7 +231,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_system)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
