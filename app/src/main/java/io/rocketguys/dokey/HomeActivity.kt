@@ -146,7 +146,6 @@ class HomeActivity : ConnectedActivity(){
     // Manage mToolbar actions
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_edit -> {
-            Toast.makeText(baseContext, "action_edit", Toast.LENGTH_SHORT).show()
             networkManagerService?.requestEditor(sectionAdapter?.currentSection?.id)
             true
         }
@@ -154,7 +153,12 @@ class HomeActivity : ConnectedActivity(){
         R.id.action_lock -> {
             lockState = if (lockState == LOCK.OPEN) LOCK.CLOSE else LOCK.OPEN
             item.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
-            Toast.makeText(baseContext, "action_lock $lockState", Toast.LENGTH_SHORT).show()
+            if (lockState == LOCK.OPEN)
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
+                    Log.d(TAG, "requestSection ${section?.name}")
+                    mToolbar.title = associatedApp?.name
+                    sectionAdapter?.renderSection(section?.id, section, associatedApp)
+                }
             true
         }
 
@@ -209,11 +213,12 @@ class HomeActivity : ConnectedActivity(){
 
                 // Update PagedGrid
                 // Request the section
-
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
-                    Log.d(TAG, "requestSection ${section?.name}")
-                    mToolbar.title = associatedApp?.name
-                    sectionAdapter?.renderSection(section?.id, section, associatedApp)
+                if (lockState == LOCK.OPEN) {
+                    networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
+                        Log.d(TAG, "requestSection ${section?.name}")
+                        mToolbar.title = associatedApp?.name
+                        sectionAdapter?.renderSection(section?.id, section, associatedApp)
+                    }
                 }
 
                 return@OnNavigationItemSelectedListener true
