@@ -40,7 +40,7 @@ import java.util.*
 class HomeActivity : ConnectedActivity(){
     companion object {
         private val TAG: String = HomeActivity::class.java.simpleName
-        const val DRAWABLE_GRAD_TRANS_DURATION = 420
+        const val DRAWABLE_GRAD_TRANS_DURATION = 360
         const val ACTIVE_APPS_PULL_PERIOD = 2000L
     }
 
@@ -88,22 +88,6 @@ class HomeActivity : ConnectedActivity(){
         setupFlagsForNotificationIntent(intent)
     }
 
-    // Transition animation to change Active Apps RecyclerView background
-    private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
-        val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
-        val crossfader = TransitionDrawable(arrayOf(start, newBackground))
-        this.background = crossfader
-        crossfader.startTransition(duration)
-    }
-
-    // Transition animation to change action icons in the mToolbar
-    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int) {
-
-        val crossfader = TransitionDrawable(arrayOf(this.icon, newIcon))
-        this.icon = crossfader
-        crossfader.startTransition(duration)
-    }
-
     // Helper method to manage lock state
     private fun MenuItem.transStateTo(newState: LOCK, duration: Int){
         if (this.itemId != R.id.action_lock)
@@ -122,11 +106,11 @@ class HomeActivity : ConnectedActivity(){
             }
             LOCK.CLOSE -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_lock_grad_2)))
             }
             LOCK.OPEN -> {
                 this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)))
+                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_lock_open_grad_2)))
             }
         }
 
@@ -167,6 +151,23 @@ class HomeActivity : ConnectedActivity(){
         }
     }
 
+    // Transition animation to change Active Apps RecyclerView background
+    private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
+        val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
+        val crossfader = TransitionDrawable(arrayOf(start, newBackground))
+        crossfader.isCrossFadeEnabled = true
+        this.background = crossfader
+        crossfader.startTransition(duration)
+    }
+
+    // Transition animation to change action icons in the mToolbar
+    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int) {
+        val crossfader = TransitionDrawable(arrayOf(this.icon, newIcon))
+        crossfader.isCrossFadeEnabled = true
+        this.icon = crossfader
+        crossfader.startTransition(duration)
+    }
+
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         if (item.itemId != R.id.navigation_more)
             with(navigation.menu){
@@ -185,7 +186,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_launchpad)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -206,7 +207,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 //mToolbar.setTitle(R.string.title_shortcut)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
@@ -230,7 +231,7 @@ class HomeActivity : ConnectedActivity(){
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_system)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.mipmap.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
                 mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
 
                 // Update PagedGrid
