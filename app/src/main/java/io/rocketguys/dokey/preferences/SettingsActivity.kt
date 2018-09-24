@@ -1,5 +1,6 @@
 package io.rocketguys.dokey.preferences
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.preference.Preference
@@ -15,6 +16,11 @@ import java.io.File
 
 class SettingsActivity : AppCompatPreferenceActivity() {
     lateinit var mToolbar: Toolbar
+
+    companion object {
+        const val REQUEST_CODE = 1
+        const val EXTRA_REFRESH = "extra_refresh"
+    }
 
     class SettingsFragment : PreferenceFragment() {
 
@@ -64,6 +70,13 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                                 // Clear cache
                                 deleteCache()
                             }.create().show()
+                }
+
+                getString(R.string.pref_ux_fullscreen_key) -> {
+                    // Parent activity should be refreshed, notify it
+                    val intent = Intent()
+                    intent.putExtra(EXTRA_REFRESH, true)
+                    activity.setResult(Activity.RESULT_OK, intent)
                 }
             }
 

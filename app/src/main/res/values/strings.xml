@@ -44,6 +44,9 @@
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
     <string name="pref_ux_title">User Experience</string>
+    <string name="pref_ux_fullscreen_key">pref_ux_fullscreen</string>
+    <string name="pref_ux_fullscreen_title">Fullscreen mode</string>
+    <string name="pref_ux_fullscreen_summary">Hide navigation bar to maximize Dokey experience</string>
     <string name="pref_ux_keep_screen_on_key">pref_ux_keep_screen_on</string>
     <string name="pref_ux_keep_screen_on_title">Keep screen on</string>
     <string name="pref_ux_keep_screen_on_summary">Screen will never sleep while using the app</string>

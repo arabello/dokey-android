@@ -7,8 +7,10 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.PreferenceManager
@@ -243,7 +245,7 @@ class HomeActivity : ConnectedActivity(){
                 val popupMenu = NoFocusPopupMenu.Builder(this)
                         .setAnchorView(findViewById(R.id.navigation_more))
                         .addItem(getString(R.string.title_more_settings)){
-                            startActivity(Intent(this, SettingsActivity::class.java))
+                            startActivityForResult(Intent(this, SettingsActivity::class.java), SettingsActivity.REQUEST_CODE)
                         }
                         .addItem(getString(R.string.title_more_docs)){
                             val intent = Intent(this@HomeActivity, WebActivity::class.java)
@@ -261,6 +263,18 @@ class HomeActivity : ConnectedActivity(){
             }
         }
         false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode){
+            SettingsActivity.REQUEST_CODE -> {
+                if(resultCode == RESULT_OK){
+                    // A preference in SettingsActivity changed and activity should be refreshed
+                    finish()
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     private fun Section.exist(): Boolean{
@@ -466,13 +480,22 @@ class HomeActivity : ConnectedActivity(){
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        if (hasFocus and PreferenceManager.getDefaultSharedPreferences(this)
+                        .getBoolean(getString(R.string.pref_ux_fullscreen_key), false)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            }else{
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN)
+            }
         }
     }
 }

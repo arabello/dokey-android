@@ -3,6 +3,12 @@
     <PreferenceCategory
         android:title="@string/pref_ux_title">
         <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_ux_fullscreen_key"
+            android:title="@string/pref_ux_fullscreen_title"
+            android:summary="@string/pref_ux_fullscreen_summary"/>
+
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/pref_ux_keep_screen_on_key"
             android:title="@string/pref_ux_keep_screen_on_title"
