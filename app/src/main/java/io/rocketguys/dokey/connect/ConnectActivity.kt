@@ -22,6 +22,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     companion object {
         private val TAG: String = ConnectActivity::class.java.simpleName
+        const val EXTRA_FORCE_SCAN = "extra_force_scan"
     }
 
     private var qrPayload: String? = null
@@ -34,13 +35,15 @@ class ConnectActivity : ConnectionBuilderActivity() {
         startNetworkService()
 
         // Set up new scan btn
-        scanBtn.setOnClickListener {
+        introFragScanBtn.setOnClickListener {
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         }
 
+        val forceScan = intent.getBooleanExtra(EXTRA_FORCE_SCAN, false)
+
         // Try to connect using QR code cache
         qrPayload = ScanActivity.cache(this).qrCode
-        if (qrPayload == null)
+        if (forceScan || qrPayload == null)
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         else{
             progressBar.smoothToShow()
@@ -112,14 +115,14 @@ class ConnectActivity : ConnectionBuilderActivity() {
         progressBar.indicator.color = Color.RED
         devInfoText.text = msg
         connectivityText.text = getString(R.string.acty_connect_error)
-        scanBtn.visibility = View.VISIBLE
+        introFragScanBtn.visibility = View.VISIBLE
     }
 
     private fun clearErrorHandler(){
         progressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
         devInfoText.text = ""
         connectivityText.text = getString(R.string.acty_connect_msg)
-        scanBtn.visibility = View.GONE
+        introFragScanBtn.visibility = View.GONE
     }
 
     override fun onConnectionError() {

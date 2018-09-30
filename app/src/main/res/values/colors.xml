@@ -9,4 +9,5 @@
     <color name="colorAccent3Dark">#343F60</color>
 
     <color name="textPrimaryColor">#000000</color>
+    <color name="divider">#EEEEEE</color>
 </resources>
