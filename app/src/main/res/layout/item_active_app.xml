@@ -6,6 +6,7 @@
 
     <ImageView
         android:id="@+id/icon"
+        app:srcCompat="@drawable/ic_default"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginBottom="8dp"
