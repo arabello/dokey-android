@@ -114,7 +114,7 @@ class NetworkManagerService : Service() {
 
         if (notificationBuilder == null) {
             notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_connected)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.ntf_service_title))
                     .setOngoing(true)
                     .setChannelId(NOTIFICATION_CHANNEL_ID)
