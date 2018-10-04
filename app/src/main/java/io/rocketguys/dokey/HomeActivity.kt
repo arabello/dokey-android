@@ -3,13 +3,8 @@ package io.rocketguys.dokey
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.TransitionDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.PreferenceManager
@@ -26,11 +21,14 @@ import io.rocketguys.dokey.connect.ScanActivity
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.network.model.App
+import io.rocketguys.dokey.padlock.MenuItemPadlock
+import io.rocketguys.dokey.padlock.TransitionDrawablePadlock
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.sync.ActiveAppAdapter
 import io.rocketguys.dokey.sync.ActiveAppTask
 import io.rocketguys.dokey.sync.SectionAdapter
 import io.rocketguys.dokey.sync.SectionConnectedAdapter
+import io.rocketguys.dokey.padlock.Padlock
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
@@ -40,23 +38,22 @@ import java.util.*
 class HomeActivity : ConnectedActivity(){
     companion object {
         private val TAG: String = HomeActivity::class.java.simpleName
-        const val DRAWABLE_GRAD_TRANS_DURATION = 360
+        private const val TRANS_DRAWABLE_DURATION = 360
         const val ACTIVE_APPS_PULL_PERIOD = 2000L
     }
 
     // View
-    lateinit var mActiveAppAdapter: ActiveAppAdapter
-    lateinit var mToolbar: Toolbar
-    val mGridAdapter = GridAdapter(arrayOf())
-    var activeAppsTimer: Timer ?= null
+    private lateinit var mActiveAppAdapter: ActiveAppAdapter
+    private lateinit var mToolbar: Toolbar
+    private val mGridAdapter = GridAdapter(arrayOf())
+    private var activeAppsTimer: Timer ?= null
 
     // State
-    enum class LOCK{ INVISIBLE, CLOSE, OPEN}
-    var lockState = LOCK.OPEN
+    private lateinit var padlock: MenuItemPadlock
     private var disconnectFromActivity: Boolean = false
 
     // State - Section
-    var sectionAdapter: SectionConnectedAdapter? = null
+    private var sectionAdapter: SectionConnectedAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,44 +81,17 @@ class HomeActivity : ConnectedActivity(){
         // Init PagedGridView
         pagedGridView.adapter = mGridAdapter
 
+        // Init padlock
+        padlock = TransitionDrawablePadlock(Padlock.OPEN, TRANS_DRAWABLE_DURATION)
+
         // Analyze the current intent to determine if a pending intent was passed from the notification
         setupFlagsForNotificationIntent(intent)
-    }
-
-    // Helper method to manage lock state
-    private fun MenuItem.transStateTo(newState: LOCK, duration: Int){
-        if (this.itemId != R.id.action_lock)
-            return
-
-        lateinit var trans: TransitionDrawable
-
-        when(newState){
-            LOCK.INVISIBLE -> {
-                trans = TransitionDrawable(arrayOf(this.icon, ColorDrawable(Color.TRANSPARENT)))
-                Handler().postDelayed({
-                    runOnUiThread {
-                        this.isVisible = false
-                    }
-                }, DRAWABLE_GRAD_TRANS_DURATION.toLong())
-            }
-            LOCK.CLOSE -> {
-                this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)))
-            }
-            LOCK.OPEN -> {
-                this.isVisible = true
-                trans = TransitionDrawable(arrayOf(this.icon, ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)))
-            }
-        }
-
-        trans.isCrossFadeEnabled = true
-        this.icon = trans
-        trans.startTransition(duration)
     }
 
     // Inflate mToolbar menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         mToolbar.inflateMenu(R.menu.toolbar)
+        padlock.menuItem = mToolbar.menu.findItem(R.id.action_padlock)
         return true
     }
 
@@ -132,10 +102,9 @@ class HomeActivity : ConnectedActivity(){
             true
         }
 
-        R.id.action_lock -> {
-            lockState = if (lockState == LOCK.OPEN) LOCK.CLOSE else LOCK.OPEN
-            item.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
-            if (lockState == LOCK.OPEN)
+        R.id.action_padlock -> {
+            padlock.toggle()
+            if (padlock.`is`(Padlock.OPEN) && sectionAdapter?.currentSection?.id == SectionAdapter.SHORTCUT_ID)
                 networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     mToolbar.title = associatedApp?.name
@@ -151,22 +120,6 @@ class HomeActivity : ConnectedActivity(){
         }
     }
 
-    // Transition animation to change Active Apps RecyclerView background
-    private fun View.transBackgroundTo(newBackground: Drawable, duration: Int){
-        val start = if (this.background == null) ColorDrawable(Color.TRANSPARENT) else this.background
-        val crossfader = TransitionDrawable(arrayOf(start, newBackground))
-        crossfader.isCrossFadeEnabled = true
-        this.background = crossfader
-        crossfader.startTransition(duration)
-    }
-
-    // Transition animation to change action icons in the mToolbar
-    private fun MenuItem.transIconTo(newIcon: Drawable, duration: Int) {
-        val crossfader = TransitionDrawable(arrayOf(this.icon, newIcon))
-        crossfader.isCrossFadeEnabled = true
-        this.icon = crossfader
-        crossfader.startTransition(duration)
-    }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         if (item.itemId != R.id.navigation_more)
@@ -179,15 +132,18 @@ class HomeActivity : ConnectedActivity(){
         when (item.itemId) {
             R.id.navigation_launchpad -> {
                 // Active apps
-                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_1)!!, TRANS_DRAWABLE_DURATION)
 
                 // NavigationBottomView
                 item.setIcon(R.drawable.ic_section_home_grad_1)
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_launchpad)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_1)!!, DRAWABLE_GRAD_TRANS_DURATION)
-                mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_1)!!, TRANS_DRAWABLE_DURATION)
+
+                padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_1)!!
+                padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_1)!!
+                padlock.updateIcon()
 
                 // Update PagedGrid
                 // Request the section
@@ -200,19 +156,21 @@ class HomeActivity : ConnectedActivity(){
             }
             R.id.navigation_shortcut -> {
                 // Active apps
-                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_2)!!, TRANS_DRAWABLE_DURATION)
 
                 // NavigationBottomView
                 item.setIcon(R.drawable.ic_section_shortcut_grad_2)
 
                 // Toolbar
                 //mToolbar.setTitle(R.string.title_shortcut)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, DRAWABLE_GRAD_TRANS_DURATION)
-                mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(lockState, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, TRANS_DRAWABLE_DURATION)
+                padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)!!
+                padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)!!
+                padlock.updateIcon()
 
                 // Update PagedGrid
                 // Request the section
-                if (lockState == LOCK.OPEN) {
+                if (padlock.`is`(Padlock.OPEN)) {
                     networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
                         Log.d(TAG, "requestSection ${section?.name}")
                         mToolbar.title = associatedApp?.name
@@ -224,15 +182,17 @@ class HomeActivity : ConnectedActivity(){
             }
             R.id.navigation_system -> {
                 // Active apps
-                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
+                recyclerView?.transBackgroundTo(ContextCompat.getDrawable(baseContext, R.color.grad_3)!!, TRANS_DRAWABLE_DURATION)
 
                 // NavigationBottomView
                 item.setIcon(R.drawable.ic_section_system_grad_3)
 
                 // Toolbar
                 mToolbar.setTitle(R.string.title_system)
-                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, DRAWABLE_GRAD_TRANS_DURATION)
-                mToolbar.menu.findItem(R.id.action_lock)?.transStateTo(LOCK.INVISIBLE, DRAWABLE_GRAD_TRANS_DURATION)
+                mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, TRANS_DRAWABLE_DURATION)
+                padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_3)!!
+                padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_3)!!
+                padlock.updateIcon()
 
                 // Update PagedGrid
                 // Request the section
@@ -335,7 +295,7 @@ class HomeActivity : ConnectedActivity(){
         Log.d(TAG, "onApplicationSwitch $application.name ${section?.name}")
 
         // Update only if current navigation is shortcut section and the lock is open
-        if (navigation.selectedItemId == R.id.navigation_shortcut && lockState == LOCK.OPEN) {
+        if (navigation.selectedItemId == R.id.navigation_shortcut && padlock.`is`(Padlock.OPEN)) {
             mToolbar.title = application.name
             sectionAdapter?.renderSection(section?.id, section, application)
         }
