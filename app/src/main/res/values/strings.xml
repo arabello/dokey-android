@@ -88,13 +88,13 @@
 
     <!-- Fragment  -->
     <string name="frag_intro_title_0">Welcome</string>
-    <string name="frag_intro_desc_0">Supercharge your digital productivity with Dokey</string>
+    <string name="frag_intro_desc_0">Supercharge your productivity with Dokey</string>
     <string name="frag_intro_title_1">Customize</string>
-    <string name="frag_intro_desc_1">Build your own commands, shortcuts and layouts</string>
-    <string name="frag_intro_title_2">Integrate</string>
-    <string name="frag_intro_desc_2">Search all, transfer files and more. With Dokey</string>
+    <string name="frag_intro_desc_1">Get hundreds of fully customizable built-in interfaces</string>
+    <string name="frag_intro_title_2">Search</string>
+    <string name="frag_intro_desc_2">Boost your workflow with the powerful all-in-one searchbar</string>
     <string name="frag_intro_title_3">Everywhere</string>
-    <string name="frag_intro_desc_3">Dokey is a platform for your desktop and mobile devices</string>
+    <string name="frag_intro_desc_3">A platform for all your devices</string>
     <string name="frag_intro_title_4">Start Now</string>
     <string name="frag_intro_desc_4">1. Navigate to www.dokey.io\n2. Download Dokey Desktop\n3. Scan the QRCode</string>
     <string name="frag_intro_scan_btn">Scan</string>
