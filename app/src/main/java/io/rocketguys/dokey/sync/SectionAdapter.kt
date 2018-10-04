@@ -1,5 +1,8 @@
 package io.rocketguys.dokey.sync
 
+import android.support.annotation.StringDef
+import io.rocketguys.dokey.sync.SectionAdapter.Companion.SHORTCUT
+import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import model.section.Section
 
 /**
@@ -10,10 +13,21 @@ import model.section.Section
  */
 interface SectionAdapter{
     companion object {
-          const val LAUNCHPAD_ID = "launchpad"
-          const val SHORTCUT_ID = "shortcut"
-          const val SYSTEM_ID = "system"
+        @StringDef(LAUNCHPAD, SHORTCUT, SYSTEM)
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class SectionType
+
+        const val LAUNCHPAD = "launchpad"
+        const val SHORTCUT = "shortcut"
+        const val SYSTEM = "system"
     }
 
     fun notifySectionChanged(section: Section?)
+}
+
+fun Section?.isTypeOf(@SectionType type: String): Boolean{
+    if (this == null) return false
+    return if (id == type)
+        true
+    else type == SHORTCUT
 }

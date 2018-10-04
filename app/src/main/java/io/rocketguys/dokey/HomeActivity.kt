@@ -24,11 +24,8 @@ import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.padlock.MenuItemPadlock
 import io.rocketguys.dokey.padlock.TransitionDrawablePadlock
 import io.rocketguys.dokey.preferences.SettingsActivity
-import io.rocketguys.dokey.sync.ActiveAppAdapter
-import io.rocketguys.dokey.sync.ActiveAppTask
-import io.rocketguys.dokey.sync.SectionAdapter
-import io.rocketguys.dokey.sync.SectionConnectedAdapter
 import io.rocketguys.dokey.padlock.Padlock
+import io.rocketguys.dokey.sync.*
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
@@ -104,8 +101,8 @@ class HomeActivity : ConnectedActivity(){
 
         R.id.action_padlock -> {
             padlock.toggle()
-            if (padlock.`is`(Padlock.OPEN) && sectionAdapter?.currentSection?.id == SectionAdapter.SHORTCUT_ID)
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
+            if (padlock.`is`(Padlock.OPEN) && sectionAdapter?.currentSection.isTypeOf(SectionAdapter.SHORTCUT))
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT) { section, associatedApp ->
                     Log.d(TAG, "requestSection ${section?.name}")
                     mToolbar.title = associatedApp?.name
                     sectionAdapter?.renderSection(section?.id, section, associatedApp)
@@ -147,9 +144,9 @@ class HomeActivity : ConnectedActivity(){
 
                 // Update PagedGrid
                 // Request the section
-                networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
+                networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD_ID, section)
+                    sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -171,7 +168,7 @@ class HomeActivity : ConnectedActivity(){
                 // Update PagedGrid
                 // Request the section
                 if (padlock.`is`(Padlock.OPEN)) {
-                    networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID) { section, associatedApp ->
+                    networkManagerService?.requestSection(SectionAdapter.SHORTCUT) { section, associatedApp ->
                         Log.d(TAG, "requestSection ${section?.name}")
                         mToolbar.title = associatedApp?.name
                         sectionAdapter?.renderSection(section?.id, section, associatedApp)
@@ -196,9 +193,9 @@ class HomeActivity : ConnectedActivity(){
 
                 // Update PagedGrid
                 // Request the section
-                networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
+                networkManagerService?.requestSection(SectionAdapter.SYSTEM){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.renderSection(SectionAdapter.SYSTEM_ID, section)
+                    sectionAdapter?.renderSection(SectionAdapter.SYSTEM, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -261,16 +258,16 @@ class HomeActivity : ConnectedActivity(){
             pagedGridView.visibility = View.GONE
 
             when(sectionId){
-                SectionAdapter.LAUNCHPAD_ID -> {
+                SectionAdapter.LAUNCHPAD -> {
                     noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_launchpad))
                     noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_1)
-                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.LAUNCHPAD_ID) }
+                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.LAUNCHPAD) }
                 }
 
-                SectionAdapter.SYSTEM_ID -> {
+                SectionAdapter.SYSTEM -> {
                     noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_system))
                     noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_3)
-                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.SYSTEM_ID) }
+                    noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.SYSTEM) }
                 }
 
                 // Shortcut
@@ -376,18 +373,18 @@ class HomeActivity : ConnectedActivity(){
         sectionAdapter = SectionConnectedAdapter(mGridAdapter, this, networkManagerService)
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD_ID){ section, _ ->
+        networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
-            sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD_ID, section)
+            sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD, section)
         }
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.SHORTCUT_ID){ section, _ ->
+        networkManagerService?.requestSection(SectionAdapter.SHORTCUT){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
         // Request the section
-        networkManagerService?.requestSection(SectionAdapter.SYSTEM_ID){ section, _ ->
+        networkManagerService?.requestSection(SectionAdapter.SYSTEM){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
     }
