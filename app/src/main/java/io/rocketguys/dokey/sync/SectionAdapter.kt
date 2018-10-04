@@ -13,6 +13,7 @@ import model.section.Section
  */
 interface SectionAdapter{
     companion object {
+        @Target(AnnotationTarget.EXPRESSION, AnnotationTarget.VALUE_PARAMETER)
         @StringDef(LAUNCHPAD, SHORTCUT, SYSTEM)
         @Retention(AnnotationRetention.SOURCE)
         annotation class SectionType
@@ -23,6 +24,8 @@ interface SectionAdapter{
     }
 
     fun notifySectionChanged(section: Section?)
+
+    var currentSection: Section?
 }
 
 fun Section?.isTypeOf(@SectionType type: String): Boolean{
@@ -30,4 +33,14 @@ fun Section?.isTypeOf(@SectionType type: String): Boolean{
     return if (id == type)
         true
     else type == SHORTCUT
+}
+
+fun Section.exist(): Boolean{
+    if (this.pages?.size == 0)
+        return false
+    this.pages?.forEach { page ->
+        if (page.components?.size != 0)
+            return true
+    }
+    return false
 }

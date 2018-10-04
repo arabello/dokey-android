@@ -26,6 +26,7 @@ import io.rocketguys.dokey.padlock.TransitionDrawablePadlock
 import io.rocketguys.dokey.preferences.SettingsActivity
 import io.rocketguys.dokey.padlock.Padlock
 import io.rocketguys.dokey.sync.*
+import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
@@ -50,7 +51,7 @@ class HomeActivity : ConnectedActivity(){
     private var disconnectFromActivity: Boolean = false
 
     // State - Section
-    private var sectionAdapter: SectionConnectedAdapter? = null
+    private var sectionAdapter: SectionAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,12 +102,21 @@ class HomeActivity : ConnectedActivity(){
 
         R.id.action_padlock -> {
             padlock.toggle()
-            if (padlock.`is`(Padlock.OPEN) && sectionAdapter?.currentSection.isTypeOf(SectionAdapter.SHORTCUT))
-                networkManagerService?.requestSection(SectionAdapter.SHORTCUT) { section, associatedApp ->
-                    Log.d(TAG, "requestSection ${section?.name}")
-                    mToolbar.title = associatedApp?.name
-                    sectionAdapter?.renderSection(section?.id, section, associatedApp)
+            if (padlock.`is`(Padlock.OPEN)) {
+
+                val sectionId: String? = when (navigation.selectedItemId) {
+                    R.id.navigation_launchpad -> SectionAdapter.LAUNCHPAD
+                    R.id.navigation_shortcut -> SectionAdapter.SHORTCUT
+                    R.id.navigation_system -> SectionAdapter.SYSTEM
+                    else -> null
                 }
+                if (sectionId != null)
+                    networkManagerService?.requestSection(sectionId) { section, associatedApp ->
+                        Log.d(TAG, "requestSection ${section?.name}")
+                        if (associatedApp != null) mToolbar.title = associatedApp.name
+                        renderSectionWithFallback(section?.id, section, associatedApp)
+                    }
+            }
             true
         }
 
@@ -125,6 +135,8 @@ class HomeActivity : ConnectedActivity(){
                 findItem(R.id.navigation_shortcut).setIcon(R.drawable.ic_section_shortcut)
                 findItem(R.id.navigation_system).setIcon(R.drawable.ic_section_system)
             }
+
+
 
         when (item.itemId) {
             R.id.navigation_launchpad -> {
@@ -146,7 +158,7 @@ class HomeActivity : ConnectedActivity(){
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD, section)
+                    renderSectionWithFallback(SectionAdapter.LAUNCHPAD, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -167,12 +179,10 @@ class HomeActivity : ConnectedActivity(){
 
                 // Update PagedGrid
                 // Request the section
-                if (padlock.`is`(Padlock.OPEN)) {
-                    networkManagerService?.requestSection(SectionAdapter.SHORTCUT) { section, associatedApp ->
-                        Log.d(TAG, "requestSection ${section?.name}")
-                        mToolbar.title = associatedApp?.name
-                        sectionAdapter?.renderSection(section?.id, section, associatedApp)
-                    }
+                networkManagerService?.requestSection(SectionAdapter.SHORTCUT) { section, associatedApp ->
+                    Log.d(TAG, "requestSection ${section?.name}")
+                    mToolbar.title = associatedApp?.name
+                    renderSectionWithFallback(section?.id, section, associatedApp)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -195,7 +205,7 @@ class HomeActivity : ConnectedActivity(){
                 // Request the section
                 networkManagerService?.requestSection(SectionAdapter.SYSTEM){ section, _ ->
                     Log.d(TAG, "requestSection ${section?.name}")
-                    sectionAdapter?.renderSection(SectionAdapter.SYSTEM, section)
+                    renderSectionWithFallback(SectionAdapter.SYSTEM, section)
                 }
 
                 return@OnNavigationItemSelectedListener true
@@ -237,21 +247,11 @@ class HomeActivity : ConnectedActivity(){
         }
     }
 
-    private fun Section.exist(): Boolean{
-        if (this.pages?.size == 0)
-            return false
-        this.pages?.forEach { page ->
-            if (page.components?.size != 0)
-                return true
-        }
-        return false
+    private fun renderSectionWithFallback(sectionId: String, section: Section?){
+        renderSectionWithFallback(sectionId, section, null)
     }
 
-    private fun SectionAdapter.renderSection(sectionId: String, section: Section?){
-        this.renderSection(sectionId, section, null)
-    }
-
-    private fun SectionAdapter.renderSection(sectionId: String?, section: Section?, application: App?){
+    private fun renderSectionWithFallback(sectionId: String?, section: Section?, application: App?){
         if (section == null || !section.exist()){
             // Section does not exist, show no section layout fallback
             noSectionFallback.visibility = View.VISIBLE
@@ -283,7 +283,7 @@ class HomeActivity : ConnectedActivity(){
             // Section exists, render it
             noSectionFallback.visibility = View.GONE
             pagedGridView.visibility = View.VISIBLE
-            notifySectionChanged(section)
+            sectionAdapter?.notifySectionChanged(section)
         }
     }
 
@@ -294,7 +294,7 @@ class HomeActivity : ConnectedActivity(){
         // Update only if current navigation is shortcut section and the lock is open
         if (navigation.selectedItemId == R.id.navigation_shortcut && padlock.`is`(Padlock.OPEN)) {
             mToolbar.title = application.name
-            sectionAdapter?.renderSection(section?.id, section, application)
+            renderSectionWithFallback(section?.id, section, application)
         }
     }
 
@@ -375,7 +375,7 @@ class HomeActivity : ConnectedActivity(){
         // Request the section
         networkManagerService?.requestSection(SectionAdapter.LAUNCHPAD){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
-            sectionAdapter?.renderSection(SectionAdapter.LAUNCHPAD, section)
+            renderSectionWithFallback(SectionAdapter.LAUNCHPAD, section)
         }
 
         // Request the section
@@ -398,7 +398,7 @@ class HomeActivity : ConnectedActivity(){
     override fun onSectionModified(section: Section, associatedApp: App?) {
         Log.d(TAG, "onSectionModified ${section.name}")
         if (section.id == sectionAdapter?.currentSection?.id)
-            sectionAdapter?.renderSection(section.id!!, section, associatedApp)
+            renderSectionWithFallback(section.id!!, section, associatedApp)
     }
 
     // Command may not be in the section.

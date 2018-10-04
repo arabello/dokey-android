@@ -6,6 +6,7 @@ import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
+import kotlin.properties.Delegates
 
 /**
  * This adapter implements the responsibility of [SectionAdapter].
@@ -19,20 +20,20 @@ import model.section.Section
 class SectionConnectedAdapter(val gridAdapter: GridAdapter,
                               val activity: ConnectedActivity,
                               val networkManagerService: NetworkManagerService?) : SectionAdapter {
-
     companion object {
         private val TAG: String = SectionConnectedAdapter::class.java.simpleName
     }
 
-    var currentSection: Section? = null
-        private set(value) { field = value }
+    override var currentSection: Section ? by Delegates.observable<Section?>(null){_, oldValue, newValue ->
+        if (oldValue != newValue)
+            updateGrid()
+    }
 
-    // This is called in UIThread
-    override fun notifySectionChanged(section: Section?) {
-        Log.d(TAG, "notifySectionChanged ${section?.name}")
+    private fun updateGrid(){
+        Log.d(TAG, "updateGrid ${currentSection?.name}")
         gridAdapter.pages = arrayOf()
 
-        section?.pages?.forEach { page ->
+        currentSection?.pages?.forEach { page ->
             val grid = EmptyGrid(page.colCount!!, page.rowCount!!)
             gridAdapter.pages += grid
 
@@ -41,7 +42,12 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
             }
         }
 
-        currentSection = section
         gridAdapter.notifyDataSetChanged()
+    }
+
+    // This is called in UIThread
+    override fun notifySectionChanged(section: Section?) {
+        Log.d(TAG, "notifySectionChanged ${section?.name}")
+        currentSection = section
     }
 }
