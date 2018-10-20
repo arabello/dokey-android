@@ -45,10 +45,11 @@ class CommandElement(val component: Component, val networkManagerService: Networ
             }
 
             // Request the image
-            networkManagerService.requestImage(cmd?.iconId!!) { imageId, imageFile ->
-                if (imageFile != null)
-                    Picasso.get().load(imageFile).into(view.cmdImg)
-            }
+            if (cmd?.iconId != null)
+                networkManagerService.requestImage(cmd.iconId!!) { imageId, imageFile ->
+                    if (imageFile != null)
+                        Picasso.get().load(imageFile).into(view.cmdImg)
+                }
         }
 
         return view
