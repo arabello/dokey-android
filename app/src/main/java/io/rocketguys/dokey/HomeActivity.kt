@@ -152,7 +152,7 @@ class HomeActivity : ConnectedActivity(){
 
                 padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_1)!!
                 padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_1)!!
-                padlock.updateIcon()
+                padlock.state = Padlock.OPEN
 
                 // Update PagedGrid
                 // Request the section
@@ -175,7 +175,7 @@ class HomeActivity : ConnectedActivity(){
                 mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_2)!!, TRANS_DRAWABLE_DURATION)
                 padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_2)!!
                 padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_2)!!
-                padlock.updateIcon()
+                padlock.state = Padlock.OPEN
 
                 // Update PagedGrid
                 // Request the section
@@ -184,6 +184,7 @@ class HomeActivity : ConnectedActivity(){
                     mToolbar.title = associatedApp?.name
                     renderSectionWithFallback(section?.id, section, associatedApp)
                 }
+
 
                 return@OnNavigationItemSelectedListener true
             }
@@ -199,7 +200,7 @@ class HomeActivity : ConnectedActivity(){
                 mToolbar.menu.findItem(R.id.action_edit)?.transIconTo(ContextCompat.getDrawable(baseContext, R.drawable.ic_action_edit_grad_3)!!, TRANS_DRAWABLE_DURATION)
                 padlock.icons[Padlock.CLOSE] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_grad_3)!!
                 padlock.icons[Padlock.OPEN] = ContextCompat.getDrawable(baseContext, R.drawable.ic_action_lock_open_grad_3)!!
-                padlock.updateIcon()
+                padlock.state = Padlock.OPEN
 
                 // Update PagedGrid
                 // Request the section
