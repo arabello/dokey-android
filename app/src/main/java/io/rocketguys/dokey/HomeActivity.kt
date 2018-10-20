@@ -458,4 +458,6 @@ class HomeActivity : ConnectedActivity(){
             }
         }
     }
+
+    fun isPadlockOpen(): Boolean = padlock.`is`(Padlock.OPEN)
 }
