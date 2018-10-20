@@ -284,6 +284,8 @@ class HomeActivity : ConnectedActivity(){
             // Section exists, render it
             noSectionFallback.visibility = View.GONE
             pagedGridView.visibility = View.VISIBLE
+            if (navigation.selectedItemId == R.id.navigation_shortcut) // magic trick
+                sectionAdapter?.currentSection = section // needed by onSectionModified
             sectionAdapter?.notifySectionChanged(section)
         }
     }
