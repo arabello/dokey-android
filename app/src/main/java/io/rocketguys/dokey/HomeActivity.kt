@@ -287,6 +287,7 @@ class HomeActivity : ConnectedActivity(){
             if (navigation.selectedItemId == R.id.navigation_shortcut) // magic trick
                 sectionAdapter?.currentSection = section // needed by onSectionModified
             sectionAdapter?.notifySectionChanged(section)
+            pagedGridView.currentPage = 0 // reset page selection
         }
     }
 
