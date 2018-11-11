@@ -414,7 +414,7 @@ class HomeActivity : ConnectedActivity(){
 
     override fun onConnectionInterrupted() {
         // TODO: pelle do your magic here
-        Toast.makeText(this, "The computer has been disconnected, trying to reconnect...", 1000).show()
+        Toast.makeText(this, "The computer has been disconnected, trying to reconnect...", Toast.LENGTH_SHORT).show()
     }
 
     override fun onConnectionClosed() {
