@@ -23,11 +23,10 @@ import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.padlock.MenuItemPadlock
+import io.rocketguys.dokey.padlock.Padlock
 import io.rocketguys.dokey.padlock.TransitionDrawablePadlock
 import io.rocketguys.dokey.preferences.SettingsActivity
-import io.rocketguys.dokey.padlock.Padlock
 import io.rocketguys.dokey.sync.*
-import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
@@ -53,6 +52,7 @@ class HomeActivity : ConnectedActivity(){
 
     // State - Section
     private var sectionAdapter: SectionAdapter? = null
+    private var currentSectionId: String = SectionAdapter.LAUNCHPAD
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +97,7 @@ class HomeActivity : ConnectedActivity(){
     // Manage mToolbar actions
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_edit -> {
-            networkManagerService?.requestEditor(sectionAdapter?.currentSection?.id)
+            networkManagerService?.requestEditor(currentSectionId)
             true
         }
 
@@ -249,44 +249,42 @@ class HomeActivity : ConnectedActivity(){
         }
     }
 
-    private fun renderSectionWithFallback(sectionId: String, section: Section?){
-        renderSectionWithFallback(sectionId, section, null)
-    }
-
-    private fun renderSectionWithFallback(sectionId: String?, section: Section?, application: App?){
-        if (section == null || !section.exist()){
+    private fun renderSectionWithFallback(sectionId: String?, section: Section?, application: App ?= null){
+        if (section == null || section.isEmpty()){
             // Section does not exist, show no section layout fallback
             noSectionFallback.visibility = View.VISIBLE
             pagedGridView.visibility = View.GONE
 
             when(sectionId){
                 SectionAdapter.LAUNCHPAD -> {
+                    currentSectionId = SectionAdapter.LAUNCHPAD
                     noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_launchpad))
                     noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_1)
                     noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.LAUNCHPAD) }
                 }
 
                 SectionAdapter.SYSTEM -> {
+                    currentSectionId = SectionAdapter.SYSTEM
                     noSectionText.text = getString(R.string.acty_home_no_section_msg, getString(R.string.title_system))
                     noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_3)
                     noSectionBtn.setOnClickListener { networkManagerService?.requestEditor(SectionAdapter.SYSTEM) }
                 }
 
-                // Shortcut
+                // Shortcut/App
                 else -> {
-                    mToolbar.title = application?.name
-                    noSectionText.text = getString(R.string.acty_home_no_section_msg, application?.name)
+                    currentSectionId = application?.relatedSectionId() ?: "" // Avoid crash: Counter effect. a modified section may not be rendered (extremely rare case)
+                    mToolbar.title = application?.name ?: ""
+                    noSectionText.text = getString(R.string.acty_home_no_section_msg, application?.name ?: "")
                     noSectionBtn.background = ContextCompat.getDrawable(this@HomeActivity, R.drawable.btn_bg_grad_2)
                     noSectionBtn.setOnClickListener { application?.requestInEditor() }
                 }
             }
 
         }else{
+            currentSectionId = section.id!!
             // Section exists, render it
             noSectionFallback.visibility = View.GONE
             pagedGridView.visibility = View.VISIBLE
-            if (navigation.selectedItemId == R.id.navigation_shortcut) // magic trick
-                sectionAdapter?.currentSection = section // needed by onSectionModified
             sectionAdapter?.notifySectionChanged(section)
             pagedGridView.currentPage = 0 // reset page selection
         }
@@ -401,8 +399,9 @@ class HomeActivity : ConnectedActivity(){
     }
 
     override fun onSectionModified(section: Section, associatedApp: App?) {
-        Log.d(TAG, "onSectionModified ${section.name}")
-        if (section.id == sectionAdapter?.currentSection?.id)
+        Log.d(TAG, "onSectionModified: current: $currentSectionId")
+        Log.d(TAG, "onSectionModified: modified: ${section.id}")
+        if (section.id == currentSectionId)
             renderSectionWithFallback(section.id!!, section, associatedApp)
     }
 

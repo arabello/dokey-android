@@ -6,7 +6,6 @@ import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
-import kotlin.properties.Delegates
 
 /**
  * This adapter implements the responsibility of [SectionAdapter].
@@ -24,16 +23,12 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
         private val TAG: String = SectionConnectedAdapter::class.java.simpleName
     }
 
-    override var currentSection: Section ? by Delegates.observable<Section?>(null){_, oldValue, newValue ->
-        if (oldValue != newValue)
-            updateGrid()
-    }
-
-    private fun updateGrid(){
-        Log.d(TAG, "updateGrid ${currentSection?.name}")
+    // This is called in UIThread
+    override fun notifySectionChanged(section: Section?) {
+        Log.d(TAG, "notifySectionChanged ${section?.name}")
         gridAdapter.pages = arrayOf()
 
-        currentSection?.pages?.forEach { page ->
+        section?.pages?.forEach { page ->
             val grid = EmptyGrid(page.colCount!!, page.rowCount!!)
             gridAdapter.pages += grid
 
@@ -43,11 +38,5 @@ class SectionConnectedAdapter(val gridAdapter: GridAdapter,
         }
 
         gridAdapter.notifyDataSetChanged()
-    }
-
-    // This is called in UIThread
-    override fun notifySectionChanged(section: Section?) {
-        Log.d(TAG, "notifySectionChanged ${section?.name}")
-        currentSection = section
     }
 }
