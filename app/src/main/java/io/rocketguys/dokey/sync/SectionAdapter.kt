@@ -13,34 +13,26 @@ import model.section.Section
  */
 interface SectionAdapter{
     companion object {
-        @Target(AnnotationTarget.EXPRESSION, AnnotationTarget.VALUE_PARAMETER)
+        @Target(AnnotationTarget.EXPRESSION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
         @StringDef(LAUNCHPAD, SHORTCUT, SYSTEM)
         @Retention(AnnotationRetention.SOURCE)
         annotation class SectionType
 
         const val LAUNCHPAD = "launchpad"
         const val SHORTCUT = "shortcut"
+        const val APP = "app"
         const val SYSTEM = "system"
     }
 
     fun notifySectionChanged(section: Section?)
-
-    var currentSection: Section?
 }
 
-fun Section?.isTypeOf(@SectionType type: String): Boolean{
-    if (this == null) return false
-    return if (id == type)
-        true
-    else type == SHORTCUT
-}
-
-fun Section.exist(): Boolean{
+fun Section.isEmpty(): Boolean{
     if (this.pages?.size == 0)
-        return false
+        return true
     this.pages?.forEach { page ->
         if (page.components?.size != 0)
-            return true
+            return false
     }
-    return false
+    return true
 }
