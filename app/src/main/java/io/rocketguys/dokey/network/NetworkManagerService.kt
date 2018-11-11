@@ -19,6 +19,7 @@ import io.rocketguys.dokey.network.cache.CommandCache
 import io.rocketguys.dokey.network.cache.ImageCache
 import io.rocketguys.dokey.network.cache.SectionCache
 import io.rocketguys.dokey.network.model.App
+import io.rocketguys.dokey.network.usb.USBConnectionPayload
 import json.JSONObject
 import model.command.Command
 import model.parser.command.TypeCommandParser
@@ -170,6 +171,30 @@ class NetworkManagerService : Service() {
                 }, onNotFound = {  // Server was not found
                     broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_ERROR_EVENT)
                 })
+
+                // Reset the thread
+                connectionBuilderThread = null
+            }
+            connectionBuilderThread?.start()
+        }
+    }
+
+    /**
+     * Begin the connection procedure with a dokey server from the given USB payload.
+     */
+    fun beginConnection(payload : USBConnectionPayload) {
+        // If the connection as not already been started
+        if (connectionBuilderThread == null && !isConnected) {
+            connectionBuilderThread = Thread {
+                // Check the payload address to create the socket
+                val socket = scanPort(payload.serverAddress, payload.serverPort)
+
+                if (socket == null) {
+                    broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_ERROR_EVENT)
+                }else{
+                    // Attempt to establish the connection with the dokey server
+                    startConnection(socket, payload.key, payload.serverAddress, payload.serverPort)
+                }
 
                 // Reset the thread
                 connectionBuilderThread = null
@@ -358,7 +383,7 @@ class NetworkManagerService : Service() {
                 return socket
             }
         }catch (e: Exception) {
-            Log.d(LOG_TAG, e.message)
+            Log.d(LOG_TAG, e.toString())
         }
 
         return null

@@ -14,6 +14,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
+import io.rocketguys.dokey.network.usb.USBDetectionDaemon
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
 
@@ -26,6 +27,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     private var qrPayload: String? = null
+
+    private var usbDetectionDaemon : USBDetectionDaemon? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +47,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
         // Try to connect using QR code cache
         qrPayload = ScanActivity.cache(this).qrCode
         if (forceScan || qrPayload == null)
-            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+            // TODO: pelle pensa ad una logica per mostrarlo solo nei casi in cui non sia partito il demone usb
+            //startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         else{
             progressBar.smoothToShow()
             val deviceInfo = ScanActivity.cache(this).deviceInfo
@@ -85,11 +89,22 @@ class ConnectActivity : ConnectionBuilderActivity() {
             return
         }
 
+        /*
+        TODO: pelle pensa ad una logica
+
         // If a QR payload was cached, try to connect to the server using it.
         if (qrPayload != null) {
             networkManagerService?.beginConnection(qrPayload!!)
             Log.d(TAG, "Begin connection")
         }
+         */
+
+        usbDetectionDaemon = USBDetectionDaemon()
+        usbDetectionDaemon?.onUSBConnectionDetected = {usbPayload ->
+            Log.d(TAG, "Usb payload detected: $usbPayload")
+            networkManagerService?.beginConnection(usbPayload)
+        }
+        usbDetectionDaemon?.start()
     }
 
     // Start HomeActivity, connection is stable
@@ -215,6 +230,9 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onStop() {
         super.onStop()
+
+        usbDetectionDaemon?.stopDiscovery()
+        usbDetectionDaemon = null
 
         // If the service is not connected to the dokey server, close it when going into background
         if (networkManagerService?.isConnected == false) {
