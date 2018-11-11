@@ -6,7 +6,6 @@ import io.rocketguys.dokey.padlock.Padlock.Companion.LockState
 import kotlin.properties.Delegates
 
 /**
- * TODO: Add class description
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */

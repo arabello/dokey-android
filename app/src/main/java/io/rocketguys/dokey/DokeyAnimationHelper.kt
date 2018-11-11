@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 
 /**
- * TODO: Add class description
+ * Utility functions to create smooth drawable transition
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */

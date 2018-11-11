@@ -3,7 +3,6 @@ package io.rocketguys.dokey.padlock
 import android.support.annotation.IntDef
 
 /**
- * TODO: Add class description
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */

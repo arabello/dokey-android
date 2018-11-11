@@ -5,7 +5,6 @@ import android.view.MenuItem
 import io.rocketguys.dokey.padlock.Padlock.Companion.LockState
 
 /**
- * TODO: Add class description
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
