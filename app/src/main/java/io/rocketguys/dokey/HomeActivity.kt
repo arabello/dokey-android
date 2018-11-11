@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.connect.ScanActivity
@@ -411,6 +412,10 @@ class HomeActivity : ConnectedActivity(){
         Log.d(TAG, "onCommandModified ${command.title}")
     }
 
+    override fun onConnectionInterrupted() {
+        // TODO: pelle do your magic here
+        Toast.makeText(this, "The computer has been disconnected, trying to reconnect...", 1000).show()
+    }
 
     override fun onConnectionClosed() {
         Log.d(TAG, "onConnectionClosed")
@@ -419,7 +424,7 @@ class HomeActivity : ConnectedActivity(){
             // Disconnect from notification request
             notificationDisconnectRequestFlag -> finish()
 
-            // Disconnect from activity, user want to change desktop. Clear cache
+            // Disconnect  from activity, user want to change desktop. Clear cache
             disconnectFromActivity -> {
                 ScanActivity.cache(this).qrCode = null
                 startActivity(Intent(this, ConnectActivity::class.java))

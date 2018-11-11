@@ -26,6 +26,15 @@ abstract class ConnectedActivity : NetworkActivity() {
     abstract fun onApplicationSwitch(application: App, section: Section?)
 
     /**
+     * Called when the connection is interrupted, and the service started the recovering
+     * process.
+     * If the service could recover it correctly, the onConnectionEstabled() callback
+     * will be invoked. If the connection could not be recovered, onConnectionClosed()
+     * will be called.
+     */
+    abstract fun onConnectionInterrupted()
+
+    /**
      * Called when the connection with the desktop server is interrupted.
      */
     abstract fun onConnectionClosed()
@@ -38,6 +47,7 @@ abstract class ConnectedActivity : NetworkActivity() {
         broadcastManager?.registerReceiver(NetworkEvent.COMMAND_MODIFIED_EVENT, commandModifiedReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.APPLICATION_SWITCH_EVENT, applicationSwitchReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_CLOSED_EVENT, connectionClosedReceiver)
+        broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_INTERRUPTED_EVENT, connectionInterruptedReceiver)
     }
 
     override fun onStop() {
@@ -48,6 +58,7 @@ abstract class ConnectedActivity : NetworkActivity() {
         broadcastManager?.unregisterReceiver(commandModifiedReceiver)
         broadcastManager?.unregisterReceiver(applicationSwitchReceiver)
         broadcastManager?.unregisterReceiver(connectionClosedReceiver)
+        broadcastManager?.unregisterReceiver(connectionInterruptedReceiver)
     }
 
     private val sectionModifiedReceiver = object : BroadcastReceiver() {
@@ -98,6 +109,12 @@ abstract class ConnectedActivity : NetworkActivity() {
     private val connectionClosedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             onConnectionClosed()
+        }
+    }
+
+    private val connectionInterruptedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            onConnectionInterrupted()
         }
     }
 }

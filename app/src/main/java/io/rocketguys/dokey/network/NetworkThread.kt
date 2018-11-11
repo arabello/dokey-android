@@ -130,9 +130,6 @@ class NetworkThread(val networkManagerService: NetworkManagerService,
         linkManager = null
         isConnected = false
 
-        // Send a broadcast
-        broadcastManager.sendBroadcast(NetworkEvent.CONNECTION_CLOSED_EVENT)
-
         // Notify the listener
         onConnectionClosed?.invoke()
     }

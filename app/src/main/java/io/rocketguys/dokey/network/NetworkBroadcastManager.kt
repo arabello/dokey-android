@@ -17,6 +17,7 @@ enum class NetworkEvent {
     DESKTOP_VERSION_TOO_LOW_EVENT,
     MOBILE_VERSION_TOO_LOW_EVENT,
     CONNECTION_CLOSED_EVENT,
+    CONNECTION_INTERRUPTED_EVENT,  // Called when the connection had problems and the servic is trying to reconnect
 
     // Application level events
     SECTION_MODIFIED_EVENT,

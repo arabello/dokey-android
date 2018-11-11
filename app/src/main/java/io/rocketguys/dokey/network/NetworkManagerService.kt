@@ -25,7 +25,6 @@ import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
 import model.parser.page.DefaultPageParser
 import model.parser.section.DefaultSectionParser
-import model.section.ApplicationSection
 import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo
@@ -45,6 +44,7 @@ const val MIN_PORT = 60642
 const val MAX_PORT = 60644
 
 const val SCANNING_PORT_TIMEOUT = 5000
+const val MAX_RECONNECTION_ATTEMPTS = 2
 
 // Notification constants
 const val NOTIFICATION_CHANNEL_ID = "dokey_notification_channel_1"
@@ -55,7 +55,6 @@ const val PENDINT_INTENT_REQUEST_CODE_CONTENT_CLICK = 0
 const val PENDINT_INTENT_REQUEST_CODE_DISCONNECT = 1
 
 const val PENDING_INTENT_DISCONNECT_SERVICE = "PENDING_INTENT_DISCONNECT_SERVICE"
-
 
 /**
  * This service will manage the connection to the desktop computer
@@ -79,6 +78,13 @@ class NetworkManagerService : Service() {
 
     // When connected to a server, this variable will hold the computer details
     private var serverInfo : DeviceInfo? = null
+
+    // Connection informations, used for connection recovery in case of problems
+    private var currentAddress : String? = null
+    private var currentPort : Int? = null
+    private var currentKey : ByteArray? = null
+    private var reconnectionAttempt: Int = 0
+
 
     private var handler : Handler? = null  // Used in the runOnUiThread method
 
@@ -160,7 +166,7 @@ class NetworkManagerService : Service() {
                 // Scan the given address to find the correct port and create a valid socket
                 scanPorts(parsingResult.address, suggestedPort = parsingResult.suggestedPort, onFound = { // Server was found
                     // Attempt to establish the connection with the dokey server
-                    startConnection(it, parsingResult.key)
+                    startConnection(it, parsingResult.key, parsingResult.address, parsingResult.suggestedPort)
                 }, onNotFound = {  // Server was not found
                     broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_ERROR_EVENT)
                 })
@@ -177,7 +183,7 @@ class NetworkManagerService : Service() {
      *
      * @return false if the connection has already been started before, true otherwise.
      */
-    private fun startConnection(socket: Socket, key: ByteArray) : Boolean {
+    private fun startConnection(socket: Socket, key: ByteArray, serverAddress: String, serverPort: Int) : Boolean {
         // Make sure the network thread has not been started yet
         if (networkThread == null) {
             // Create the network thread
@@ -194,17 +200,66 @@ class NetworkManagerService : Service() {
                 sectionCache = SectionCache(this@NetworkManagerService, sectionParser, deviceInfo.id)
                 imageCache = ImageCache(this@NetworkManagerService, deviceInfo.id)
 
+                // Update connection status variables
+                currentAddress = serverAddress
+                currentPort = serverPort
+                currentKey = key
+                reconnectionAttempt = 0
+
                 updateNotificationMessage(getString(R.string.ntf_service_desc_connected, deviceInfo.name))
                 enableConnectedNotificationActions()
 
                 Log.d("CACHE", "Setup")
             }
             networkThread!!.onConnectionClosed = {
+                var newSocket: Socket? = null
+
+                broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_INTERRUPTED_EVENT)
+
+                while(reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
+                    if (currentAddress == null || currentPort == null || currentKey == null) {
+                        break
+                    }
+
+                    Log.w(LOG_TAG, "Connection was closed, trying to reconnect again... Attempt $reconnectionAttempt")
+
+                    // Try to reconnect to the old address
+                    newSocket = scanPort(currentAddress!!, currentPort!!)
+
+                    if (newSocket != null) {
+                        break
+                    }
+
+
+                    val sleepTime = SCANNING_PORT_TIMEOUT * Math.pow(2.0, reconnectionAttempt.toDouble()).toLong()
+
+                    if (reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
+                        Log.w(LOG_TAG, "Sleeping for $sleepTime millis until the next attempt...")
+                        // Sleep for an increasing amount of time ( exponential backoff )
+                        Thread.sleep(sleepTime)
+                    }
+
+                    reconnectionAttempt++
+                }
+
                 // Reset the network thread
                 networkThread = null
                 isConnected = false
 
-                stopSelf()
+                if (newSocket == null) {  // Could not reconnect to the server
+                    Log.e(LOG_TAG, "Could not reconnect to the service after $reconnectionAttempt attempts, closing the service...")
+
+                    currentPort = null
+                    currentAddress = null
+                    currentKey = null
+
+                    // Send a broadcast
+                    broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_CLOSED_EVENT)
+
+                    stopSelf()
+                }else{  // Could reconnect to the server
+                    startConnection(newSocket, currentKey!!, currentAddress!!, currentPort!!)
+                }
             }
 
             // Start the network thread
@@ -294,9 +349,9 @@ class NetworkManagerService : Service() {
                             break
                         }
                     }
+                }else{
+                    Thread.sleep(100)
                 }
-
-                Thread.sleep(100)
             }
 
             if (isValid){
