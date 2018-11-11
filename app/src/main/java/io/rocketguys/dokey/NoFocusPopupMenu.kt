@@ -11,7 +11,9 @@ import android.widget.ListPopupWindow
 
 
 /**
- * TODO: Add class description
+ * This component replicate the a PopupMenu based on [ListPopupWindow]
+ * in order to avoid automatic focus gained by PoupMenu when showed
+ * (behaviour incompatible with fullscreen feature)
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
