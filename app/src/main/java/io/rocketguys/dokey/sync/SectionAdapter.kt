@@ -1,6 +1,7 @@
 package io.rocketguys.dokey.sync
 
 import android.support.annotation.StringDef
+import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.sync.SectionAdapter.Companion.SHORTCUT
 import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import model.section.Section
@@ -20,7 +21,6 @@ interface SectionAdapter{
 
         const val LAUNCHPAD = "launchpad"
         const val SHORTCUT = "shortcut"
-        const val APP = "app"
         const val SYSTEM = "system"
     }
 
@@ -36,3 +36,5 @@ fun Section.isEmpty(): Boolean{
     }
     return true
 }
+
+fun App.relatedSectionId() = "app:$path" // For lack of API(section.id when section is null)
