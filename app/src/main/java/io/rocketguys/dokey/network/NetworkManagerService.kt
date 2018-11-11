@@ -85,6 +85,7 @@ class NetworkManagerService : Service() {
     private var currentPort : Int? = null
     private var currentKey : ByteArray? = null
     private var reconnectionAttempt: Int = 0
+    private var forceDisconnection = false
 
 
     private var handler : Handler? = null  // Used in the runOnUiThread method
@@ -230,6 +231,7 @@ class NetworkManagerService : Service() {
                 currentPort = serverPort
                 currentKey = key
                 reconnectionAttempt = 0
+                forceDisconnection = false
 
                 updateNotificationMessage(getString(R.string.ntf_service_desc_connected, deviceInfo.name))
                 enableConnectedNotificationActions()
@@ -239,32 +241,37 @@ class NetworkManagerService : Service() {
             networkThread!!.onConnectionClosed = {
                 var newSocket: Socket? = null
 
-                broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_INTERRUPTED_EVENT)
+                // Make sure the disconnection was not voluntarily started by the user.
+                if (!forceDisconnection) {
+                    broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_INTERRUPTED_EVENT)
 
-                while(reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
-                    if (currentAddress == null || currentPort == null || currentKey == null) {
-                        break
+                    updateNotificationMessage(getString(R.string.ntf_service_desc_interrupted))
+
+                    while(reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
+                        if (forceDisconnection || currentAddress == null || currentPort == null || currentKey == null) {
+                            break
+                        }
+
+                        Log.w(LOG_TAG, "Connection was closed, trying to reconnect again... Attempt $reconnectionAttempt")
+
+                        // Try to reconnect to the old address
+                        newSocket = scanPort(currentAddress!!, currentPort!!)
+
+                        if (newSocket != null) {
+                            break
+                        }
+
+
+                        val sleepTime = SCANNING_PORT_TIMEOUT * Math.pow(2.0, reconnectionAttempt.toDouble()).toLong()
+
+                        if (reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
+                            Log.w(LOG_TAG, "Sleeping for $sleepTime millis until the next attempt...")
+                            // Sleep for an increasing amount of time ( exponential backoff )
+                            Thread.sleep(sleepTime)
+                        }
+
+                        reconnectionAttempt++
                     }
-
-                    Log.w(LOG_TAG, "Connection was closed, trying to reconnect again... Attempt $reconnectionAttempt")
-
-                    // Try to reconnect to the old address
-                    newSocket = scanPort(currentAddress!!, currentPort!!)
-
-                    if (newSocket != null) {
-                        break
-                    }
-
-
-                    val sleepTime = SCANNING_PORT_TIMEOUT * Math.pow(2.0, reconnectionAttempt.toDouble()).toLong()
-
-                    if (reconnectionAttempt < MAX_RECONNECTION_ATTEMPTS) {
-                        Log.w(LOG_TAG, "Sleeping for $sleepTime millis until the next attempt...")
-                        // Sleep for an increasing amount of time ( exponential backoff )
-                        Thread.sleep(sleepTime)
-                    }
-
-                    reconnectionAttempt++
                 }
 
                 // Reset the network thread
@@ -393,6 +400,7 @@ class NetworkManagerService : Service() {
      * Close the current connection and reset the service.
      */
     fun closeConnection() {
+        forceDisconnection = true
         networkThread?.closeConnection()
         networkThread = null
     }
