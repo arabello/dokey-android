@@ -6,7 +6,6 @@ import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
-import kotlin.properties.Delegates
 
 /**
  * This adapter implements the responsibility of [SectionAdapter].

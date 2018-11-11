@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import io.rocketguys.dokey.R
 import kotlinx.android.synthetic.main.activity_connect.view.*
 import kotlinx.android.synthetic.main.fragment_intro.view.*
-import kotlinx.android.synthetic.main.fragment_intro_finish.*
 
 private const val ARG_PAGE_INDEX = "arg_page_index"
 

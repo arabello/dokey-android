@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.ImageButton
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.connect.ConnectActivity
-import io.rocketguys.dokey.connect.ScanActivity
 import kotlinx.android.synthetic.main.activity_intro.*
 
 class IntroActivity : AppCompatActivity() {

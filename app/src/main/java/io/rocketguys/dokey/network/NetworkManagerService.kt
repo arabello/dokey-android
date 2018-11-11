@@ -25,7 +25,6 @@ import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
 import model.parser.page.DefaultPageParser
 import model.parser.section.DefaultSectionParser
-import model.section.ApplicationSection
 import model.section.Section
 import net.LinkManager
 import net.model.DeviceInfo

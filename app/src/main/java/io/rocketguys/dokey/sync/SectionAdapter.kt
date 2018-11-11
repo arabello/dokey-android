@@ -2,8 +2,6 @@ package io.rocketguys.dokey.sync
 
 import android.support.annotation.StringDef
 import io.rocketguys.dokey.network.model.App
-import io.rocketguys.dokey.sync.SectionAdapter.Companion.SHORTCUT
-import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import model.section.Section
 
 /**

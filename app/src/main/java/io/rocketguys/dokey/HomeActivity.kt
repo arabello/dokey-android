@@ -22,11 +22,10 @@ import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.padlock.MenuItemPadlock
+import io.rocketguys.dokey.padlock.Padlock
 import io.rocketguys.dokey.padlock.TransitionDrawablePadlock
 import io.rocketguys.dokey.preferences.SettingsActivity
-import io.rocketguys.dokey.padlock.Padlock
 import io.rocketguys.dokey.sync.*
-import io.rocketguys.dokey.sync.SectionAdapter.Companion.SectionType
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
