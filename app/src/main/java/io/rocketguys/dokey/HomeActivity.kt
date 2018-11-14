@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.LinearLayoutManager
@@ -16,10 +15,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
-import io.rocketguys.dokey.connect.ConnectionStatusSnackBar
+import io.rocketguys.dokey.connect.Statusbar
 import io.rocketguys.dokey.connect.ScanActivity
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
@@ -88,7 +86,7 @@ class HomeActivity : ConnectedActivity(){
         // Analyze the current intent to determine if a pending intent was passed from the notification
         setupFlagsForNotificationIntent(intent)
 
-        //onConnectionInterrupted()
+        onConnectionInterrupted()
     }
 
     // Inflate mToolbar menu
@@ -416,13 +414,9 @@ class HomeActivity : ConnectedActivity(){
     }
 
     override fun onConnectionInterrupted() {
-        val snackBar = ConnectionStatusSnackBar.make(rootView)
-        snackBar.message = getString(R.string.snack_connecting_msg)
-        snackBar.actionText = getString(R.string.snack_connecting_action)
-        snackBar.action = {
-            networkManagerService?.closeConnection()
-        }
-        snackBar.show()
+        Statusbar.connecting(rootView){
+            stopNetworkService()
+        }.show()
     }
 
     override fun onConnectionClosed() {

@@ -1,49 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<io.rocketguys.dokey.connect.StatusbarContentLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="84dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/colorPrimary"
+    android:orientation="horizontal">
 
     <com.wang.avi.AVLoadingIndicatorView
         android:id="@+id/snack_bar_progress"
         style="@style/AVLoadingIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_gravity="center_vertical"
         app:indicatorColor="@color/colorAccent2"
-        app:indicatorName="BallScaleMultipleIndicator"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:indicatorName="BallScaleMultipleIndicator" />
 
     <TextView
         android:id="@+id/snack_bar_msg"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/snack_bar_action"
-        app:layout_constraintStart_toEndOf="@+id/snack_bar_progress"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center_vertical"/>
 
     <TextView
         android:id="@+id/snack_bar_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center_vertical"/>
 
-</android.support.constraint.ConstraintLayout>
+</io.rocketguys.dokey.connect.StatusbarContentLayout>
