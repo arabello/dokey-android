@@ -17,8 +17,9 @@ import android.view.View
 import android.view.WindowManager
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
-import io.rocketguys.dokey.connect.Statusbar
+import io.rocketguys.dokey.connect.statusbar.Statusbar
 import io.rocketguys.dokey.connect.ScanActivity
+import io.rocketguys.dokey.connect.statusbar.ContextualStatusbar
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.network.model.App
@@ -414,9 +415,7 @@ class HomeActivity : ConnectedActivity(){
     }
 
     override fun onConnectionInterrupted() {
-        Statusbar.connecting(rootView){
-            stopNetworkService()
-        }.show()
+        ContextualStatusbar(this).connecting(rootView).show()
     }
 
     override fun onConnectionClosed() {
@@ -428,7 +427,7 @@ class HomeActivity : ConnectedActivity(){
 
             // Disconnect from activity, user want to change desktop. Clear cache
             disconnectFromActivity -> {
-                ScanActivity.cache(this).qrCode = null
+                ScanActivity.cache(this).clear()
                 startActivity(Intent(this, ConnectActivity::class.java))
                 finish()
             }

@@ -43,6 +43,8 @@ class ScanActivity : AppCompatActivity(){
             }
             private val pref = PreferenceManager.getDefaultSharedPreferences(context)!!
 
+            fun clear() { qrCode = null }
+
             var qrCode : String?
                 get() {
                     val s = pref.getString(QR_CODE_KEY, null)
