@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/statusbar_content"
     android:layout_width="match_parent"
     android:layout_height="84dp"
     android:background="@color/colorPrimary"
-    android:layout_gravity="bottom">
+    app:layout_constraintBottom_toBottomOf="parent">
 
     <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/snack_bar_progress"
+        android:id="@+id/statusbar_progress"
         style="@style/AVLoadingIndicatorView"
         android:layout_width="56dp"
         android:layout_height="56dp"
@@ -24,7 +25,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/snack_bar_msg"
+        android:id="@+id/statusbar_msg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -35,12 +36,12 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/snack_bar_action"
-        app:layout_constraintStart_toEndOf="@+id/snack_bar_progress"
+        app:layout_constraintEnd_toStartOf="@+id/statusbar_action"
+        app:layout_constraintStart_toEndOf="@+id/statusbar_progress"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/snack_bar_action"
+        android:id="@+id/statusbar_action"
         style="?attr/borderlessButtonStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -53,5 +54,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 </android.support.constraint.ConstraintLayout>

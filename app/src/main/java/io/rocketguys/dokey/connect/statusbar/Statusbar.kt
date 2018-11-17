@@ -11,7 +11,6 @@ import android.widget.Button
 import android.widget.TextView
 import io.rocketguys.dokey.R
 import kotlin.properties.Delegates
-import android.view.ViewParent
 import android.widget.FrameLayout
 import android.support.design.widget.CoordinatorLayout
 
@@ -27,7 +26,7 @@ class Statusbar
         BaseTransientBottomBar<Statusbar>(parent, content, contentViewCallback) {
 
     init {
-        getView().findViewById<Button>(R.id.snack_bar_action).visibility = View.GONE
+        getView().findViewById<Button>(R.id.statusbar_action).visibility = View.GONE
         getView().setPadding(0,0,0,0)
     }
 
@@ -48,14 +47,14 @@ class Statusbar
             val parent = findSuitableParent(view) ?:
                 throw IllegalArgumentException("No suitable parent found from the given view. Please provide a valid view.")
 
-            val content = LayoutInflater.from(parent.context).inflate(R.layout.snackbar_connecting, parent, false)
+            val content = LayoutInflater.from(parent.context).inflate(R.layout.statusbar, parent, false)
             val statusbar = Statusbar(parent, content, StatusbarContentLayout())
             statusbar.message = message
             statusbar.duration = duration
             return statusbar
         }
 
-        fun findSuitableParent(targetView: View?): ViewGroup? {
+        private fun findSuitableParent(targetView: View?): ViewGroup? {
             var view = targetView
             var fallback: ViewGroup? = null
             do {
@@ -86,7 +85,7 @@ class Statusbar
     }
 
     var message by Delegates.observable<String>(""){_, _, newValue ->
-        getView().findViewById<TextView>(R.id.snack_bar_msg).text = newValue
+        getView().findViewById<TextView>(R.id.statusbar_msg).text = newValue
     }
 
     fun setDismissText(@StringRes textRes: Int) = setAction(textRes, null)
@@ -96,7 +95,7 @@ class Statusbar
     fun setAction(@StringRes textRes: Int, action: (() -> Unit) ?= null) = setAction(getView().context.resources.getString(textRes), action)
 
     fun setAction(actionText: String, action: (() -> Unit) ?= null){
-        getView().findViewById<Button>(R.id.snack_bar_action).apply {
+        getView().findViewById<Button>(R.id.statusbar_action).apply {
             visibility = View.VISIBLE
             text = actionText
             setOnClickListener {
