@@ -23,6 +23,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
     companion object {
         private val TAG: String = ConnectActivity::class.java.simpleName
         const val EXTRA_FORCE_SCAN = "extra_force_scan"
+        const val EXTRA_FIRST_LAUNCH = "first_launch"
     }
 
     private var qrPayload: String? = null
@@ -35,21 +36,40 @@ class ConnectActivity : ConnectionBuilderActivity() {
         startNetworkService()
 
         // Set up new scan btn
-        introFragScanBtn.setOnClickListener {
+        scanBtn.setOnClickListener {
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         }
 
         val forceScan = intent.getBooleanExtra(EXTRA_FORCE_SCAN, false)
+        val firstLaunch = intent.getBooleanExtra(EXTRA_FIRST_LAUNCH, false)
 
-        // Try to connect using QR code cache
-        qrPayload = ScanActivity.cache(this).qrCode
-        if (forceScan || qrPayload == null)
+        if (forceScan)
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
-        else{
-            progressBar.smoothToShow()
-            val deviceInfo = ScanActivity.cache(this).deviceInfo
-            if (deviceInfo != null)
-                devInfoText.text = getString(R.string.acty_connect_device_info, deviceInfo.name, deviceInfo.os)
+        else if (firstLaunch){
+            devInfoText.text = getString(R.string.acty_connect_first_launch)
+            showActions(true)
+        }else{
+            // Try to connect using payload cache
+            qrPayload = ScanActivity.cache(this).qrCode
+
+            if (qrPayload != null) {
+                val deviceInfo = ScanActivity.cache(this).deviceInfo
+                if (deviceInfo != null)
+                    devInfoText.text = getString(R.string.acty_connect_device_info, deviceInfo.name, deviceInfo.os)
+            }else{
+                showActions(true)
+                commonErrorHandler(getString(R.string.acty_connect_no_device_found))
+            }
+        }
+    }
+
+    private fun showActions(show: Boolean){
+        if (show){
+            scanBtn.visibility = View.VISIBLE
+            enableUsbBtn.visibility = View.VISIBLE
+        }else{
+            scanBtn.visibility = View.INVISIBLE
+            enableUsbBtn.visibility = View.INVISIBLE
         }
     }
 
@@ -115,14 +135,14 @@ class ConnectActivity : ConnectionBuilderActivity() {
         progressBar.indicator.color = Color.RED
         devInfoText.text = msg
         connectivityText.text = getString(R.string.acty_connect_error)
-        introFragScanBtn.visibility = View.VISIBLE
+        showActions(true)
     }
 
     private fun clearErrorHandler(){
         progressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
         devInfoText.text = ""
         connectivityText.text = getString(R.string.acty_connect_msg)
-        introFragScanBtn.visibility = View.GONE
+        showActions(false)
     }
 
     override fun onConnectionError() {

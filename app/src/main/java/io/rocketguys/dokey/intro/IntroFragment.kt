@@ -6,8 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import io.rocketguys.dokey.R
-import kotlinx.android.synthetic.main.activity_connect.view.*
-import kotlinx.android.synthetic.main.fragment_intro.view.*
+import kotlinx.android.synthetic.main.fragment_intro_finish.view.*
 
 private const val ARG_PAGE_INDEX = "arg_page_index"
 
@@ -60,7 +59,7 @@ class IntroFragment : Fragment() {
                 frag.introFragTitle.text = getString(R.string.frag_intro_title_4)
                 frag.introFragDesc.text = getString(R.string.frag_intro_desc_4)
                 frag.introFragImg.setImageResource(R.drawable.intro_img_4)
-                frag.introFragScanBtn.setOnClickListener {
+                frag.introFragStartBtn.setOnClickListener {
                     (activity as IntroActivity).onIntroCompleted()
                 }
             }

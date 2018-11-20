@@ -82,13 +82,13 @@
             android:layout_marginBottom="24dp"
             android:gravity="center_vertical"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/introFragScanBtn"
+            app:layout_constraintBottom_toTopOf="@+id/introFragStartBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/introFragTitle" />
 
         <Button
-            android:id="@+id/introFragScanBtn"
+            android:id="@+id/introFragStartBtn"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -97,7 +97,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/btn_bg_grad_1"
-            android:text="@string/frag_intro_scan_btn"
+            android:text="@string/frag_intro_start_btn"
             android:textColor="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

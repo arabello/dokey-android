@@ -64,7 +64,7 @@ class IntroActivity : AppCompatActivity() {
         val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         pref.edit().putBoolean(FIRST_RUN_KEY, false).apply() // async
         val intent = Intent(this, ConnectActivity::class.java)
-        intent.putExtra(ConnectActivity.EXTRA_FORCE_SCAN, true)
+        intent.putExtra(ConnectActivity.EXTRA_FIRST_LAUNCH, true)
         startActivity(intent)
         finish()
     }
