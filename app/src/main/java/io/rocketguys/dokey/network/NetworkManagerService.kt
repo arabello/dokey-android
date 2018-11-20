@@ -659,6 +659,7 @@ class NetworkManagerService : Service() {
         val disconnectPendingIntent = PendingIntent.getActivity(this,
                 PENDINT_INTENT_REQUEST_CODE_DISCONNECT,
                 disconnectIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        notificationBuilder?.mActions?.clear()
         notificationBuilder?.addAction(R.drawable.ic_arrow_down_24dp, getString(R.string.ntf_service_action_disconnect), disconnectPendingIntent)
         notificationManager.notify(SERVICE_NOTIFICATION_ID, notificationBuilder?.build())
     }
