@@ -84,7 +84,7 @@
     <string name="ntf_service_title">Dokey Sync</string>
     <string name="ntf_service_desc">Tap and scan QRCode</string>
     <string name="ntf_service_desc_connected">Connected to %1$s</string>
-    <string name="ntf_service_desc_interrupted">Connection interrupted, trying to fix...</string>
+    <string name="ntf_service_desc_interrupted">Connecting…</string>
     <string name="ntf_service_action_disconnect">Disconnect</string>
 
     <!-- Fragment  -->
