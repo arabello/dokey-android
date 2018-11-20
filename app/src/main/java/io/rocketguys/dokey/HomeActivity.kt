@@ -421,6 +421,8 @@ class HomeActivity : ConnectedActivity(){
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
+        // Enable UI
+        connectingStatusbar.dismiss()
     }
 
 

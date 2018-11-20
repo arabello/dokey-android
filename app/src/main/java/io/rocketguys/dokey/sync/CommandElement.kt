@@ -20,7 +20,7 @@ import model.component.Component
  *
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
-class CommandElement(val component: Component, val networkManagerService: NetworkManagerService?, val activity: Activity) : AbstractElement() {
+class CommandElement(val component: Component, val networkManagerService: NetworkManagerService?, val activity: HomeActivity) : AbstractElement() {
 
     override fun inflateView(parent: ViewGroup): View {
         val view = LayoutInflater.from(activity).inflate(R.layout.item_command, parent, false)
@@ -37,7 +37,7 @@ class CommandElement(val component: Component, val networkManagerService: Networ
 
                     if (cmd.isAppOpen()
                             && activity.navigation.selectedItemId == R.id.navigation_launchpad
-                            && (activity as HomeActivity).isPadlockOpen()) { // TODO Re-engineer this shit
+                            && activity.isPadlockOpen()) {
                         activity.navigation.selectedItemId = R.id.navigation_shortcut
                     }
                 }

@@ -3,6 +3,7 @@ package io.rocketguys.dokey.sync
 import android.util.Log
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.matteopellegrino.pagedgrid.grid.EmptyGrid
+import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
@@ -17,7 +18,7 @@ import model.section.Section
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
 class SectionConnectedAdapter(val gridAdapter: GridAdapter,
-                              val activity: ConnectedActivity,
+                              val activity: HomeActivity,
                               val networkManagerService: NetworkManagerService?) : SectionAdapter {
     companion object {
         private val TAG: String = SectionConnectedAdapter::class.java.simpleName
