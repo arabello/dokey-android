@@ -25,6 +25,9 @@ class Statusbar
     private constructor(parent: ViewGroup, content: View, contentViewCallback: android.support.design.snackbar.ContentViewCallback) :
         BaseTransientBottomBar<Statusbar>(parent, content, contentViewCallback) {
 
+    var onShow: (() -> Unit) ?= null
+    var onDismiss: (() -> Unit) ?= null
+
     init {
         getView().findViewById<Button>(R.id.statusbar_action).visibility = View.GONE
         getView().setPadding(0,0,0,0)
@@ -103,5 +106,15 @@ class Statusbar
                 dismiss()
             }
         }
+    }
+
+    override fun show() {
+        super.show()
+        onShow?.invoke()
+    }
+
+    override fun dismiss() {
+        super.dismiss()
+        onDismiss?.invoke()
     }
 }

@@ -17,9 +17,9 @@ import android.view.View
 import android.view.WindowManager
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
-import io.rocketguys.dokey.connect.statusbar.Statusbar
 import io.rocketguys.dokey.connect.ScanActivity
 import io.rocketguys.dokey.connect.statusbar.ContextualStatusbar
+import io.rocketguys.dokey.connect.statusbar.Statusbar
 import io.rocketguys.dokey.network.PENDING_INTENT_DISCONNECT_SERVICE
 import io.rocketguys.dokey.network.activity.ConnectedActivity
 import io.rocketguys.dokey.network.model.App
@@ -44,6 +44,7 @@ class HomeActivity : ConnectedActivity(){
     // View
     private lateinit var mActiveAppAdapter: ActiveAppAdapter
     private lateinit var mToolbar: Toolbar
+    private lateinit var connectingStatusbar: Statusbar
     private val mGridAdapter = GridAdapter(arrayOf())
     private var activeAppsTimer: Timer ?= null
 
@@ -87,7 +88,10 @@ class HomeActivity : ConnectedActivity(){
         // Analyze the current intent to determine if a pending intent was passed from the notification
         setupFlagsForNotificationIntent(intent)
 
-        onConnectionInterrupted()
+        // Set up interrupted status bar
+        connectingStatusbar = ContextualStatusbar(this).connecting(rootView)
+        connectingStatusbar.onShow = { overlay.visibility = View.VISIBLE }
+        connectingStatusbar.onDismiss = { overlay.visibility = View.GONE }
     }
 
     // Inflate mToolbar menu
@@ -363,10 +367,33 @@ class HomeActivity : ConnectedActivity(){
         super.onResume()
 
         navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
+
+        if (networkManagerService == null || !networkManagerService?.isConnected!!) // TODO isConnected return true if the servi is trying to reconnect. Test this block after new API
+            connectingStatusbar.show()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        activeAppsTimer?.cancel()
+        activeAppsTimer = null
+    }
+
+    override fun onSectionModified(section: Section, associatedApp: App?) {
+        Log.d(TAG, "onSectionModified: current: $currentSectionId")
+        Log.d(TAG, "onSectionModified: modified: ${section.id}")
+        if (section.id == currentSectionId)
+            renderSectionWithFallback(section.id!!, section, associatedApp)
+    }
+
+    // Command may not be in the section.
+    // Check if exists in the current section and update
+    override fun onCommandModified(command: Command) {
+        Log.d(TAG, "onCommandModified ${command.title}")
     }
 
     // Android lifecycle : called after onStart()
     override fun onServiceConnected() {
+        Log.d(TAG, ":onServiceConnected")
         // Evaluate the current notification flags
         evaluateNotificationFlags()
 
@@ -393,29 +420,16 @@ class HomeActivity : ConnectedActivity(){
         networkManagerService?.requestSection(SectionAdapter.SYSTEM){ section, _ ->
             Log.d(TAG, "requestSection ${section?.name}")
         }
+
     }
 
-    override fun onStop() {
-        super.onStop()
-        activeAppsTimer?.cancel()
-        activeAppsTimer = null
-    }
 
-    override fun onSectionModified(section: Section, associatedApp: App?) {
-        Log.d(TAG, "onSectionModified: current: $currentSectionId")
-        Log.d(TAG, "onSectionModified: modified: ${section.id}")
-        if (section.id == currentSectionId)
-            renderSectionWithFallback(section.id!!, section, associatedApp)
-    }
-
-    // Command may not be in the section.
-    // Check if exists in the current section and update
-    override fun onCommandModified(command: Command) {
-        Log.d(TAG, "onCommandModified ${command.title}")
-    }
 
     override fun onConnectionInterrupted() {
-        ContextualStatusbar(this).connecting(rootView).show()
+        Log.d(TAG, ":onConnectionInterrupted")
+
+        // Disable UI
+        connectingStatusbar.show()
     }
 
     override fun onConnectionClosed() {
