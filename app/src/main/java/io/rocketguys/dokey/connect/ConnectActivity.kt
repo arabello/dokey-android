@@ -13,6 +13,7 @@ import android.view.View
 import com.google.zxing.integration.android.IntentIntegrator
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
+import io.rocketguys.dokey.connect.usb.USBInstructionActivity
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
@@ -38,6 +39,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
         // Set up new scan btn
         scanBtn.setOnClickListener {
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+        }
+
+        // Set up enable usb btn
+        enableUsbBtn.setOnClickListener {
+            startActivity(Intent(this, USBInstructionActivity::class.java))
         }
 
         val forceScan = intent.getBooleanExtra(EXTRA_FORCE_SCAN, false)
