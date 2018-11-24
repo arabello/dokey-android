@@ -26,15 +26,15 @@ class USBInstructionFragment : Fragment() {
 
         when(argPageIndex){
             0 -> {
-                frag.introFragDesc.text = getString(R.string.frag_intro_desc_0)
+                frag.introFragDesc.text = getString(R.string.frag_usb_instruction_0)
                 frag.introFragImg.setImageResource(R.drawable.usb_instruction_0)
             }
             1 -> {
-                frag.introFragDesc.text = getString(R.string.frag_intro_desc_1)
+                frag.introFragDesc.text = getString(R.string.frag_usb_instruction_1)
                 frag.introFragImg.setImageResource(R.drawable.usb_instruction_1)
             }
             2 -> {
-                frag.introFragDesc.text = getString(R.string.frag_intro_desc_2)
+                frag.introFragDesc.text = getString(R.string.frag_usb_instruction_2)
                 frag.introFragImg.setImageResource(R.drawable.usb_instruction_2)
             }
         }

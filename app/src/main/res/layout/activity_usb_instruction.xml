@@ -77,6 +77,25 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_intro_action_next" />
 
+        <ImageButton
+            android:id="@+id/doneBtn"
+            android:layout_width="0dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:adjustViewBounds="true"
+            android:background="?android:selectableItemBackground"
+            android:padding="16dp"
+            android:paddingEnd="32dp"
+            android:paddingRight="32dp"
+            android:scaleType="fitEnd"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/prevBtn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_action_check_circle" />
+
 
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

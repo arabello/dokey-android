@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageButton
 import io.rocketguys.dokey.R
-import kotlinx.android.synthetic.main.activity_intro.*
+import kotlinx.android.synthetic.main.activity_usb_instruction.*
 
 class USBInstructionActivity : AppCompatActivity() {
 
@@ -34,14 +34,17 @@ class USBInstructionActivity : AppCompatActivity() {
                     0 -> {
                         prevBtn.hide()
                         nextBtn.reveal()
+                        doneBtn.hide()
                     }
                     introViewPager.adapter?.count!! - 1 -> {
                         prevBtn.reveal()
                         nextBtn.hide()
+                        doneBtn.reveal()
                     }
                     else -> {
                         prevBtn.reveal()
                         nextBtn.reveal()
+                        doneBtn.hide()
                     }
                 }
             }
@@ -55,6 +58,10 @@ class USBInstructionActivity : AppCompatActivity() {
         nextBtn.setOnClickListener {
             if (introViewPager.currentItem < introViewPager.adapter?.count!!)
                 introViewPager.setCurrentItem(introViewPager.currentItem + 1, true)
+        }
+
+        doneBtn.setOnClickListener{
+            onIntroCompleted()
         }
     }
 
