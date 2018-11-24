@@ -370,8 +370,6 @@ class HomeActivity : ConnectedActivity(){
 
         navigation.selectedItemId = R.id.navigation_launchpad // fire section selected event
 
-        if (networkManagerService == null || !networkManagerService?.isConnected!!) // TODO isConnected return true if the servi is trying to reconnect. Test this block after new API
-            connectingStatusbar.show()
     }
 
     override fun onStop() {
@@ -396,6 +394,7 @@ class HomeActivity : ConnectedActivity(){
     // Android lifecycle : called after onStart()
     override fun onServiceConnected() {
         Log.d(TAG, ":onServiceConnected")
+
         // Evaluate the current notification flags
         evaluateNotificationFlags()
 
@@ -423,8 +422,8 @@ class HomeActivity : ConnectedActivity(){
             Log.d(TAG, "requestSection ${section?.name}")
         }
 
-        // Enable UI
-        connectingStatusbar.dismiss()
+        if (networkManagerService != null && networkManagerService?.isReconnecting!!)
+            connectingStatusbar.show()
     }
 
 
@@ -439,6 +438,7 @@ class HomeActivity : ConnectedActivity(){
     override fun onConnectionReestablished(serverInfo: DeviceInfo) {
         Log.d(TAG, ":onConnectionReestablished ${networkManagerService?.isConnected} ${networkManagerService?.isReconnecting}")
 
+        // Enable UI
         connectingStatusbar.dismiss()
     }
 
