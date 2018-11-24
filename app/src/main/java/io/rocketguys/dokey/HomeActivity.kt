@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.connect.ScanActivity
@@ -31,6 +32,7 @@ import io.rocketguys.dokey.sync.*
 import kotlinx.android.synthetic.main.activity_home.*
 import model.command.Command
 import model.section.Section
+import net.model.DeviceInfo
 import java.util.*
 
 
@@ -428,10 +430,16 @@ class HomeActivity : ConnectedActivity(){
 
 
     override fun onConnectionInterrupted() {
-        Log.d(TAG, ":onConnectionInterrupted")
+        Log.d(TAG, ":onConnectionInterrupted ${networkManagerService?.isConnected} ${networkManagerService?.isReconnecting}")
 
         // Disable UI
         connectingStatusbar.show()
+    }
+
+    override fun onConnectionReestablished(serverInfo: DeviceInfo) {
+        Log.d(TAG, ":onConnectionReestablished ${networkManagerService?.isConnected} ${networkManagerService?.isReconnecting}")
+
+        connectingStatusbar.dismiss()
     }
 
     override fun onConnectionClosed() {

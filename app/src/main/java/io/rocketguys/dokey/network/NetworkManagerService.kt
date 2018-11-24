@@ -71,6 +71,7 @@ class NetworkManagerService : Service() {
     private var connectionBuilderThread : Thread? = null
 
     var isConnected = false
+    var isReconnecting = false
 
     // The broadcast manager will handle all the notifications to the application
     // about the network events that occur
@@ -192,7 +193,10 @@ class NetworkManagerService : Service() {
 
             // Setup all the needed network thread listeners
             networkThread!!.onConnectionEstablished = {deviceInfo ->
-                isConnected = true
+                synchronized(this@NetworkManagerService) {
+                    isReconnecting = false
+                    isConnected = true
+                }
 
                 serverInfo = deviceInfo
 
@@ -218,6 +222,10 @@ class NetworkManagerService : Service() {
 
                 // Make sure the disconnection was not voluntarily started by the user.
                 if (!forceDisconnection) {
+                    synchronized(this@NetworkManagerService) {
+                        isReconnecting = true
+                    }
+
                     broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_INTERRUPTED_EVENT)
 
                     updateNotificationMessage(getString(R.string.ntf_service_desc_interrupted))

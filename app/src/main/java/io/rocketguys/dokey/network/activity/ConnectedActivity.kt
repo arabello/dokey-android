@@ -8,6 +8,7 @@ import io.rocketguys.dokey.network.model.App
 import json.JSONObject
 import model.command.Command
 import model.section.Section
+import net.model.DeviceInfo
 
 abstract class ConnectedActivity : NetworkActivity() {
     /**
@@ -35,6 +36,12 @@ abstract class ConnectedActivity : NetworkActivity() {
     abstract fun onConnectionInterrupted()
 
     /**
+     * Called when a connection with the dokey server has been reestablished, after being
+     * interrupted.
+     */
+    abstract fun onConnectionReestablished(serverInfo: DeviceInfo)
+
+    /**
      * Called when the connection with the desktop server is interrupted.
      */
     abstract fun onConnectionClosed()
@@ -48,6 +55,7 @@ abstract class ConnectedActivity : NetworkActivity() {
         broadcastManager?.registerReceiver(NetworkEvent.APPLICATION_SWITCH_EVENT, applicationSwitchReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_CLOSED_EVENT, connectionClosedReceiver)
         broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_INTERRUPTED_EVENT, connectionInterruptedReceiver)
+        broadcastManager?.registerReceiver(NetworkEvent.CONNECTION_ESTABLISHED_EVENT, connectionReestablishedReceiver)
     }
 
     override fun onStop() {
@@ -59,6 +67,7 @@ abstract class ConnectedActivity : NetworkActivity() {
         broadcastManager?.unregisterReceiver(applicationSwitchReceiver)
         broadcastManager?.unregisterReceiver(connectionClosedReceiver)
         broadcastManager?.unregisterReceiver(connectionInterruptedReceiver)
+        broadcastManager?.unregisterReceiver(connectionReestablishedReceiver)
     }
 
     private val sectionModifiedReceiver = object : BroadcastReceiver() {
@@ -115,6 +124,14 @@ abstract class ConnectedActivity : NetworkActivity() {
     private val connectionInterruptedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             onConnectionInterrupted()
+        }
+    }
+
+    private val connectionReestablishedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val deviceInfoPayload = intent?.getStringExtra("payload")
+            val deviceInfo = DeviceInfo.fromJson(JSONObject(deviceInfoPayload))
+            onConnectionReestablished(deviceInfo)
         }
     }
 }
