@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.content.ContextCompat
@@ -17,6 +18,7 @@ import io.rocketguys.dokey.connect.usb.USBInstructionActivity
 import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
+import kotlin.properties.Delegates
 
 
 class ConnectActivity : ConnectionBuilderActivity() {
@@ -28,6 +30,20 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     private var qrPayload: String? = null
+
+    private var isAdbEnabled by Delegates.observable<Boolean>(false) { _, _, newValue ->
+        if (newValue){
+            enableUsbBtn.visibility = View.INVISIBLE
+            textUsb.visibility = View.VISIBLE
+        }else{
+            enableUsbBtn.visibility = View.VISIBLE
+            textUsb.visibility = View.INVISIBLE
+        }
+    }
+
+    private var showConnectActions by Delegates.observable<Boolean>(false) { _, _, newValue ->
+        connectActions.visibility = if (newValue) View.VISIBLE else View.INVISIBLE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,45 +68,63 @@ class ConnectActivity : ConnectionBuilderActivity() {
         if (forceScan)
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         else if (firstLaunch){
-            devInfoText.text = getString(R.string.acty_connect_first_launch)
-            showActions(true)
+            deviceInfo.text = getString(R.string.acty_connect_first_launch)
+            showConnectActions = true
         }else{
             // Try to connect using payload cache
             qrPayload = ScanActivity.cache(this).qrCode
 
             if (qrPayload != null) {
-                val deviceInfo = ScanActivity.cache(this).deviceInfo
-                if (deviceInfo != null)
-                    devInfoText.text = getString(R.string.acty_connect_device_info, deviceInfo.name, deviceInfo.os)
+                showConnectActions = false
+                val info = ScanActivity.cache(this).deviceInfo
+                if (info != null)
+                    deviceInfo.text = getString(R.string.acty_connect_device_info, info.name, info.os)
             }else{
-                showActions(true)
-                commonErrorHandler(getString(R.string.acty_connect_no_device_found))
+                showError(getString(R.string.acty_connect_no_device_found))
             }
         }
     }
 
-    private fun showActions(show: Boolean){
-        if (show){
-            scanBtn.visibility = View.VISIBLE
-            enableUsbBtn.visibility = View.VISIBLE
+
+    override fun onStart() {
+        super.onStart()
+
+        // If the server is not started yet, start it
+        if (!serviceStarted) {
+            startNetworkService()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17){
+            if (Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1) true else true
         }else{
-            scanBtn.visibility = View.INVISIBLE
-            enableUsbBtn.visibility = View.INVISIBLE
+            if(Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1) true else true
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // If the service is not connected to the dokey server, close it when going into background
+        if (networkManagerService?.isConnected == false) {
+            stopNetworkService()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        clearErrorHandler()
+        hideError()
         val result = IntentIntegrator.parseActivityResult(IntentIntegrator.REQUEST_CODE, resultCode, data)
         if(result != null) {
             Log.d(TAG, "QR scan result: ${result.contents}")
 
             if (result.contents == null){
                 // User cancelled scanning
-                commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+                showError(getString(R.string.acty_connect_scan_hint))
             }else if (!result.contents.startsWith(ScanActivity.QR_PAYLOAD_CHECK)){
                 // User did not scanned a Dokey's QRCode
-                commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+                showError(getString(R.string.acty_connect_scan_hint))
 
                 val dialog = ConnectDialog.from(this).createDialogInvalidQRCode()
                 dialog.setOnDismissListener {
@@ -137,23 +171,23 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
 
-    private fun commonErrorHandler(msg: String){
-        progressBar.indicator.color = Color.RED
-        devInfoText.text = msg
-        connectivityText.text = getString(R.string.acty_connect_error)
-        showActions(true)
+    private fun showError(msg: String){
+        connectProgressBar.indicator.color = Color.RED
+        deviceInfo.text = msg
+        connectivityInfo.text = getString(R.string.acty_connect_error)
+        showConnectActions = true
     }
 
-    private fun clearErrorHandler(){
-        progressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
-        devInfoText.text = ""
-        connectivityText.text = getString(R.string.acty_connect_msg)
-        showActions(false)
+    private fun hideError(){
+        connectProgressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
+        deviceInfo.text = ""
+        connectivityInfo.text = getString(R.string.acty_connect_msg)
+        showConnectActions = false
     }
 
     override fun onConnectionError() {
         Log.d(TAG, "Connection error")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
     }
 
     private fun isWifiConnected(): Boolean {
@@ -170,7 +204,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
     }
 
     override fun onServerNotInTheSameNetworkError() {
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
 
         lateinit var dialog: AlertDialog
 
@@ -196,14 +230,14 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onInvalidKeyError() {
         Log.d(TAG, "Invalid key")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
 
         startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
     }
 
     override fun onDesktopVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Desktop version too low")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
 
         val dialog = ConnectDialog.from(this).createDialogOnDesktopVersionTooLowError(serverInfo)
         dialog.setOnDismissListener {
@@ -214,7 +248,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onMobileVersionTooLowError(serverInfo: DeviceInfo) {
         Log.d(TAG, "Mobile version too low")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
 
         val dialog = ConnectDialog.from(this).createDialogOnMobileVersionTooLowError(serverInfo)
         dialog.setOnDismissListener {
@@ -225,26 +259,8 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onConnectionClosed() {
         Log.d(TAG, "Connection closed")
-        commonErrorHandler(getString(R.string.acty_connect_scan_hint))
+        showError(getString(R.string.acty_connect_scan_hint))
 
         // TODO Handle UX
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        // If the server is not started yet, start it
-        if (!serviceStarted) {
-            startNetworkService()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        // If the service is not connected to the dokey server, close it when going into background
-        if (networkManagerService?.isConnected == false) {
-            stopNetworkService()
-        }
     }
 }

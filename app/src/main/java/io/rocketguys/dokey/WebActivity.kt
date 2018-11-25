@@ -20,13 +20,13 @@ class WebActivity : AppCompatActivity() {
 
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView, progress: Int) {
-                if (progress < 100 && progressBar.visibility == View.GONE) {
-                    progressBar.visibility = View.VISIBLE
+                if (progress < 100 && connectProgressBar.visibility == View.GONE) {
+                    connectProgressBar.visibility = View.VISIBLE
                 }
 
-                progressBar.progress = progress
+                connectProgressBar.progress = progress
                 if (progress == 100) {
-                    progressBar.visibility = View.GONE
+                    connectProgressBar.visibility = View.GONE
                 }
             }
         }

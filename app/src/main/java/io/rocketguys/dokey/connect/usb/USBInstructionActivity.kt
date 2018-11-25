@@ -65,7 +65,7 @@ class USBInstructionActivity : AppCompatActivity() {
         }
     }
 
-    fun onIntroCompleted(){
+    private fun onIntroCompleted(){
         startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
         finish()
     }

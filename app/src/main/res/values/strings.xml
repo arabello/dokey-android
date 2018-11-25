@@ -24,6 +24,7 @@
     <string name="acty_connect_first_launch">Connect your first device</string>
     <string name="acty_connect_scan_btn">Scan</string>
     <string name="acty_connect_enableusb_btn">Enable USB</string>
+    <string name="acty_connect_usb_msg">or connect via USB</string>
     <string name="acty_connect_scan_hint">Please scan QR code again</string>
     <string name="acty_connect_device_info">%1$s %2$s</string>
 
