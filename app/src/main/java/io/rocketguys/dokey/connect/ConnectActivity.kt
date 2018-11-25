@@ -33,11 +33,13 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     private var isAdbEnabled by Delegates.observable<Boolean>(false) { _, _, newValue ->
         if (newValue){
-            enableUsbBtn.visibility = View.INVISIBLE
-            textUsb.visibility = View.VISIBLE
+            usbEnableBtn.visibility = View.INVISIBLE
+            usbText.visibility = View.VISIBLE
+            usbIcon.visibility = View.VISIBLE
         }else{
-            enableUsbBtn.visibility = View.VISIBLE
-            textUsb.visibility = View.INVISIBLE
+            usbEnableBtn.visibility = View.VISIBLE
+            usbText.visibility = View.INVISIBLE
+            usbIcon.visibility = View.INVISIBLE
         }
     }
 
@@ -58,7 +60,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
 
         // Set up enable usb btn
-        enableUsbBtn.setOnClickListener {
+        usbEnableBtn.setOnClickListener {
             startActivity(Intent(this, USBInstructionActivity::class.java))
         }
 
@@ -97,11 +99,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     override fun onResume() {
         super.onResume()
-        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17){
-            if (Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1) true else true
-        }else{
-            if(Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1) true else true
-        }
+        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17)
+            Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
+        else
+            Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
+
     }
 
     override fun onStop() {
