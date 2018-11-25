@@ -20,6 +20,7 @@
     <!-- Activity Connect -->
     <string name="acty_connect_msg">Connecting</string>
     <string name="acty_connect_error">Connection error</string>
+    <string name="acty_connect_closed">Connection has been closed</string>
     <string name="acty_connect_no_device_found">No device found</string>
     <string name="acty_connect_first_launch">Connect your first device</string>
     <string name="acty_connect_scan_btn">Scan</string>
