@@ -22,7 +22,7 @@ class USBInstructionFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        val frag = inflater.inflate(R.layout.fragment_intro, container, false)
+        val frag = inflater.inflate(R.layout.fragment_usb_instruction, container, false)
 
         when(argPageIndex){
             0 -> {

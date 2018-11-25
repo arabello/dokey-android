@@ -13,9 +13,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        android:adjustViewBounds="true"
-        android:cropToPadding="true"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
+        android:padding="32dp"
         app:layout_constraintBottom_toTopOf="@+id/introFragDesc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,11 +25,13 @@
         android:id="@+id/introFragDesc"
         android:layout_width="0dp"
         android:layout_height="80dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/introFragImg" />
 
 </android.support.constraint.ConstraintLayout>
