@@ -429,14 +429,14 @@ class HomeActivity : ConnectedActivity(){
 
 
     override fun onConnectionInterrupted() {
-        Log.d(TAG, ":onConnectionInterrupted ${networkManagerService?.isConnected} ${networkManagerService?.isReconnecting}")
+        Log.d(TAG, ":onConnectionInterrupted isReconnecting? ${networkManagerService?.isReconnecting}. isConnected? ${networkManagerService?.isConnected}")
 
         // Disable UI
         connectingStatusbar.show()
     }
 
     override fun onConnectionReestablished(serverInfo: DeviceInfo) {
-        Log.d(TAG, ":onConnectionReestablished ${networkManagerService?.isConnected} ${networkManagerService?.isReconnecting}")
+        Log.d(TAG, ":onConnectionReestablished isReconnecting? ${networkManagerService?.isReconnecting}. isConnected? ${networkManagerService?.isConnected}")
 
         // Enable UI
         connectingStatusbar.dismiss()

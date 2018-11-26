@@ -42,7 +42,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         const val ESTABLISHED_QR = 2
     }
 
-    private val usbDetectionDaemon = USBDetectionDaemon()
+    private var usbDetectionDaemon: USBDetectionDaemon ?= null
     private var qrPayload: String? = null
 
     private var isAdbEnabled by Delegates.observable<Boolean>(false) { _, _, newValue ->
@@ -84,14 +84,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
-
-        // Set up USB daemon callback
-        usbDetectionDaemon.onUSBConnectionDetected = { usbPayload ->
-            Log.d(TAG, "Usb payload detected: $usbPayload")
-            connectivityStatus = CONNECTING
-            connectivityInfo.text = getString(R.string.acty_connect_msg)
-            networkManagerService?.beginConnection(usbPayload)
-        }
 
         // Start the service
         startNetworkService()
@@ -142,15 +134,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17)
-            Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
-        else
-            Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
-
-    }
-
     override fun onStop() {
         super.onStop()
 
@@ -159,7 +142,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
             stopNetworkService()
         }
 
-        usbDetectionDaemon.stopDiscovery()
+        usbDetectionDaemon?.stopDiscovery()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -195,16 +178,31 @@ class ConnectActivity : ConnectionBuilderActivity() {
             return
         }
 
-        // If a QR payload was cached, try to connect to the server using it.
-        if (qrPayload != null) {
+        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17)
+            Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
+        else
+            Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
+
+        if (qrPayload != null) { // Wifi mode
+
             connectivityStatus = CONNECTING
             connectivityInfo.text = getString(R.string.acty_connect_msg)
             networkManagerService?.beginConnection(qrPayload!!)
-            Log.d(TAG, "Begin connection")
-        }
+            Log.d(TAG, ":onServiceConnected: QR Code: Begin connection")
 
-        // USB Daemon
-        usbDetectionDaemon.start()
+        }else if (isAdbEnabled) {  // USB Mode
+
+            usbDetectionDaemon =  USBDetectionDaemon()
+
+            usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
+                connectivityStatus = CONNECTING
+                connectivityInfo.text = getString(R.string.acty_connect_msg)
+                networkManagerService?.beginConnection(usbPayload)
+                Log.d(TAG, ":onServiceConnected: USB: Begin connection")
+            }
+            usbDetectionDaemon?.start()
+
+        }
     }
 
     // Start HomeActivity, connection is stable
