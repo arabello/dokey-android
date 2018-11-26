@@ -8,22 +8,26 @@
     tools:context=".connect.usb.USBInstructionFragment">
 
 
-    <ImageView
-        android:id="@+id/usbFragImg"
+    <TextView
+        android:id="@+id/usbFragFirstDesc"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:padding="32dp"
-        android:scaleType="fitCenter"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/usbFragTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/usbFragFirstTitle" />
 
 
     <TextView
-        android:id="@+id/usbFragTitle"
+        android:id="@+id/usbFragFirstTitle"
         android:layout_width="0dp"
         android:layout_height="80dp"
         android:layout_marginStart="32dp"
@@ -36,7 +40,7 @@
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/usbFragImg"
+        app:layout_constraintBottom_toTopOf="@+id/usbFragFirstDesc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

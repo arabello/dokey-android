@@ -106,9 +106,22 @@
     <string name="frag_intro_start_btn">Start Now</string>
 
     <!-- Fragment USB Instruction -->
-    <string name="frag_usb_instruction_0">Turn on developer options</string>
-    <string name="frag_usb_instruction_1">Find and turn on USB debugging</string>
-    <string name="frag_usb_instruction_2">Make sure you did correctly. Go on, we will open the settings tab for you</string>
+    <string name="frag_usb_instruction_0_title">Enable Developer options screen</string>
+    <string name="frag_usb_instruction_0_desc">
+        On Android 4.1 and lower the Developer options screen is available by default,
+        otherwise you must enable this screen as follows:\n\n
+
+        0. After this tutorial, we will open the About Phone setting screen automatically\n\n
+        1. Scroll to the bottom and tap Build number 7 times\n\n
+        2. Return to the previous screen\n\n
+        3. (Only on Android 8.0 or higher) Scroll to the bottom and select System\n\n
+        4. Scroll to the bottom and select Developer options\n\n
+
+        If you are already enabled the Developer options, you can start at step 3.
+    </string>
+    <string name="frag_usb_instruction_1">Turn on Developer options</string>
+    <string name="frag_usb_instruction_2">Turn on USB debugging</string>
+    <string name="frag_usb_instruction_3">Make sure you did correctly</string>
 
     <!-- Snack Bar -->
     <string name="snack_connecting_msg">Connecting…</string>

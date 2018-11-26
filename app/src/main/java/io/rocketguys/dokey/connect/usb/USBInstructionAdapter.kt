@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter
 class USBInstructionAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
 
     companion object {
-        const val ITEMS_NUM = 3
+        const val ITEMS_NUM = 4
     }
 
     override fun getItem(position: Int): Fragment = USBInstructionFragment.newInstance(position)

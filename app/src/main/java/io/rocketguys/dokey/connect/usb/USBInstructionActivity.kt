@@ -1,6 +1,7 @@
 package io.rocketguys.dokey.connect.usb
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.view.ViewPager
@@ -66,8 +67,18 @@ class USBInstructionActivity : AppCompatActivity() {
     }
 
     private fun onIntroCompleted(){
-        startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-        finish()
+        val isDevOpsEnabled = if (Build.VERSION.SDK_INT >= 17)
+            Settings.Global.getInt(contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1
+        else
+            Settings.Secure.getInt(contentResolver, Settings.Secure.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1
+
+        if (isDevOpsEnabled){
+            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+            finish()
+        }else{
+            startActivity(Intent(Settings.ACTION_DEVICE_INFO_SETTINGS))
+            finish()
+        }
     }
 
     fun ImageButton.reveal(){
