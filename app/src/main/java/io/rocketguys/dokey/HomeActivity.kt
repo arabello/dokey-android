@@ -451,8 +451,14 @@ class HomeActivity : ConnectedActivity(){
 
             // Disconnect from activity, user want to change desktop. Clear cache
             disconnectFromActivity -> {
-                ScanActivity.cache(this).clear()
-                startActivity(Intent(this, ConnectActivity::class.java))
+
+                val intent = Intent(this, ConnectActivity::class.java)
+                when(ConnectActivity.LAST_CONNECTION_TYPE){
+                    ConnectActivity.QR_CODE -> ScanActivity.cache(this).clear()
+                    ConnectActivity.USB -> intent.putExtra(ConnectActivity.EXTRA_DISABLE_USB_DAEMON, true)
+                }
+
+                startActivity(intent)
                 finish()
             }
 

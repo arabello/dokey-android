@@ -20,7 +20,6 @@ import io.rocketguys.dokey.network.activity.ConnectionBuilderActivity
 import io.rocketguys.dokey.network.usb.USBDetectionDaemon
 import kotlinx.android.synthetic.main.activity_connect.*
 import net.model.DeviceInfo
-import kotlin.math.E
 import kotlin.properties.Delegates
 
 
@@ -30,20 +29,33 @@ class ConnectActivity : ConnectionBuilderActivity() {
         private val TAG: String = ConnectActivity::class.java.simpleName
         const val EXTRA_FORCE_SCAN = "extra_force_scan"
         const val EXTRA_FIRST_LAUNCH = "first_launch"
+        const val EXTRA_DISABLE_USB_DAEMON = "diable_usb_daemon"
 
-        @IntDef(CLOSED, ERROR, CONNECTING, ESTABLISHED_USB, ESTABLISHED_QR)
+        @IntDef(CLOSED, ERROR, CONNECTING_USB, CONNECTING_CACHE_QR, CONNECTING_QR, ESTABLISHED_USB, ESTABLISHED_QR)
         @Retention(AnnotationRetention.SOURCE)
         private annotation class ConnectivityStatus
 
         const val CLOSED = -2
         const val ERROR = -1
-        const val CONNECTING = 0
-        const val ESTABLISHED_USB = 1
-        const val ESTABLISHED_QR = 2
+        const val CONNECTING_USB = 0
+        const val CONNECTING_CACHE_QR = 1
+        const val CONNECTING_QR = 2
+        const val ESTABLISHED_USB = 3
+        const val ESTABLISHED_QR = 4
+
+        @IntDef(QR_CODE, USB)
+        @Retention(AnnotationRetention.SOURCE)
+        private annotation class ConnectionType
+
+        const val QR_CODE = 10
+        const val USB = 11
+
+        @ConnectionType var LAST_CONNECTION_TYPE: Int ?= null
     }
 
+    private var disableDaemon = false
     private var usbDetectionDaemon: USBDetectionDaemon ?= null
-    private var qrPayload: String? = null
+    private var scannedQRPayload: String ?= null
 
     private var isAdbEnabled by Delegates.observable<Boolean>(false) { _, _, newValue ->
         if (newValue){
@@ -61,7 +73,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         connectActions.visibility = if (newValue) View.VISIBLE else View.INVISIBLE
     }
 
-    private var connectivityStatus by Delegates.observable<Int>(CONNECTING){_, _, newValue ->
+    private var connectivityStatus by Delegates.observable<@io.rocketguys.dokey.connect.ConnectActivity.Companion.ConnectivityStatus Int>(CONNECTING_USB){_, _, newValue ->
         when(newValue){
             CLOSED -> {
                 connectProgressBar.indicator.color = Color.RED
@@ -73,11 +85,19 @@ class ConnectActivity : ConnectionBuilderActivity() {
                 connectivityInfo.text = getString(R.string.acty_connect_error)
                 showConnectActions = true
             }
-            else -> {
+            ESTABLISHED_QR -> {
                 connectProgressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
                 connectivityInfo.text = getString(R.string.acty_connect_msg)
                 showConnectActions = false
+                LAST_CONNECTION_TYPE = QR_CODE
             }
+            ESTABLISHED_USB -> {
+                connectProgressBar.indicator.color = ContextCompat.getColor(this, R.color.colorAccent)
+                connectivityInfo.text = getString(R.string.acty_connect_msg)
+                showConnectActions = false
+                LAST_CONNECTION_TYPE = USB
+            }
+
         }
     }
 
@@ -98,21 +118,20 @@ class ConnectActivity : ConnectionBuilderActivity() {
             startActivity(Intent(this, USBInstructionActivity::class.java))
         }
 
+        disableDaemon = intent.getBooleanExtra(EXTRA_DISABLE_USB_DAEMON, false)
         val forceScan = intent.getBooleanExtra(EXTRA_FORCE_SCAN, false)
         val firstLaunch = intent.getBooleanExtra(EXTRA_FIRST_LAUNCH, false)
 
         if (forceScan)
             startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
         else if (firstLaunch){
-            connectivityStatus = CONNECTING
             connectivityInfo.text = getString(R.string.acty_connect_msg)
             deviceInfo.text = getString(R.string.acty_connect_first_launch)
         }else{
             // Try to connect using payload cache
-            qrPayload = ScanActivity.cache(this).qrCode
 
-            if (qrPayload != null) {
-                connectivityStatus = CONNECTING
+            if (ScanActivity.cache(this).qrCode != null) {
+                connectivityStatus = CONNECTING_CACHE_QR
                 connectivityInfo.text = getString(R.string.acty_connect_msg)
                 val info = ScanActivity.cache(this).deviceInfo
                 if (info != null)
@@ -165,7 +184,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
                 }
                 dialog.show()
             }else{
-                qrPayload = result.contents
+                scannedQRPayload = result.contents
             }
         }
     }
@@ -183,38 +202,51 @@ class ConnectActivity : ConnectionBuilderActivity() {
         else
             Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
 
-        if (qrPayload != null) { // Wifi mode
-
-            connectivityStatus = CONNECTING
-            connectivityInfo.text = getString(R.string.acty_connect_msg)
-            networkManagerService?.beginConnection(qrPayload!!)
-            Log.d(TAG, ":onServiceConnected: QR Code: Begin connection")
-
-        }else if (isAdbEnabled) {  // USB Mode
-
+        // USB Mode
+        if (isAdbEnabled && !disableDaemon) {
             usbDetectionDaemon =  USBDetectionDaemon()
 
             usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
-                connectivityStatus = CONNECTING
+                connectivityStatus = CONNECTING_USB
                 connectivityInfo.text = getString(R.string.acty_connect_msg)
                 networkManagerService?.beginConnection(usbPayload)
                 Log.d(TAG, ":onServiceConnected: USB: Begin connection")
             }
             usbDetectionDaemon?.start()
+            return
+        }
 
+        // Try QR Code cache
+        if (ScanActivity.cache(this).qrCode != null) {
+            connectivityStatus = CONNECTING_CACHE_QR
+            connectivityInfo.text = getString(R.string.acty_connect_msg)
+            networkManagerService?.beginConnection(ScanActivity.cache(this).qrCode!!)
+            Log.d(TAG, ":onServiceConnected: [CACHE] QR Code: Begin connection")
+            return
+        }
+
+        // Use scanned QR Payload
+        if (scannedQRPayload != null) { // Wifi mode
+            connectivityStatus = CONNECTING_QR
+            connectivityInfo.text = getString(R.string.acty_connect_msg)
+            networkManagerService?.beginConnection(scannedQRPayload!!)
+            Log.d(TAG, ":onServiceConnected: QR Code: Begin connection")
         }
     }
 
     // Start HomeActivity, connection is stable
     override fun onConnectionEstablished(serverInfo: DeviceInfo) {
         Log.d(TAG, "Connection established to $serverInfo")
-        connectivityStatus = ESTABLISHED_USB
         deviceInfo.text = getString(R.string.acty_connect_device_info, serverInfo.name, serverInfo.os)
 
-        // Update cache
-        if (qrPayload != null) {
-            ScanActivity.cache(this).qrCode = qrPayload
-            ScanActivity.cache(this).deviceInfo = serverInfo
+        when(connectivityStatus){
+            CONNECTING_USB -> connectivityStatus = ESTABLISHED_USB
+            CONNECTING_CACHE_QR -> connectivityStatus = ESTABLISHED_QR
+            CONNECTING_QR -> {
+                ScanActivity.cache(this).qrCode = scannedQRPayload
+                ScanActivity.cache(this).deviceInfo = serverInfo
+                connectivityStatus = ESTABLISHED_QR
+            }
         }
 
         startHomeActivity()
