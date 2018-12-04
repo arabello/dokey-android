@@ -71,6 +71,7 @@ class NetworkManagerService : Service() {
     private var networkThread : NetworkThread? = null
     private var connectionBuilderThread : Thread? = null
 
+    var isConnecting = false
     var isConnected = false
     var isReconnecting = false
 
@@ -152,9 +153,19 @@ class NetworkManagerService : Service() {
     /**
      * Begin the connection procedure with a dokey server from the given QR code payload.
      */
-    fun beginConnection(payload : String) {
+    fun beginConnection(payload : String) : Boolean {
+        synchronized(this@NetworkManagerService) {
+            if (isConnecting) {
+                return false
+            }
+        }
+
         // If the connection as not already been started
         if (connectionBuilderThread == null && !isConnected) {
+            synchronized(this@NetworkManagerService) {
+                isConnecting = true
+            }
+
             connectionBuilderThread = Thread {
                 // Parse the payload to detect the correct ip address and key
                 val networkPayloadResolver = NetworkPayloadResolver()
@@ -178,15 +189,29 @@ class NetworkManagerService : Service() {
                 connectionBuilderThread = null
             }
             connectionBuilderThread?.start()
+
+            return true
         }
+
+        return false
     }
 
     /**
      * Begin the connection procedure with a dokey server from the given USB payload.
      */
-    fun beginConnection(payload : USBConnectionPayload) {
+    fun beginConnection(payload : USBConnectionPayload) : Boolean {
+        synchronized(this@NetworkManagerService) {
+            if (isConnecting) {
+                return false
+            }
+        }
+
         // If the connection as not already been started
         if (connectionBuilderThread == null && !isConnected) {
+            synchronized(this@NetworkManagerService) {
+                isConnecting = true
+            }
+
             connectionBuilderThread = Thread {
                 // Check the payload address to create the socket
                 val socket = scanPort(payload.serverAddress, payload.serverPort)
@@ -202,7 +227,11 @@ class NetworkManagerService : Service() {
                 connectionBuilderThread = null
             }
             connectionBuilderThread?.start()
+
+            return true
         }
+
+        return false
     }
 
     /**
@@ -221,6 +250,7 @@ class NetworkManagerService : Service() {
                 synchronized(this@NetworkManagerService) {
                     isReconnecting = false
                     isConnected = true
+                    isConnecting = false
                 }
 
                 serverInfo = deviceInfo
@@ -249,6 +279,7 @@ class NetworkManagerService : Service() {
                 if (!forceDisconnection) {
                     synchronized(this@NetworkManagerService) {
                         isReconnecting = true
+                        isConnecting = false
                     }
 
                     broadcastManager?.sendBroadcast(NetworkEvent.CONNECTION_INTERRUPTED_EVENT)
