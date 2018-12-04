@@ -27,9 +27,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     companion object {
         private val TAG: String = ConnectActivity::class.java.simpleName
+        private val DISABLE_USB_DAEMON_FOR_DEBUG = true // Set TRUE for debug purpose ONLY. TODO Set FALSE in production
         const val EXTRA_FORCE_SCAN = "extra_force_scan"
         const val EXTRA_FIRST_LAUNCH = "first_launch"
-        const val EXTRA_DISABLE_USB_DAEMON = "diable_usb_daemon"
+        const val EXTRA_DISABLE_USB_DAEMON = "disable_usb_daemon"
 
         @IntDef(CLOSED, ERROR, CONNECTING_USB, CONNECTING_CACHE_QR, CONNECTING_QR, ESTABLISHED_USB, ESTABLISHED_QR)
         @Retention(AnnotationRetention.SOURCE)
@@ -203,7 +204,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
             Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
 
         // USB Mode
-        if (isAdbEnabled && !disableDaemon) {
+        if (isAdbEnabled && !disableDaemon && !DISABLE_USB_DAEMON_FOR_DEBUG) {
             usbDetectionDaemon =  USBDetectionDaemon()
 
             usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
