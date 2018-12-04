@@ -453,11 +453,8 @@ class HomeActivity : ConnectedActivity(){
             disconnectFromActivity -> {
 
                 val intent = Intent(this, ConnectActivity::class.java)
-                when(ConnectActivity.LAST_CONNECTION_TYPE){
-                    ConnectActivity.QR_CODE -> ScanActivity.cache(this).clear()
-                    ConnectActivity.USB -> intent.putExtra(ConnectActivity.EXTRA_DISABLE_USB_DAEMON, true)
-                }
-
+                intent.putExtra(ConnectActivity.EXTRA_DISABLE_USB_DAEMON, true)
+                ScanActivity.cache(this).clear()
                 startActivity(intent)
                 finish()
             }
