@@ -27,7 +27,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     companion object {
         private val TAG: String = ConnectActivity::class.java.simpleName
-        private val DISABLE_USB_DAEMON_FOR_DEBUG = true // Set TRUE for debug purpose ONLY. TODO Set FALSE in production
+        private val DISABLE_USB_DAEMON_FOR_DEBUG = false // Set TRUE for debug purpose ONLY. TODO Set FALSE in production
         const val EXTRA_FORCE_SCAN = "extra_force_scan"
         const val EXTRA_FIRST_LAUNCH = "first_launch"
         const val EXTRA_DISABLE_USB_DAEMON = "disable_usb_daemon"
