@@ -1,8 +1,11 @@
 package io.rocketguys.dokey.connect
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
+import android.hardware.usb.UsbManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
@@ -27,10 +30,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
 
     companion object {
         private val TAG: String = ConnectActivity::class.java.simpleName
-        private val DISABLE_USB_DAEMON_FOR_DEBUG = true // Set TRUE for debug purpose ONLY. TODO Set FALSE in production
+        private val DISABLE_USB_DAEMON_FOR_DEBUG = false // Set TRUE for debug purpose ONLY. Set FALSE in production
         const val EXTRA_FORCE_SCAN = "extra_force_scan"
         const val EXTRA_FIRST_LAUNCH = "first_launch"
         const val EXTRA_DISABLE_USB_DAEMON = "disable_usb_daemon"
+        const val USB_STATE_CHANGE_ACTION = "android.hardware.usb.action.USB_STATE"
 
         @IntDef(CLOSED, ERROR, CONNECTING_USB, CONNECTING_CACHE_QR, CONNECTING_QR, ESTABLISHED_USB, ESTABLISHED_QR)
         @Retention(AnnotationRetention.SOURCE)
@@ -106,6 +110,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
 
+        isAdbEnabled = if (Build.VERSION.SDK_INT >= 17)
+            Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
+        else
+            Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
+
         // Start the service
         startNetworkService()
 
@@ -123,23 +132,25 @@ class ConnectActivity : ConnectionBuilderActivity() {
         val forceScan = intent.getBooleanExtra(EXTRA_FORCE_SCAN, false)
         val firstLaunch = intent.getBooleanExtra(EXTRA_FIRST_LAUNCH, false)
 
-        if (forceScan)
-            startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
-        else if (firstLaunch){
-            connectivityInfo.text = getString(R.string.acty_connect_msg)
-            deviceInfo.text = getString(R.string.acty_connect_first_launch)
-        }else{
-            // Try to connect using payload cache
-
-            if (ScanActivity.cache(this).qrCode != null) {
-                connectivityStatus = CONNECTING_CACHE_QR
+        when {
+            forceScan -> startActivityForResult(Intent(this, ScanActivity::class.java), ScanActivity.REQUEST_CODE)
+            firstLaunch -> {
                 connectivityInfo.text = getString(R.string.acty_connect_msg)
-                val info = ScanActivity.cache(this).deviceInfo
-                if (info != null)
-                    deviceInfo.text = getString(R.string.acty_connect_device_info, info.name, info.os)
-            }else{
-                connectivityStatus = ERROR
-                deviceInfo.setText(R.string.acty_connect_no_device_found)
+                deviceInfo.text = getString(R.string.acty_connect_first_launch)
+            }
+            else -> {
+                // Try to connect using payload cache
+
+                if (ScanActivity.cache(this).qrCode != null) {
+                    connectivityStatus = CONNECTING_CACHE_QR
+                    connectivityInfo.text = getString(R.string.acty_connect_msg)
+                    val info = ScanActivity.cache(this).deviceInfo
+                    if (info != null)
+                        deviceInfo.text = getString(R.string.acty_connect_device_info, info.name, info.os)
+                }else{
+                    connectivityStatus = ERROR
+                    deviceInfo.setText(R.string.acty_connect_no_device_found)
+                }
             }
         }
     }
@@ -190,6 +201,19 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
     }
 
+    private fun startUSBDaemon(){
+        usbDetectionDaemon =  USBDetectionDaemon()
+
+        usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
+            connectivityStatus = CONNECTING_USB
+            connectivityInfo.text = getString(R.string.acty_connect_msg)
+            networkManagerService?.beginConnection(usbPayload)
+            Log.d(TAG, ":onServiceConnected: USB: Begin connection")
+        }
+
+        usbDetectionDaemon?.start()
+    }
+
     override fun onServiceConnected() {
         // If the service is already connected to the dokey server, go to the home
         // activity instantly
@@ -203,18 +227,11 @@ class ConnectActivity : ConnectionBuilderActivity() {
         else
             Settings.Secure.getInt(contentResolver, Settings.Secure.ADB_ENABLED, 0) == 1
 
+        Log.d(TAG, ":onServiceConnected\n isAdbEnabled? $isAdbEnabled\n disableDaemon? $disableDaemon\n DISABLE_USB_DAEMON_FOR_DEBUG? $DISABLE_USB_DAEMON_FOR_DEBUG")
+
         // USB Mode
         if (isAdbEnabled && !disableDaemon && !DISABLE_USB_DAEMON_FOR_DEBUG) {
-            usbDetectionDaemon =  USBDetectionDaemon()
-
-            usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
-                connectivityStatus = CONNECTING_USB
-                connectivityInfo.text = getString(R.string.acty_connect_msg)
-                networkManagerService?.beginConnection(usbPayload)
-                Log.d(TAG, ":onServiceConnected: USB: Begin connection")
-            }
-            usbDetectionDaemon?.start()
-            return
+            startUSBDaemon()
         }
 
         // Try QR Code cache
@@ -223,7 +240,6 @@ class ConnectActivity : ConnectionBuilderActivity() {
             connectivityInfo.text = getString(R.string.acty_connect_msg)
             networkManagerService?.beginConnection(ScanActivity.cache(this).qrCode!!)
             Log.d(TAG, ":onServiceConnected: [CACHE] QR Code: Begin connection")
-            return
         }
 
         // Use scanned QR Payload
