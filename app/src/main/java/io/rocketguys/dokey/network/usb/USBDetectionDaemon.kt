@@ -1,5 +1,6 @@
 package io.rocketguys.dokey.network.usb
 
+import android.os.Handler
 import json.JSONObject
 import net.model.DeviceInfo
 import java.io.DataInputStream
@@ -18,6 +19,8 @@ const val USB_DISCOVERY_CHECK_INTERVAL = 500L // How often to check for a USB co
 class USBDetectionDaemon() : Thread() {
     // Called when a USB connection has been detected.
     var onUSBConnectionDetected : ((USBConnectionPayload) -> Unit)? = null
+
+    private val handler : Handler = Handler()  // Used in the runOnUiThread method
 
     @Volatile private var shouldStop = false
 
@@ -50,7 +53,10 @@ class USBDetectionDaemon() : Thread() {
                 val usbPayload = USBConnectionPayload(localhost.hostAddress, serverPort, key, deviceInfo)
 
                 // Notify the listener
-                onUSBConnectionDetected?.invoke(usbPayload)
+                // NOTE: run it on the UI thread
+                handler.post {
+                    onUSBConnectionDetected?.invoke(usbPayload)
+                }
 
                 // Exit the loop
                 break
