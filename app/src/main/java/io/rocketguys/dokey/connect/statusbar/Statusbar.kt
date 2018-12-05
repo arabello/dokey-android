@@ -4,17 +4,15 @@ import android.support.annotation.IntDef
 import android.support.annotation.IntRange
 import android.support.annotation.StringRes
 import android.support.design.widget.BaseTransientBottomBar
+import android.support.design.widget.CoordinatorLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.TextView
 import io.rocketguys.dokey.R
 import kotlin.properties.Delegates
-import android.widget.FrameLayout
-import android.support.design.widget.CoordinatorLayout
-
-
 
 
 /**
