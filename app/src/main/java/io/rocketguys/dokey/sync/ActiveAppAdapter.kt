@@ -1,6 +1,5 @@
 package io.rocketguys.dokey.sync
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,6 @@ import com.squareup.picasso.Picasso
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.NetworkManagerService
-import io.rocketguys.dokey.network.isAppOpen
 import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.preferences.ContextualVibrator
 import kotlinx.android.synthetic.main.activity_home.*

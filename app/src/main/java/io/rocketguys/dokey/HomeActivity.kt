@@ -15,7 +15,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.rocketguys.dokey.connect.ConnectActivity
 import io.rocketguys.dokey.connect.ScanActivity

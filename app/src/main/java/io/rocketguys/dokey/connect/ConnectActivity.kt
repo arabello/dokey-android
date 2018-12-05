@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
-import android.hardware.usb.UsbManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
@@ -106,6 +105,25 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
     }
 
+    private val usbBroadcastReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent) {
+
+            if(intent.action.equals(USB_STATE_CHANGE_ACTION, ignoreCase = true)) { // Check if change in USB state
+
+                if(intent.extras!!.getBoolean("connected")) {
+                    // USB was connected
+                    Log.d(TAG, ":usbBroadcastReceiver :onReceive USB connected")
+                    startUSBDaemonWithCondition()
+                } else {
+                    // USB was disconnected
+                    Log.d(TAG, ":usbBroadcastReceiver :onReceive USB dis-connected")
+                    disableDaemon = false // The previous connection is no more valid
+                }
+            }
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
@@ -147,14 +165,17 @@ class ConnectActivity : ConnectionBuilderActivity() {
                     val info = ScanActivity.cache(this).deviceInfo
                     if (info != null)
                         deviceInfo.text = getString(R.string.acty_connect_device_info, info.name, info.os)
-                }else{
+                } else {
                     connectivityStatus = ERROR
                     deviceInfo.setText(R.string.acty_connect_no_device_found)
                 }
             }
         }
-    }
 
+        registerReceiver(usbBroadcastReceiver, IntentFilter().apply {
+            addAction(USB_STATE_CHANGE_ACTION)
+        })
+    }
 
     override fun onStart() {
         super.onStart()
@@ -174,6 +195,10 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
 
         usbDetectionDaemon?.stopDiscovery()
+
+        try{
+            unregisterReceiver(usbBroadcastReceiver)
+        }catch (ignored: IllegalArgumentException){} // usbBroadcastReceiver is not registered
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -201,17 +226,20 @@ class ConnectActivity : ConnectionBuilderActivity() {
         }
     }
 
-    private fun startUSBDaemon(){
-        usbDetectionDaemon =  USBDetectionDaemon()
+    private fun startUSBDaemonWithCondition(){
+        if (isAdbEnabled && !disableDaemon && !DISABLE_USB_DAEMON_FOR_DEBUG) {
+            usbDetectionDaemon?.stopDiscovery()
+            usbDetectionDaemon =  USBDetectionDaemon()
 
-        usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
-            connectivityStatus = CONNECTING_USB
-            connectivityInfo.text = getString(R.string.acty_connect_msg)
-            networkManagerService?.beginConnection(usbPayload)
-            Log.d(TAG, ":onServiceConnected: USB: Begin connection")
+            usbDetectionDaemon?.onUSBConnectionDetected = { usbPayload ->
+                connectivityStatus = CONNECTING_USB
+                connectivityInfo.text = getString(R.string.acty_connect_msg)
+                networkManagerService?.beginConnection(usbPayload)
+                Log.d(TAG, ":onServiceConnected: USB: Begin connection")
+            }
+
+            usbDetectionDaemon?.start()
         }
-
-        usbDetectionDaemon?.start()
     }
 
     override fun onServiceConnected() {
@@ -230,9 +258,7 @@ class ConnectActivity : ConnectionBuilderActivity() {
         Log.d(TAG, ":onServiceConnected\n isAdbEnabled? $isAdbEnabled\n disableDaemon? $disableDaemon\n DISABLE_USB_DAEMON_FOR_DEBUG? $DISABLE_USB_DAEMON_FOR_DEBUG")
 
         // USB Mode
-        if (isAdbEnabled && !disableDaemon && !DISABLE_USB_DAEMON_FOR_DEBUG) {
-            startUSBDaemon()
-        }
+        startUSBDaemonWithCondition()
 
         // Try QR Code cache
         if (ScanActivity.cache(this).qrCode != null) {

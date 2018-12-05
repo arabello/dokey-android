@@ -5,7 +5,6 @@ import io.matteopellegrino.pagedgrid.adapter.GridAdapter
 import io.matteopellegrino.pagedgrid.grid.EmptyGrid
 import io.rocketguys.dokey.HomeActivity
 import io.rocketguys.dokey.network.NetworkManagerService
-import io.rocketguys.dokey.network.activity.ConnectedActivity
 import model.section.Section
 
 /**
