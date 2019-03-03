@@ -30,17 +30,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".intro.IntroActivity"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".connect.ConnectActivity"
             android:launchMode="singleTask" />
         <activity
             android:name=".connect.ScanActivity"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTask"
@@ -61,7 +59,7 @@
         </activity>
         <activity
             android:name=".connect.usb.USBInstructionActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

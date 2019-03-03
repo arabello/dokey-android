@@ -38,12 +38,6 @@ dependencies {
 
     implementation 'com.github.arabello:PagedGrid:0.0.7'
 
-    // Slider
-    implementation 'com.sdsmdg.harjot:croller:1.0.7'
-
-    // Blur effect
-    implementation 'jp.wasabeef:blurry:2.1.1'
-
     // QR code
     implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.3'

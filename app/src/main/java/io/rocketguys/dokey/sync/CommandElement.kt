@@ -3,7 +3,6 @@ package io.rocketguys.dokey.sync
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GestureDetectorCompat
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
@@ -13,12 +12,11 @@ import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.isAppOpen
 import io.rocketguys.dokey.preferences.ContextualVibrator
-import io.rocketguys.dokey.slider.SliderGesture
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_command.view.*
 import model.component.Component
 import android.util.DisplayMetrics
-import android.widget.Toast
+import io.rocketguys.dokey.slider.SliderDialogFragment
 import io.rocketguys.dokey.slider.VerticalSliderGesture
 
 
@@ -46,6 +44,9 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                 // TEST START //
                 //TODO if (it is a slider) setOnClickListener
                 view.setOnLongClickListener {
+
+                    val slider = SliderDialogFragment.newInstance("Slider")
+                    slider.show(activity.supportFragmentManager, "slider")
 
                     val toast = Snackbar.make(activity.rootView, "value ", Snackbar.LENGTH_INDEFINITE)
                     toast.show()
