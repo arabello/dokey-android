@@ -1,6 +1,7 @@
 package io.rocketguys.dokey.network.cache
 
 import android.content.Context
+import json.JSONException
 import json.JSONObject
 import json.JSONTokener
 import model.command.Command
@@ -39,12 +40,16 @@ class CommandCache(context: Context, val commandParser: CommandParser, serverIde
     override fun loadItemFromCacheDir(id: Int): Command? {
         val commandFile = File(commandCacheDir, "$id.json")
         if (commandFile.isFile) {
-            val fis = FileInputStream(commandFile)
-            val tokener = JSONTokener(fis)
-            val jsonContent = JSONObject(tokener)
-            val command = commandParser.fromJSON(jsonContent)
-            fis.close()
-            return command
+            try {
+                val fis = FileInputStream(commandFile)
+                val tokener = JSONTokener(fis)
+                val jsonContent = JSONObject(tokener)
+                val command = commandParser.fromJSON(jsonContent)
+                fis.close()
+                return command
+            }catch (e: JSONException) {  // Invalid cache, remove file
+                commandFile.delete()
+            }
         }
 
         // Command not found in cache
