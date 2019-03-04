@@ -1,6 +1,8 @@
 package io.rocketguys.dokey.slider
 
 import io.rocketguys.dokey.network.NetworkManagerService
+import io.rocketguys.dokey.slider.entities.Domain
+import io.rocketguys.dokey.slider.entities.SliderEntity
 
 interface SliderOutputBoundary{
     fun onValueChange(outputData: Data)

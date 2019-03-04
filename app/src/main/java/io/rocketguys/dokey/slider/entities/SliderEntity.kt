@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.slider
+package io.rocketguys.dokey.slider.entities
 
 data class SliderEntity(val value: Float, val domain: Domain){
     init {

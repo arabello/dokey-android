@@ -3,16 +3,13 @@ package io.rocketguys.dokey.slider
 import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.app.AlertDialog
-import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
 import io.rocketguys.dokey.R
-import kotlinx.android.synthetic.main.activity_home.*
 
 
-class VerticalSliderDialogFragment : DialogFragment() {
+class VerticalSliderDialogFragment : DialogFragment(), SliderView {
 
     companion object {
         const val GRAVITY_END = Gravity.END
@@ -53,5 +50,10 @@ class VerticalSliderDialogFragment : DialogFragment() {
 
             dialog
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+
+    override fun onDataChange(viewModel: SliderViewModel) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

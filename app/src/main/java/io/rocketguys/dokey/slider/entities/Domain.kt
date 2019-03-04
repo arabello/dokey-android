@@ -1,4 +1,4 @@
-package io.rocketguys.dokey.slider
+package io.rocketguys.dokey.slider.entities
 
 data class Domain(val lowerBound: Float, val upperBound: Float){
     init {
