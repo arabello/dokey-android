@@ -1,7 +1,5 @@
 package io.rocketguys.dokey.sync
 
-import android.support.design.widget.Snackbar
-import android.support.v4.view.GestureDetectorCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +14,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_command.view.*
 import model.component.Component
 import android.util.DisplayMetrics
-import io.rocketguys.dokey.slider.SliderDialogFragment
+import io.rocketguys.dokey.slider.VerticalSliderDialogFragment
 import io.rocketguys.dokey.slider.VerticalSliderGesture
 
 
@@ -42,25 +40,12 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                 view.cmdTxt.text = cmd.title
 
                 // TEST START //
-                //TODO if (it is a slider) setOnClickListener
+                //TODO if (it is a slider_vertical) setOnClickListener
                 view.setOnLongClickListener {
 
-                    val slider = SliderDialogFragment.newInstance("Slider")
-                    slider.show(activity.supportFragmentManager, "slider")
+                    val slider = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
+                    slider.show(activity.supportFragmentManager, "slider_vertical")
 
-                    val toast = Snackbar.make(activity.rootView, "value ", Snackbar.LENGTH_INDEFINITE)
-                    toast.show()
-
-                    val gesture = VerticalSliderGesture(0.0f, -50..50, gestureDomainSize){ old, new ->
-                        toast.setText("value $new")
-                    }
-
-                    gesture.sensibility = 1.5f
-                    val detector = GestureDetectorCompat(activity, gesture)
-                    view.setOnTouchListener{ v, event ->
-                        detector.onTouchEvent(event)
-                        v.onTouchEvent(event)
-                    }
                     true
                 }
                 // TEST END //

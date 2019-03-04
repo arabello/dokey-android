@@ -1,0 +1,31 @@
+package io.rocketguys.dokey.slider
+
+import io.rocketguys.dokey.network.NetworkManagerService
+
+interface SliderOutputBoundary{
+    fun onValueChange(outputData: Data)
+}
+
+data class Data(val value: Float, val minValue: Float, val maxValue: Float)
+
+interface SliderInputBoundary{
+    fun requestSlider(id: Int)
+    fun projectFrom(value: Float, minValue: Float, maxValue: Float)
+}
+
+class SliderInteractor(val networkManagerService: NetworkManagerService, val output: SliderOutputBoundary) : SliderInputBoundary{
+    private lateinit var slider: SliderEntity
+
+    override fun requestSlider(id: Int) {
+        slider = SliderEntity(0f, Domain(-50f, 50f))
+        TODO("Network call to init slider data")
+    }
+
+    override fun projectFrom(newValue: Float, minValue: Float, maxValue: Float) {
+        val value = (newValue * slider.domain.size) / (maxValue - minValue)
+        slider = SliderEntity.forceCreate(value, slider.domain)
+        val data = Data(slider.value, slider.domain.lowerBound, slider.domain.upperBound)
+        output.onValueChange(data)
+        TODO("Network call to send changes")
+    }
+}
