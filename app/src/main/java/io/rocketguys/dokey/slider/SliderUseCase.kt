@@ -20,7 +20,7 @@ class SliderUseCase(val networkManagerService: NetworkManagerService, val output
 
     override fun requestSlider(id: Int) {
         slider = SliderEntity(0f, Domain(-50f, 50f))
-        TODO("Network call to init slider data")
+        //TODO("Network call to init slider data")
     }
 
     override fun projectFrom(newValue: Float, minValue: Float, maxValue: Float) {
@@ -28,6 +28,6 @@ class SliderUseCase(val networkManagerService: NetworkManagerService, val output
         slider = SliderEntity.forceCreate(value, slider.domain)
         val data = Data(slider.value, slider.domain.lowerBound, slider.domain.upperBound)
         output.onValueChange(data)
-        TODO("Network call to send changes")
+        //TODO("Network call to send changes")
     }
 }
