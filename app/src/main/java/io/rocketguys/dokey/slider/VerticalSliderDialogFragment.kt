@@ -6,6 +6,8 @@ import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
 import android.view.Gravity
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.TableLayout
 import io.rocketguys.dokey.R
 
 
@@ -54,6 +56,12 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
 
 
     override fun onDataChange(viewModel: SliderViewModel) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view?.findViewById<ImageView>(R.id.slider_fill)?.let {
+            it.layoutParams = TableLayout.LayoutParams(it.layoutParams.width, it.layoutParams.height, viewModel.value)
+        }
+
+        view?.findViewById<ImageView>(R.id.slider_empty)?.let {
+            it.layoutParams = TableLayout.LayoutParams(it.layoutParams.width, it.layoutParams.height, 1f - viewModel.value)
+        }
     }
 }

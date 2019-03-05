@@ -8,6 +8,7 @@
     android:background="@color/colorPrimary">
 
     <ImageView
+        android:id="@+id/slider_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
@@ -20,6 +21,7 @@
         android:background="@color/colorPrimary" />
 
     <ImageView
+        android:id="@+id/slider_fill"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"

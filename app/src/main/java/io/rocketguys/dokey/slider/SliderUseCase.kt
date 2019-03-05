@@ -15,7 +15,7 @@ interface SliderInputBoundary{
     fun projectFrom(value: Float, minValue: Float, maxValue: Float)
 }
 
-class SliderInteractor(val networkManagerService: NetworkManagerService, val output: SliderOutputBoundary) : SliderInputBoundary{
+class SliderUseCase(val networkManagerService: NetworkManagerService, val output: SliderOutputBoundary) : SliderInputBoundary{
     private lateinit var slider: SliderEntity
 
     override fun requestSlider(id: Int) {

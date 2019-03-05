@@ -14,8 +14,8 @@ import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_command.view.*
 import model.component.Component
 import android.util.DisplayMetrics
-import io.rocketguys.dokey.slider.VerticalSliderDialogFragment
-import io.rocketguys.dokey.slider.VerticalSliderGesture
+import android.view.GestureDetector
+import io.rocketguys.dokey.slider.*
 
 
 /**
@@ -43,8 +43,15 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                 //TODO if (it is a slider_vertical) setOnClickListener
                 view.setOnLongClickListener {
 
-                    val slider = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
-                    slider.show(activity.supportFragmentManager, "slider_vertical")
+                    val sliderView = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
+                    val sliderPresenter = SliderPresenter(sliderView)
+                    val sliderInteractor = SliderUseCase(networkManagerService, sliderPresenter)
+                    val sliderController = SliderController(sliderInteractor, cmd.id!!, 0f, gestureDomainSize.toFloat())
+                    val sliderGesture = VerticalSliderGesture(sliderController)
+                    val gestureDetector = GestureDetector(activity, sliderGesture)
+
+                    view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+                    sliderView.show(activity.supportFragmentManager, "slider_vertical")
 
                     true
                 }
