@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -13,10 +12,10 @@ import android.widget.TableLayout
 import io.rocketguys.dokey.R
 
 
-
-
 class VerticalSliderDialogFragment : DialogFragment(), SliderView {
-    private var sliderParts: Pair<View, View> ?= null
+    private var empty: View ?= null
+    private var fill: View  ?= null
+    private var unrendered : SliderViewModel ?= null
 
     companion object {
         const val GRAVITY_END = Gravity.END
@@ -42,7 +41,10 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
             val builder = AlertDialog.Builder(acty, R.style.SliderDialog)
             val inflater = requireActivity().layoutInflater
             val inflated = inflater.inflate(R.layout.slider_vertical, null)
-            sliderParts = Pair(inflated.findViewById<ImageView>(R.id.slider_fill), inflated.findViewById<ImageView>(R.id.slider_empty))
+
+            fill = inflated.findViewById<ImageView>(R.id.slider_fill)
+            empty = inflated.findViewById<ImageView>(R.id.slider_empty)
+            unrendered?.let { onDataChange(it) }
 
             builder.setTitle(title)
             builder.setView(inflated)
@@ -63,13 +65,14 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
 
 
     override fun onDataChange(viewModel: SliderViewModel) {
-        Log.d("slider: ", "${viewModel.value}")
-
-        sliderParts?.first?.let {
+        if (fill != null) fill?.let{
+            unrendered = null
             it.layoutParams = TableLayout.LayoutParams(it.layoutParams.width, it.layoutParams.height, viewModel.value)
+        }else{
+            unrendered = viewModel
         }
 
-        sliderParts?.second?.let {
+        empty?.let {
             it.layoutParams = TableLayout.LayoutParams(it.layoutParams.width, it.layoutParams.height, 1f - viewModel.value)
         }
     }
