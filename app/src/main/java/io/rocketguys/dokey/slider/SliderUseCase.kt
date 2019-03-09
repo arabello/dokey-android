@@ -3,6 +3,7 @@ package io.rocketguys.dokey.slider
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.slider.entities.Domain
 import io.rocketguys.dokey.slider.entities.SliderEntity
+import model.command.AnalogCommand
 
 interface SliderOutputBoundary{
     fun onValueChange(outputData: Data)
@@ -11,17 +12,22 @@ interface SliderOutputBoundary{
 data class Data(val value: Float, val minValue: Float, val maxValue: Float)
 
 interface SliderInputBoundary{
-    fun requestSlider(id: Int)
+    fun requestSlider(command: AnalogCommand)
     fun projectFrom(value: Float, minValue: Float, maxValue: Float)
 }
 
 class SliderUseCase(val networkManagerService: NetworkManagerService, val output: SliderOutputBoundary) : SliderInputBoundary{
     private lateinit var slider: SliderEntity
+    private lateinit var analogCommand: AnalogCommand
 
-    override fun requestSlider(id: Int) {
-        slider = SliderEntity(0f, Domain(-50f, 50f))
-        //TODO("Network call to init slider data")
-        output.onValueChange(Data(slider.value, slider.domain.lowerBound, slider.domain.upperBound))
+    override fun requestSlider(command: AnalogCommand) {
+        command.min?.let { min ->
+            command.max?.let { max ->
+                analogCommand = command
+                slider = SliderEntity(100f, Domain( min, max)) // TODO (When ready use APi to initialize the correct value)
+                output.onValueChange(Data(slider.value, slider.domain.lowerBound, slider.domain.upperBound))
+            }
+        }
     }
 
     override fun projectFrom(value: Float, minValue: Float, maxValue: Float) {
@@ -29,6 +35,6 @@ class SliderUseCase(val networkManagerService: NetworkManagerService, val output
         slider = SliderEntity.forceCreate(newValue + slider.value, slider.domain)
         val data = Data(slider.value, slider.domain.lowerBound, slider.domain.upperBound)
         output.onValueChange(data)
-        //TODO("Network call to send changes")
+        networkManagerService.executeSliderUpdate(analogCommand, data.value)
     }
 }

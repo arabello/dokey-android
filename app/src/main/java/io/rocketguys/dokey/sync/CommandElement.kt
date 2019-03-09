@@ -16,6 +16,8 @@ import model.component.Component
 import android.util.DisplayMetrics
 import android.view.GestureDetector
 import io.rocketguys.dokey.slider.*
+import model.command.AnalogCommand
+import model.command.SimpleCommand
 
 
 /**
@@ -39,32 +41,39 @@ class CommandElement(val component: Component, val networkManagerService: Networ
             if (cmd != null) {
                 view.cmdTxt.text = cmd.title
 
-                // TEST START //
-                //TODO if (it is a slider_vertical) setOnClickListener
-                view.setOnLongClickListener {
+                when (cmd){
+                    /*
+                    *  Simple
+                    */
+                    is SimpleCommand -> {
+                        view.setOnClickListener {
+                            ContextualVibrator.from(activity).oneShotVibration(ContextualVibrator.SHORT)
+                            networkManagerService.executeCommand(cmd)
 
-                    val sliderView = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
-                    val sliderPresenter = SliderPresenter(sliderView)
-                    val sliderInteractor = SliderUseCase(networkManagerService, sliderPresenter)
-                    val sliderController = SliderController(sliderInteractor, cmd.id!!, 0f, gestureDomainSize.toFloat())
-                    val sliderGesture = VerticalSliderGesture(sliderController)
-                    val gestureDetector = GestureDetector(activity, sliderGesture)
+                            if (cmd.isAppOpen()
+                                    && activity.navigation.selectedItemId == R.id.navigation_launchpad
+                                    && activity.isPadlockOpen()) {
+                                activity.navigation.selectedItemId = R.id.navigation_shortcut
+                            }
+                        }
+                    }
 
-                    view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
-                    sliderView.show(activity.supportFragmentManager, "slider_vertical")
+                    /*
+                     *  Analog
+                     */
+                    is AnalogCommand -> {
+                        view.setOnLongClickListener {
+                            val sliderView = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
+                            val sliderPresenter = SliderPresenter(sliderView)
+                            val sliderInteractor = SliderUseCase(networkManagerService, sliderPresenter)
+                            val sliderController = SliderController(sliderInteractor, cmd, 0f, gestureDomainSize.toFloat())
+                            val sliderGesture = VerticalSliderGesture(sliderController)
+                            val gestureDetector = GestureDetector(activity, sliderGesture)
 
-                    true
-                }
-                // TEST END //
-
-                view.setOnClickListener {
-                    ContextualVibrator.from(activity).oneShotVibration(ContextualVibrator.SHORT)
-                    networkManagerService.executeCommand(cmd)
-
-                    if (cmd.isAppOpen()
-                            && activity.navigation.selectedItemId == R.id.navigation_launchpad
-                            && activity.isPadlockOpen()) {
-                        activity.navigation.selectedItemId = R.id.navigation_shortcut
+                            view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+                            sliderView.show(activity.supportFragmentManager, "slider_vertical")
+                            true
+                        }
                     }
                 }
             }
