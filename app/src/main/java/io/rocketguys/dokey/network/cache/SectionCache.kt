@@ -2,6 +2,7 @@ package io.rocketguys.dokey.network.cache
 
 import android.content.Context
 import io.rocketguys.dokey.network.util.NetworkUtils
+import json.JSONException
 import json.JSONObject
 import json.JSONTokener
 import model.parser.section.SectionParser
@@ -46,12 +47,16 @@ class SectionCache(context: Context, val sectionParser: SectionParser, serverIde
 
         val sectionFile = File(sectionCacheDir, "$sectionHash.json")
         if (sectionFile.isFile) {
-            val fis = FileInputStream(sectionFile)
-            val tokener = JSONTokener(fis)
-            val jsonContent = JSONObject(tokener)
-            val section = sectionParser.fromJSON(jsonContent)
-            fis.close()
-            return section
+            try {
+                val fis = FileInputStream(sectionFile)
+                val tokener = JSONTokener(fis)
+                val jsonContent = JSONObject(tokener)
+                val section = sectionParser.fromJSON(jsonContent)
+                fis.close()
+                return section
+            }catch (e: JSONException) {  // Cache not valid, invalidate
+                sectionFile.delete()
+            }
         }
 
         // Section not found in cache

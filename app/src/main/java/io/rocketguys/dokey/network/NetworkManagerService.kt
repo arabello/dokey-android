@@ -21,6 +21,7 @@ import io.rocketguys.dokey.network.cache.SectionCache
 import io.rocketguys.dokey.network.model.App
 import io.rocketguys.dokey.network.usb.USBConnectionPayload
 import json.JSONObject
+import model.command.AnalogCommand
 import model.command.Command
 import model.parser.command.TypeCommandParser
 import model.parser.component.CachingComponentParser
@@ -634,6 +635,17 @@ class NetworkManagerService : Service() {
      */
     fun executeCommand(command: Command) {
         executorService.execute {
+            networkThread?.linkManager?.sendCommand(command, null)
+        }
+    }
+
+    /**
+     * Update the slider value for the given analog command
+     */
+    fun executeSliderUpdate(command: Command, value: Float) {
+        executorService.execute {
+            command as AnalogCommand
+            command.value = value
             networkThread?.linkManager?.sendCommand(command, null)
         }
     }
