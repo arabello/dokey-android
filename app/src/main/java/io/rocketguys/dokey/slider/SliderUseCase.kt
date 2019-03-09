@@ -19,7 +19,7 @@ interface SliderInputBoundary{
 class SliderUseCase(val networkManagerService: NetworkManagerService, val output: SliderOutputBoundary) : SliderInputBoundary{
     private lateinit var slider: SliderEntity
     private lateinit var analogCommand: AnalogCommand
-    private val interceptor = TimedInterceptor(200)
+    private val interceptor = TimedInterceptor(120)
 
     override fun requestSlider(command: AnalogCommand) {
         command.min?.let { min ->
