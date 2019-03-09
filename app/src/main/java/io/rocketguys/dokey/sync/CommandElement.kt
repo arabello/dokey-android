@@ -1,8 +1,8 @@
 package io.rocketguys.dokey.sync
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.*
 import com.squareup.picasso.Picasso
 import io.matteopellegrino.pagedgrid.element.AbstractElement
 import io.rocketguys.dokey.HomeActivity
@@ -10,14 +10,12 @@ import io.rocketguys.dokey.R
 import io.rocketguys.dokey.network.NetworkManagerService
 import io.rocketguys.dokey.network.isAppOpen
 import io.rocketguys.dokey.preferences.ContextualVibrator
+import io.rocketguys.dokey.slider.*
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.item_command.view.*
-import model.component.Component
-import android.util.DisplayMetrics
-import android.view.GestureDetector
-import io.rocketguys.dokey.slider.*
 import model.command.AnalogCommand
 import model.command.SimpleCommand
+import model.component.Component
 
 
 /**
@@ -26,7 +24,12 @@ import model.command.SimpleCommand
  * @author Matteo Pellegrino matteo.pelle.pellegrino@gmail.com
  */
 class CommandElement(val component: Component, val networkManagerService: NetworkManagerService?, val activity: HomeActivity) : AbstractElement() {
+    companion object {
+        const val ANALOG_UX_POLICY_SHORT = 0
+        const val ANALOG_UX_POLICY_LONG = 1
+    }
 
+    val analogUXPolicy = ANALOG_UX_POLICY_SHORT
 
     override fun inflateView(parent: ViewGroup): View {
         val view = LayoutInflater.from(activity).inflate(R.layout.item_command, parent, false)
@@ -62,18 +65,46 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                      *  Analog
                      */
                     is AnalogCommand -> {
-                        view.setOnLongClickListener {
-                            val sliderView = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
-                            val sliderPresenter = SliderPresenter(sliderView)
-                            val sliderInteractor = SliderUseCase(networkManagerService, sliderPresenter)
-                            val sliderController = SliderController(sliderInteractor, cmd, 0f, gestureDomainSize.toFloat())
-                            val sliderGesture = VerticalSliderGesture(sliderController)
-                            val gestureDetector = GestureDetector(activity, sliderGesture)
 
-                            view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
-                            sliderView.show(activity.supportFragmentManager, "slider_vertical")
-                            true
+                        val sliderView = VerticalSliderDialogFragment.newInstance("Slider", VerticalSliderDialogFragment.GRAVITY_END)
+                        val sliderPresenter = SliderPresenter(sliderView)
+                        val sliderInteractor = SliderUseCase(networkManagerService, sliderPresenter)
+                        val sliderController = SliderController(sliderInteractor, cmd, 0f, gestureDomainSize.toFloat())
+                        val sliderGesture = VerticalSliderGesture(sliderController)
+                        val sliderGestureDetector = GestureDetector(activity, sliderGesture)
+
+                        when(analogUXPolicy){
+                            ANALOG_UX_POLICY_SHORT -> view.setOnTouchListener { _, event ->
+                                when(event.actionMasked){
+                                    MotionEvent.ACTION_DOWN -> {
+                                        Log.d("slider: ", "show")
+                                        sliderView.show(activity.supportFragmentManager, "slider_vertical")
+                                        true
+                                    }
+
+                                    MotionEvent.ACTION_MOVE -> {
+                                        Log.d("slider: ", "update")
+                                        sliderGestureDetector.onTouchEvent(event)
+                                    }
+
+                                    MotionEvent.ACTION_UP -> {
+                                        Log.d("slider: ", "dismiss")
+                                        sliderView.dismiss()
+                                        true
+                                    }
+
+                                    else -> false
+                                }
+                            }
+
+                            ANALOG_UX_POLICY_LONG -> {
+
+                            }
+
+                            else -> {}
                         }
+
+
                     }
                 }
             }
