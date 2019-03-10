@@ -35,7 +35,7 @@ class CommandElement(val component: Component, val networkManagerService: Networ
         val view = LayoutInflater.from(activity).inflate(R.layout.item_command, parent, false)
         val displayMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val gestureDomainSize =  displayMetrics.heightPixels * 3 / 4
+        val gestureDomainSize =  displayMetrics.heightPixels * 3 / 4 // TODO (For Horizontal slider case use width)
 
         // Request each command
         networkManagerService?.requestCommand(component.commandId!!) { cmd ->
