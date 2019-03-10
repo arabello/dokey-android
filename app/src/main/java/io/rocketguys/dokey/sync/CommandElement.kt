@@ -29,7 +29,7 @@ class CommandElement(val component: Component, val networkManagerService: Networ
         const val ANALOG_UX_POLICY_LONG = 1
     }
 
-    val analogUXPolicy = ANALOG_UX_POLICY_SHORT
+    val analogUXPolicy = ANALOG_UX_POLICY_LONG
 
     override fun inflateView(parent: ViewGroup): View {
         val view = LayoutInflater.from(activity).inflate(R.layout.item_command, parent, false)
@@ -73,22 +73,19 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                         val sliderGesture = VerticalSliderGesture(sliderController)
                         val sliderGestureDetector = GestureDetector(activity, sliderGesture)
 
-                        when(analogUXPolicy){
+                        when(analogUXPolicy) {
                             ANALOG_UX_POLICY_SHORT -> view.setOnTouchListener { _, event ->
-                                when(event.actionMasked){
+                                when (event.actionMasked) {
                                     MotionEvent.ACTION_DOWN -> {
-                                        Log.d("slider: ", "show")
                                         sliderView.show(activity.supportFragmentManager, "slider_vertical")
                                         true
                                     }
 
                                     MotionEvent.ACTION_MOVE -> {
-                                        Log.d("slider: ", "update")
                                         sliderGestureDetector.onTouchEvent(event)
                                     }
 
                                     MotionEvent.ACTION_UP -> {
-                                        Log.d("slider: ", "dismiss")
                                         sliderView.dismiss()
                                         true
                                     }
@@ -97,14 +94,28 @@ class CommandElement(val component: Component, val networkManagerService: Networ
                                 }
                             }
 
-                            ANALOG_UX_POLICY_LONG -> {
+                            ANALOG_UX_POLICY_LONG -> view.setOnClickListener{
+                                sliderView.onDialogCreation = {
+                                    it.window!!.decorView.setOnTouchListener { _, event ->
+                                        when (event.actionMasked) {
+                                            MotionEvent.ACTION_MOVE -> {
+                                                sliderGestureDetector.onTouchEvent(event)
+                                            }
 
+                                            MotionEvent.ACTION_UP -> {
+                                                sliderView.dismiss()
+
+                                            }
+
+                                            else -> {}
+                                        }
+                                        true
+                                    }
+                                }
+
+                                sliderView.show(activity.supportFragmentManager, "slider_vertical")
                             }
-
-                            else -> {}
                         }
-
-
                     }
                 }
             }

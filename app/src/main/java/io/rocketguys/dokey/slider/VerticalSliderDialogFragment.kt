@@ -1,5 +1,6 @@
 package io.rocketguys.dokey.slider
 
+import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -16,6 +17,8 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
     private var empty: View ?= null
     private var fill: View  ?= null
     private var unrendered : SliderViewModel ?= null
+    var onDialogCreation: ((dialog: Dialog) -> Unit) ?= null
+
 
     companion object {
         const val GRAVITY_END = Gravity.END
@@ -50,6 +53,8 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
             builder.setView(inflated)
 
             val dialog = builder.create()
+            dialog.setCanceledOnTouchOutside(false)
+
             val window = dialog.window
             val layoutParams = window?.attributes
 
@@ -58,11 +63,11 @@ class VerticalSliderDialogFragment : DialogFragment(), SliderView {
 
             window?.attributes = layoutParams
 
+            onDialogCreation?.invoke(dialog)
 
             dialog
         } ?: throw IllegalStateException("Activity cannot be null")
     }
-
 
     override fun onDataChange(viewModel: SliderViewModel) {
         if (fill != null) fill?.let{
