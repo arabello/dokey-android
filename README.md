@@ -6,7 +6,7 @@
 Dokey is a cross-platform (macOS, Windows, Android) productivity application.
 Dokey App turns any smartphone or tablet into an advanced controller for every software.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/EQjjOt5CJX8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Watch the video](art/cover.jpg)](https://www.youtube.com/watch?v=EQjjOt5CJX8)
 
 ## Features
 
@@ -16,7 +16,8 @@ Dokey App turns any smartphone or tablet into an advanced controller for every s
 - **Media:** Control iTunes, Spotify and all your favourite media players
 - **System:** Shutdown, Restart and Lock your computer with a single tap
 
-![](art/phone.png)
+<img src="art/phone.png" width="300"/>
+
 
 ### Dokey Desktop
 
@@ -24,7 +25,8 @@ Dokey App turns any smartphone or tablet into an advanced controller for every s
 - **Share:** Share your panels with everyone and become the next workflow guru
 - **Sync:** Keep your panels real-time synced across your devices
 
-![](art/desktop.png)
+<img src="art/desktop.png" width="300"/>
+
 
 ### Dokey Search
 - **Powerful:** Execute a command, launch an App, search on Google and much more
@@ -32,6 +34,7 @@ Dokey App turns any smartphone or tablet into an advanced controller for every s
 - **Integrated:** Dokey Search works flawlessly with all your favourite apps
 
 ![](art/search.png)
+
 
 ## Try it out
 Dokey is no longer maintained nor distributed. If you want to try it out you can run it in a development environment:
@@ -41,5 +44,3 @@ Dokey is no longer maintained nor distributed. If you want to try it out you can
 2. Clone the Dokey Desktop [repository](https://github.com/federico-terzi/remotekey-desktop)
 3. Open the Dokey Desktop repository with Intellij IDEA and run it
 4. Open the Dokey App and scan the QR Code displayed by the Dokey Desktop window
-
-![](art/grads.svg)
