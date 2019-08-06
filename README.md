@@ -39,7 +39,7 @@ Dokey App turns any smartphone or tablet into an advanced controller for every s
 ## Try it out
 Dokey is no longer maintained nor distributed. If you want to try it out you can run it in a development environment:
 
-1. Download the apk on your Android phone and install it
+1. Download the [apk](https://github.com/arabello/dokey-android/releases/download/v0.2.0-beta/dokey-v0.2.0-beta.apk) on your Android phone from the [releases page](https://github.com/arabello/dokey-android/releases) and install it
     1. Alternatively, clone this repository, open it with Android Studio or Intellij IDEA and run it on your phone
 2. Clone the Dokey Desktop [repository](https://github.com/federico-terzi/remotekey-desktop)
 3. Open the Dokey Desktop repository with Intellij IDEA and run it
