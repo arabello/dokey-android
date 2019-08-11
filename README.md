@@ -41,6 +41,5 @@ Dokey is no longer maintained nor distributed. If you want to try it out you can
 
 1. Download the [apk](https://github.com/arabello/dokey-android/releases/download/v0.2.0-beta/dokey-v0.2.0-beta.apk) on your Android phone from the [releases page](https://github.com/arabello/dokey-android/releases) and install it
     1. Alternatively, clone this repository, open it with Android Studio or Intellij IDEA and run it on your phone
-2. Clone the Dokey Desktop [repository](https://github.com/federico-terzi/remotekey-desktop)
-3. Open the Dokey Desktop repository with Intellij IDEA and run it
-4. Open the Dokey App and scan the QR Code displayed by the Dokey Desktop window
+2. Visit the Dokey Desktop [repository](https://github.com/federico-terzi/remotekey-desktop) and follow the instructions to get it running
+3. Open the Dokey App and scan the QR Code displayed by the Dokey Desktop window
